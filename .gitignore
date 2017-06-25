@@ -1,0 +1,8 @@
+*.keystore
+*.apk
+*.swp
+
+hooks/
+platforms/
+plugins/
+node_modules/
