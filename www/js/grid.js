@@ -173,14 +173,11 @@ Grid.prototype.dropTile = function(arrow, pointer) {
 
     tween.start();
 
-    //this.arrowsContainer.removeAll(true);
+    this.arrowsContainer.removeAll(true);
 };
 
 Grid.prototype.tileDropped = function() {
-    console.log('tileDropped');
-    console.log(this.selectedTile);
     let droppedTile = this.selectedTile;
     this.selectedTile = null;
     this.onTileDropped.dispatch(droppedTile);
-    console.log("Removing the ST...");
 };

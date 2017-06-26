@@ -13,13 +13,24 @@ GAME.Main.prototype.create = function() {
     this.tilesContainer = this.game.add.group();
     this.tilesContainer.y = this.gridContainer.y + 16 + this.gridContainer.height;
 
-    for (let i=0; i<5; i++) {
-        let tile = new Tile(this.game, true, true, true, true);
-        tile.x = i * (64);
-        tile.draw();
-        tile.onClicked.add(this.selectTile, this);
+    let pool = [
+        {layout:1, nbr:1},
+        {layout:2, nbr:5},
+        {layout:3, nbr:20},
+        {layout:4, nbr:10},
+        {layout:5, nbr:5}
+    ];
+    this.layouts =  [];
+    pool.forEach(function(single_pool) {
+        for (let i=0; i<single_pool.nbr; i++) {
+            this.layouts.push(single_pool.layout);
+        }
+    }, this);
 
-        this.tilesContainer.addChild(tile);
+    this.layouts = Phaser.ArrayUtils.shuffle(this.layouts);
+
+    for (let i=0; i<5; i++) {
+        this.createTile(i, this.layouts.shift());
     }
     this.selectTile(this.tilesContainer.getChildAt(0));
 };
@@ -38,7 +49,39 @@ GAME.Main.prototype.selectTile = function(tile, pointer) {
     this.grid.showArrows(this.selectedTile);
 };
 
+GAME.Main.prototype.createTile = function(index, layout) {
+    let tile;
+    switch (layout) {
+        case 1: /* + */
+            tile = new Tile(this.game, true, true, true, true);
+            break;
+        case 2: /* T */
+            tile = new Tile(this.game, true, true, false, true);
+            break;
+        case 3:
+            tile = new Tile(this.game, false, true, false, true);
+            break;
+        case 4:
+            tile = new Tile(this.game, true, true, false, false);
+            break;
+        case 5:
+            tile = new Tile(this.game, true, false, false, false);
+            break;
+    }
+    tile.x = index * (64);
+    tile.draw();
+    tile.onClicked.add(this.selectTile, this);
+    tile.index = index;
+
+    this.tilesContainer.addChild(tile);
+};
+
 GAME.Main.prototype.newTurn = function() {
-    console.log("new turn");
-    this.grid.showArrows(this.selectedTile);
+    let index = this.selectedTile.index;
+
+    this.selectedTile.destroy();
+
+    this.createTile(index, this.layouts.shift());
+    this.selectTile(this.tilesContainer.getChildAt(0));
+    //this.grid.showArrows(this.selectedTile);
 };
