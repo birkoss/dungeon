@@ -14,6 +14,8 @@ GAME.Main.prototype.create = function() {
     this.tilesContainer = this.game.add.group();
     this.tilesContainer.y = this.gridContainer.y + 16 + this.gridContainer.height;
 
+    this.previewContainer = this.game.add.group();
+
     let pool = [
         {layout:1, nbr:1},
         {layout:2, nbr:5},
@@ -36,20 +38,37 @@ GAME.Main.prototype.create = function() {
     }
     this.tilesContainer.x = (this.game.width - this.tilesContainer.width) / 2;
     //this.selectTile(this.tilesContainer.getChildAt(0));
+
+    let preview = this.previewContainer.create(0, 0, "tile:selector");
+    preview.frame = 2;
+    preview.scale.set(2);
+
+    this.previewContainer.y = this.tilesContainer.y + this.tilesContainer.height + 16;
+    this.previewContainer.x = (this.game.width - this.previewContainer.width) / 2;
 };
 
 GAME.Main.prototype.selectTile = function(tile, pointer) {
-    console.log(this.selectedTile);
-    console.log(tile);
-
     if (this.selectedTile != tile) {
-        console.log("ST");
         if (this.selectedTile != null && this.selectedTile.parent != null) {
             this.selectedTile.parent.frame = 0;
         }
         
         this.selectedTile = tile;
         this.selectedTile.parent.frame = 1;
+
+        if (this.previewContainer.children.length > 1) {
+            this.previewContainer.getChildAt(1).destroy();
+        }
+
+        let preview = new Tile(this.game);
+        preview.ways = this.selectedTile.ways;
+        preview.draw();
+
+        preview.scale.set(2);
+
+        this.previewContainer.addChild(preview);
+        preview.x = (this.previewContainer.width - preview.width) / 2;
+        preview.y = (this.previewContainer.height - preview.height) / 2;
     }
 
     this.grid.showArrows(this.selectedTile);
