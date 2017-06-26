@@ -86,12 +86,14 @@ GAME.Main.prototype.createTile = function(index, layout) {
     return tile;
 };
 
-GAME.Main.prototype.newTurn = function() {
+GAME.Main.prototype.newTurn = function(droppedTile) {
+    /* Update dead ends */
+    this.grid.updateWays(droppedTile.gridX, droppedTile.gridY);
+
     let index = this.selectedTile.index;
 
     this.selectedTile.destroy();
 
     this.createTile(index, this.layouts.shift());
     this.selectTile(this.tilesContainer.getChildAt(index).getChildAt(0));
-    //this.grid.showArrows(this.selectedTile);
 };

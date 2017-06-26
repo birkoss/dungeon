@@ -47,9 +47,7 @@ Grid.prototype.addTileAt = function(tile, gridX, gridY) {
 };
 
 Grid.prototype.showArrows = function(cell) {
-    console.log("ShowArrows");
     this.selectedTile = cell;
-    console.log(this.selectedTile);
 
     this.arrowsContainer.removeAll(true);
 
@@ -146,8 +144,6 @@ Grid.prototype.showArrows = function(cell) {
 };
 
 Grid.prototype.dropTile = function(arrow, pointer) {
-    console.log('Grid.dropTile');
-    console.log(this.selectedTile);
     let tile = new Tile(this.game);
     this.cellsContainer.addChild(tile);
     tile.ways = this.selectedTile.ways;
@@ -155,8 +151,8 @@ Grid.prototype.dropTile = function(arrow, pointer) {
 
     tile.x = arrow.x;
     tile.y = arrow.y;
-
-    console.log("DROP AT: " + arrow.destinationX + "x" + arrow.destinationY);
+    tile.gridX = arrow.destinationX;
+    tile.gridY = arrow.destinationY;
 
     tile.x -= tile.width/2;
     tile.y -= tile.height/2;
@@ -173,6 +169,7 @@ Grid.prototype.dropTile = function(arrow, pointer) {
     tween.onComplete.add(this.tileDropped, this);
 
     tween.start();
+    this.selectedTile = tile;
 
     this.arrowsContainer.removeAll(true);
 };
@@ -181,4 +178,41 @@ Grid.prototype.tileDropped = function() {
     let droppedTile = this.selectedTile;
     this.selectedTile = null;
     this.onTileDropped.dispatch(droppedTile);
+};
+
+Grid.prototype.updateWays = function(gridX, gridY) {
+    let cell = this.getTileAt(gridX, gridY);
+    if (cell == null) {
+        return;
+    }
+
+    let directions = [
+        {direction:'Up', gridX:0, gridY:-1, neighboor:'Down'},
+        {direction:'Left', gridX:-1, gridY:0, neighboor:'Right'},
+        {direction:'Down', gridX:0, gridY:1, neighboor:'Up'},
+        {direction:'Right', gridX:1, gridY:0, neighboor:'Left'}
+    ];
+
+    directions.forEach(function(single_direction) {
+        let neighboor = this.getTileAt(gridX + single_direction.gridX, gridY + single_direction.gridY);
+        if (neighboor != null) {
+            console.log(single_direction.direction);
+            console.log(cell);
+            console.log(neighboor);
+            if (cell.ways[single_direction.direction] != neighboor.ways[single_direction.neighboor]) {
+                cell.ways[single_direction.direction] = neighboor.ways[single_direction.neighboor] = false;
+                cell.draw();
+                neighboor.draw();
+            }
+        }
+    }, this);
+};
+
+Grid.prototype.getTileAt = function(gridX, gridY) {
+    if (gridX >= 1 && gridX < this.gridWidth-1 && gridY >= 1 && gridY < this.gridHeight-1) {
+        if (this.cells[gridY][gridX] != null) {
+            return this.cells[gridY][gridX];
+        }
+    }
+    return null;
 };
