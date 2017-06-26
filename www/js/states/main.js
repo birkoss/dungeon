@@ -9,6 +9,7 @@ GAME.Main.prototype.create = function() {
     this.grid = new Grid(this.game, 9, 9);
     this.grid.onTileDropped.add(this.newTurn, this);
     this.gridContainer.addChild(this.grid);
+    this.gridContainer.x = (this.game.width - this.grid.width) / 2;
 
     this.tilesContainer = this.game.add.group();
     this.tilesContainer.y = this.gridContainer.y + 16 + this.gridContainer.height;
@@ -30,20 +31,25 @@ GAME.Main.prototype.create = function() {
     this.layouts = Phaser.ArrayUtils.shuffle(this.layouts);
 
     for (let i=0; i<5; i++) {
-        this.createTile(i, this.layouts.shift());
+        let background = this.tilesContainer.create((i+0) * (this.grid.width/5), 0, "tile:selector");
+        let tile = this.createTile(i, this.layouts.shift());
     }
-    this.selectTile(this.tilesContainer.getChildAt(0));
+    this.tilesContainer.x = (this.game.width - this.tilesContainer.width) / 2;
+    //this.selectTile(this.tilesContainer.getChildAt(0));
 };
 
 GAME.Main.prototype.selectTile = function(tile, pointer) {
+    console.log(this.selectedTile);
+    console.log(tile);
+
     if (this.selectedTile != tile) {
         console.log("ST");
-        if (this.selectedTile != null) {
-            this.selectedTile.alpha = 1;
+        if (this.selectedTile != null && this.selectedTile.parent != null) {
+            this.selectedTile.parent.frame = 0;
         }
         
         this.selectedTile = tile;
-        this.selectedTile.alpha = 0.5;
+        this.selectedTile.parent.frame = 1;
     }
 
     this.grid.showArrows(this.selectedTile);
@@ -68,12 +74,16 @@ GAME.Main.prototype.createTile = function(index, layout) {
             tile = new Tile(this.game, true, false, false, false);
             break;
     }
-    tile.x = index * (64);
     tile.draw();
+
+    tile.x = (this.tilesContainer.getChildAt(index).width - tile.width) / 2;
+    tile.y = (this.tilesContainer.getChildAt(index).height - tile.height) / 2;
+
     tile.onClicked.add(this.selectTile, this);
     tile.index = index;
 
-    this.tilesContainer.addChild(tile);
+    this.tilesContainer.getChildAt(index).addChild(tile);
+    return tile;
 };
 
 GAME.Main.prototype.newTurn = function() {
@@ -82,6 +92,6 @@ GAME.Main.prototype.newTurn = function() {
     this.selectedTile.destroy();
 
     this.createTile(index, this.layouts.shift());
-    this.selectTile(this.tilesContainer.getChildAt(0));
+    this.selectTile(this.tilesContainer.getChildAt(index).getChildAt(0));
     //this.grid.showArrows(this.selectedTile);
 };

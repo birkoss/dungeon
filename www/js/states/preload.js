@@ -10,6 +10,7 @@ GAME.Preload.prototype = {
 
         this.load.spritesheet('tile:dungeon', 'images/tiles/dungeon.png', 32, 32);
         this.load.image('tile:arrow', 'images/tiles/arrow.png');
+        this.load.spritesheet('tile:selector', 'images/tiles/selector.png', 40, 40);
 
         this.load.bitmapFont('font:guiOutline', 'fonts/guiOutline.png', 'fonts/guiOutline.xml');
         this.load.bitmapFont('font:gui', 'fonts/gui.png', 'fonts/gui.xml');

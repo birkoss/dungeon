@@ -43,6 +43,7 @@ Grid.prototype.addTileAt = function(tile, gridX, gridY) {
     tile.x = gridX * (tile.width+1);
     tile.y = gridY * (tile.height+1);
     this.cells[gridY][gridX] = tile;
+    this.cellsContainer.addChild(tile);
 };
 
 Grid.prototype.showArrows = function(cell) {
