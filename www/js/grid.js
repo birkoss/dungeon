@@ -88,7 +88,8 @@ Grid.prototype.showArrows = function(cell) {
     directions.forEach(function(single_direction) {
         if (cell.ways[single_direction.cellWay]) {
             for (let a=single_direction.direction.from; a!=single_direction.direction.to; a += (single_direction.direction.from == 0 ? 1 : -1)) {
-                for (let b=single_direction.depth.from; b!=single_direction.depth.to; b += (single_direction.depth.from == 0 ? 1 : -1)) {
+                let mod = (single_direction.depth.from == 0 ? 1 : -1);
+                for (let b=single_direction.depth.from; b!=single_direction.depth.to; b += mod) {
                     let gridX=a, gridY=b;
                     let arrowX=gridX, arrowY=single_direction.depth.from;
                     let modifier = {x:0, y:0}
@@ -103,11 +104,14 @@ Grid.prototype.showArrows = function(cell) {
 
                     if (this.cells[gridY][gridX] != null) {
                         if (this.cells[gridY][gridX].ways[single_direction.arrowWay]) {
-                            arrows.push({
-                                arrowX:arrowX, arrowY:arrowY, 
-                                gridX:gridX + modifier.x, gridY:gridY + modifier.y,
-                                way:single_direction.arrowWay
-                            });
+                            /* Be sure the next empty spot is not the border (where the arrow is) */
+                            if (arrowX != gridX + modifier.x || arrowY != gridY + modifier.y) {
+                                arrows.push({
+                                    arrowX:arrowX, arrowY:arrowY, 
+                                    gridX:gridX + modifier.x, gridY:gridY + modifier.y,
+                                    way:single_direction.arrowWay
+                                });
+                            }
                         }
                         break;
                     }
