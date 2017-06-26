@@ -37,4 +37,6 @@ GAME.Main.prototype.selectTile = function(tile, pointer) {
         this.selectedTile = tile;
         this.selectedTile.alpha = 0.5;
     }
+
+    this.grid.showArrows(this.selectedTile);
 };
