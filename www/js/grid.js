@@ -13,6 +13,8 @@ function Grid(game, gridWidth, gridHeight) {
     this.arrowsContainer = this.game.add.group();
     this.addChild(this.arrowsContainer);
 
+    this.onTileDropped = new Phaser.Signal();
+
     this.cells = [];
 
     for (gridY=0; gridY<gridHeight; gridY++) {
@@ -44,7 +46,9 @@ Grid.prototype.addTileAt = function(tile, gridX, gridY) {
 };
 
 Grid.prototype.showArrows = function(cell) {
+    console.log("ShowArrows");
     this.selectedTile = cell;
+    console.log(this.selectedTile);
 
     this.arrowsContainer.removeAll(true);
 
@@ -112,12 +116,9 @@ Grid.prototype.showArrows = function(cell) {
         }
     }, this);
 
-    console.log(arrows);
-
     let angles = {'Up':0, 'Down':180, 'Left':270, 'Right':90};
 
     arrows.forEach(function(arrow) {
-        console.log(arrow);
         let image = this.arrowsContainer.create(0, 0, "tile:arrow");
         image.x = arrow.arrowX * (image.width+1)
         image.y = arrow.arrowY * (image.height+1);
@@ -140,15 +141,22 @@ Grid.prototype.showArrows = function(cell) {
 };
 
 Grid.prototype.dropTile = function(arrow, pointer) {
+    console.log('Grid.dropTile');
+    console.log(this.selectedTile);
     let tile = new Tile(this.game);
+    this.cellsContainer.addChild(tile);
     tile.ways = this.selectedTile.ways;
     tile.draw();
 
     tile.x = arrow.x;
     tile.y = arrow.y;
 
+    console.log("DROP AT: " + arrow.destinationX + "x" + arrow.destinationY);
+
     tile.x -= tile.width/2;
     tile.y -= tile.height/2;
+
+    this.cells[arrow.destinationY][arrow.destinationX] = tile;
 
     let tween;
     if (arrow.destinationX == arrow.arrowX) {
@@ -157,5 +165,18 @@ Grid.prototype.dropTile = function(arrow, pointer) {
         tween = this.game.add.tween(tile).to({x:arrow.destinationX * (tile.width+1)}, 100);
     }
 
+    tween.onComplete.add(this.tileDropped, this);
+
     tween.start();
+
+    //this.arrowsContainer.removeAll(true);
+};
+
+Grid.prototype.tileDropped = function() {
+    console.log('tileDropped');
+    console.log(this.selectedTile);
+    let droppedTile = this.selectedTile;
+    this.selectedTile = null;
+    this.onTileDropped.dispatch(droppedTile);
+    console.log("Removing the ST...");
 };

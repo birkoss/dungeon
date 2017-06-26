@@ -7,6 +7,7 @@ GAME.Main = function() {
 GAME.Main.prototype.create = function() {
     this.gridContainer = this.game.add.group();
     this.grid = new Grid(this.game, 9, 9);
+    this.grid.onTileDropped.add(this.newTurn, this);
     this.gridContainer.addChild(this.grid);
 
     this.tilesContainer = this.game.add.group();
@@ -34,5 +35,10 @@ GAME.Main.prototype.selectTile = function(tile, pointer) {
         this.selectedTile.alpha = 0.5;
     }
 
+    this.grid.showArrows(this.selectedTile);
+};
+
+GAME.Main.prototype.newTurn = function() {
+    console.log("new turn");
     this.grid.showArrows(this.selectedTile);
 };
