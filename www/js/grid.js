@@ -29,9 +29,8 @@ function Grid(game, gridWidth, gridHeight) {
     }
 
     this.addTileAt(new Tile(this.game, true, true, true, true), 4, 4);
-    this.addTileAt(new Tile(this.game, false, true, true, true), 2, 4);
-    this.addTileAt(new Tile(this.game, false, true, false, true), 4, 6);
 
+    this.selectedTile = null;
 };
 
 Grid.prototype = Object.create(Phaser.Group.prototype);
@@ -45,6 +44,8 @@ Grid.prototype.addTileAt = function(tile, gridX, gridY) {
 };
 
 Grid.prototype.showArrows = function(cell) {
+    this.selectedTile = cell;
+
     this.arrowsContainer.removeAll(true);
 
     let arrows = [];
@@ -84,18 +85,25 @@ Grid.prototype.showArrows = function(cell) {
         if (cell.ways[single_direction.cellWay]) {
             for (let a=single_direction.direction.from; a!=single_direction.direction.to; a += (single_direction.direction.from == 0 ? 1 : -1)) {
                 for (let b=single_direction.depth.from; b!=single_direction.depth.to; b += (single_direction.depth.from == 0 ? 1 : -1)) {
-                    let gridX = a;
-                    let gridY = b;
-                    let arrowX = gridX, arrowY = single_direction.depth.from;
+                    let gridX=a, gridY=b;
+                    let arrowX=gridX, arrowY=single_direction.depth.from;
+                    let modifier = {x:0, y:0}
                     if (single_direction.main == 'y') {
                         gridX = b;
                         gridY = a;
                         arrowY = gridY;
                         arrowX = single_direction.depth.from;
                     }
+                    
+                    modifier[single_direction.main == 'y' ? 'x' : 'y'] = (single_direction.depth.from == 0 ? -1 : 1);
+
                     if (this.cells[gridY][gridX] != null) {
                         if (this.cells[gridY][gridX].ways[single_direction.arrowWay]) {
-                            arrows.push({gridX:arrowX, gridY:arrowY, way:single_direction.arrowWay});
+                            arrows.push({
+                                arrowX:arrowX, arrowY:arrowY, 
+                                gridX:gridX + modifier.x, gridY:gridY + modifier.y,
+                                way:single_direction.arrowWay
+                            });
                         }
                         break;
                     }
@@ -109,15 +117,45 @@ Grid.prototype.showArrows = function(cell) {
     let angles = {'Up':0, 'Down':180, 'Left':270, 'Right':90};
 
     arrows.forEach(function(arrow) {
+        console.log(arrow);
         let image = this.arrowsContainer.create(0, 0, "tile:arrow");
-        image.x = arrow.gridX * (image.width+1)
-        image.y = arrow.gridY * (image.height+1);
+        image.x = arrow.arrowX * (image.width+1)
+        image.y = arrow.arrowY * (image.height+1);
 
         image.anchor.set(0.5);
         image.x += image.width/2;
         image.y += image.height/2;
 
-        image.angle = angles[arrow.way];
-    }, this);
+        image.arrowX = arrow.arrowX;
+        image.arrowY = arrow.arrowY;
 
+        image.destinationX = arrow.gridX;
+        image.destinationY = arrow.gridY;
+
+        image.angle = angles[arrow.way];
+
+        image.inputEnabled = true;
+        image.events.onInputDown.add(this.dropTile, this);
+    }, this);
+};
+
+Grid.prototype.dropTile = function(arrow, pointer) {
+    let tile = new Tile(this.game);
+    tile.ways = this.selectedTile.ways;
+    tile.draw();
+
+    tile.x = arrow.x;
+    tile.y = arrow.y;
+
+    tile.x -= tile.width/2;
+    tile.y -= tile.height/2;
+
+    let tween;
+    if (arrow.destinationX == arrow.arrowX) {
+        tween = this.game.add.tween(tile).to({y:arrow.destinationY * (tile.height+1)}, 100);
+    } else {
+        tween = this.game.add.tween(tile).to({x:arrow.destinationX * (tile.width+1)}, 100);
+    }
+
+    tween.start();
 };

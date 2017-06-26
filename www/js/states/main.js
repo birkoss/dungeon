@@ -21,10 +21,6 @@ GAME.Main.prototype.create = function() {
         this.tilesContainer.addChild(tile);
     }
     this.selectTile(this.tilesContainer.getChildAt(0));
-    /*
-    let tile = new Tile(this.game, true, true, true, true);
-    tile.draw();
-    */
 };
 
 GAME.Main.prototype.selectTile = function(tile, pointer) {
