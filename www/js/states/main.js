@@ -37,7 +37,6 @@ GAME.Main.prototype.create = function() {
         let tile = this.createTile(i, this.layouts.shift());
     }
     this.tilesContainer.x = (this.game.width - this.tilesContainer.width) / 2;
-    //this.selectTile(this.tilesContainer.getChildAt(0));
 
     let preview = this.previewContainer.create(0, 0, "tile:selector");
     preview.frame = 2;
@@ -45,10 +44,18 @@ GAME.Main.prototype.create = function() {
 
     this.previewContainer.y = this.tilesContainer.y + this.tilesContainer.height + 16;
     this.previewContainer.x = (this.game.width - this.previewContainer.width) / 2;
+
+    this.selectTile(this.tilesContainer.getChildAt(0).getChildAt(0));
 };
 
 GAME.Main.prototype.selectTile = function(tile, pointer) {
-    if (this.selectedTile != tile) {
+    if (this.selectedTile == tile) {
+        /* Rotate the same tile */
+        tile.rotateWays();
+        this.previewContainer.getChildAt(1).ways = tile.ways;
+        this.previewContainer.getChildAt(1).draw();
+    } else {
+        /* Select a new tile */
         if (this.selectedTile != null && this.selectedTile.parent != null) {
             this.selectedTile.parent.frame = 0;
         }

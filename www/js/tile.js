@@ -76,3 +76,12 @@ Tile.prototype.draw = function() {
 Tile.prototype.selectTile = function(tile, pointer) {
     this.onClicked.dispatch(this, pointer);
 };
+
+Tile.prototype.rotateWays = function() {
+    let oldValue = this.ways.Left;
+    this.ways.Left = this.ways.Down;
+    this.ways.Down = this.ways.Right;
+    this.ways.Right = this.ways.Up;
+    this.ways.Up = oldValue;
+    this.draw();
+};
