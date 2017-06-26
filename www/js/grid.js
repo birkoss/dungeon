@@ -29,6 +29,8 @@ function Grid(game, gridWidth, gridHeight) {
     }
 
     this.addTileAt(new Tile(this.game, true, true, true, true), 4, 4);
+    this.addTileAt(new Tile(this.game, false, true, true, true), 2, 4);
+    this.addTileAt(new Tile(this.game, false, true, false, true), 4, 6);
 
 };
 
@@ -47,63 +49,64 @@ Grid.prototype.showArrows = function(cell) {
 
     let arrows = [];
 
-    if (cell.ways.Down) {
-        for (gridX=0; gridX<this.gridWidth; gridX++) {
-            /* Going down */
-            for (gridY=0; gridY<this.gridHeight; gridY++) {
-                if (this.cells[gridY][gridX] != null) {
-                    if (this.cells[gridY][gridX].ways.Up) {
-                        arrows.push({gridX:gridX, gridY:0, way:'Down'});
+    let directions = [
+        {
+            cellWay: 'Down',
+            direction: {from:0, to:this.gridWidth},
+            depth: {from:0, to:this.gridHeight},
+            main: 'x',
+            arrowWay: 'Up'
+        },
+        {
+            cellWay: 'Up',
+            direction: {from:0, to:this.gridWidth},
+            depth: {from:this.gridHeight-1, to:0},
+            main: 'x',
+            arrowWay: 'Down'
+        },
+        {
+            cellWay: 'Right',
+            direction: {from:0, to:this.gridHeight},
+            depth: {from:0, to:this.gridWidth},
+            main: 'y',
+            arrowWay: 'Left'
+        },
+        {
+            cellWay: 'Left',
+            direction: {from:0, to:this.gridHeight},
+            depth: {from:this.gridWidth-1, to:0},
+            main: 'y',
+            arrowWay: 'Right'
+        }
+    ];
+
+    directions.forEach(function(single_direction) {
+        if (cell.ways[single_direction.cellWay]) {
+            for (let a=single_direction.direction.from; a!=single_direction.direction.to; a += (single_direction.direction.from == 0 ? 1 : -1)) {
+                for (let b=single_direction.depth.from; b!=single_direction.depth.to; b += (single_direction.depth.from == 0 ? 1 : -1)) {
+                    let gridX = a;
+                    let gridY = b;
+                    let arrowX = gridX, arrowY = single_direction.depth.from;
+                    if (single_direction.main == 'y') {
+                        gridX = b;
+                        gridY = a;
+                        arrowY = gridY;
+                        arrowX = single_direction.depth.from;
                     }
-                    break;
+                    if (this.cells[gridY][gridX] != null) {
+                        if (this.cells[gridY][gridX].ways[single_direction.arrowWay]) {
+                            arrows.push({gridX:arrowX, gridY:arrowY, way:single_direction.arrowWay});
+                        }
+                        break;
+                    }
                 }
             }
         }
-    }
+    }, this);
 
-    if (cell.ways.Up) {
-        for (gridX=0; gridX<this.gridWidth; gridX++) {
-            /* Going up */
-            for (gridY=this.gridHeight-1; gridY>=0; gridY--) {
-                if (this.cells[gridY][gridX] != null) {
-                    if (this.cells[gridY][gridX].ways.Down) {
-                        arrows.push({gridX:gridX, gridY:this.gridHeight-1, way:'Up'});
-                    }
-                    break;
-                }
-            }
-        }
-    }
+    console.log(arrows);
 
-    if (cell.ways.Right) {
-        for (gridY=0; gridY<this.gridHeight; gridY++) {
-            /* Going right */
-            for (gridX=0; gridX<this.gridWidth; gridX++) {
-                if (this.cells[gridY][gridX] != null) {
-                    if (this.cells[gridY][gridX].ways.Left) {
-                        arrows.push({gridX:0, gridY:gridY, way:'Left'});
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    if (cell.ways.Left) {
-        for (gridY=0; gridY<this.gridHeight; gridY++) {
-            /* Going left  */
-            for (gridX=this.gridWidth-1; gridX>=0; gridX--) {
-                if (this.cells[gridY][gridX] != null) {
-                    if (this.cells[gridY][gridX].ways.Left) {
-                        arrows.push({gridX:this.gridWidth-1, gridY:gridY, way:'Right'});
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    let angles = {'Up':180, 'Down':0, 'Left':270, 'Right':90};
+    let angles = {'Up':0, 'Down':180, 'Left':270, 'Right':90};
 
     arrows.forEach(function(arrow) {
         let image = this.arrowsContainer.create(0, 0, "tile:arrow");
