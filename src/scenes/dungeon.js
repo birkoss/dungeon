@@ -2,7 +2,7 @@ import Phaser from "../lib/phaser.js";
 
 import { SCENE_KEYS } from "../keys/scene.js";
 import { Dungeon } from "../dungeons/dungeon.js";
-
+import { Data } from "../data.js";
 
 export class DungeonScene extends Phaser.Scene {
     /** @type {Dungeon} */
@@ -23,10 +23,12 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     #createDungeon() {
-        this.#dungeon = new Dungeon(this, 10, 8);
+        let theme = Data.getDungeonTheme(this, "main");
+
+        this.#dungeon = new Dungeon(this, 10, 10);
 
         // // Create the WALL and FLOOR
-        // this.#dungeon.create(this.#dungeonTheme);
+        this.#dungeon.create(theme);
 
         // this.#dungeon.container.setPosition(this.scale.width - this.#dungeon.container.getBounds().width, 0);
 

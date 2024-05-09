@@ -10,7 +10,7 @@ const game = new Phaser.Game({
     scale: {
         parent: 'game-container',
         width: Math.min(window.innerWidth, 896),
-        height: Math.min(window.innerHeight, 414),
+        height: Math.min(window.innerHeight, 484),
     },
     backgroundColor: '#000000',
 });

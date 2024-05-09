@@ -2,7 +2,7 @@ import Phaser from './lib/phaser.js';
 
 import { DATA_ASSET_KEYS } from './keys/asset.js';
 
-export class DataUtils {
+export class Data {
     /**
      * @param {Phaser.Scene} scene 
      * @param {string} themeId  

@@ -1,4 +1,5 @@
 import Phaser from "../lib/phaser.js";
+import { TILE_TYPE, Tile } from "./tiles/tile.js";
 
 export class Dungeon {
     /** @type {Phaser.Scene} */
@@ -8,10 +9,141 @@ export class Dungeon {
     /** @type {number} */
     #height;
 
+    /** @type {DungeonTheme} */
+    #theme;
+
+    /** @type {Phaser.GameObjects.Container} */
+    #container;
+    /** @type {Tile[]} */
+    #tiles;
+
     constructor(scene, width, height) {
         this.#scene = scene;
         this.#width = width;
         this.#height = height;
+
+        this.#createTiles();
+
+        this.#container = this.#scene.add.container(0, 0);
     }
 
+    create(theme) {
+        this.#theme = theme;
+
+        this.#tiles.forEach((singleTile) => {
+            let assetKey = theme.floor.assetKey;
+            let assetFrame = theme.floor.assetFrames[0];
+            
+            if (singleTile.type === TILE_TYPE.BORDER) {
+                assetKey = theme.walls.assetKey;
+                assetFrame = 0;
+                // Get the first frame, should always be the default wall
+                if (theme.walls.assetFrames.length > 0) {
+                    assetFrame = theme.walls.assetFrames[0];
+                }
+
+                let dungeonWallLayout = this.#getTileLayout(singleTile.x, singleTile.y, TILE_TYPE.WALL);
+                if (dungeonWallLayout < theme.walls.assetFrames.length) {
+                    assetFrame = theme.walls.assetFrames[dungeonWallLayout];
+                    if (theme.walls.alternateAssetFrames?.[dungeonWallLayout] && Phaser.Math.Between(1, 4) === 2) {
+                        assetFrame = theme.walls.alternateAssetFrames[dungeonWallLayout];
+                    }
+                }
+            }
+
+            let tileContainer = singleTile.create(this.#scene, assetKey, assetFrame);
+            this.#container.add(tileContainer);
+        });
+    }
+
+    #createTiles() {
+        this.#tiles = [];
+
+        for (let y=0; y<this.#height; y++) {
+            for (let x=0; x<this.#width; x++) {
+                let isBorder = (x === 0 || y === 0 || y === this.#height-1 || x === this.#width-1);
+
+                let tile = new Tile(x, y, isBorder ? TILE_TYPE.BORDER : TILE_TYPE.FLOOR);
+                this.#tiles.push(tile);
+            }
+        }
+    }
+
+
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     * @param {boolean} [includeBorder=false] 
+     * @returns {Tile[]}
+     */
+    #getNeighboors(x, y, includeBorder) {
+        let neighboors = [];
+
+        for (let y2=-1; y2<= 1; y2++) {
+            for (let x2=-1; x2<= 1; x2++) {
+                // Skip non-adjacent ?
+                if (Math.abs(x2) == Math.abs(y2)) {
+                    continue;
+                }
+
+                let neighboorX = x + x2;
+                let neighboorY = y + y2;
+
+                // Must be in bound
+                if (!this.#isInBound(neighboorX, neighboorY)) {
+                    continue;
+                }
+
+                let index = (neighboorY * this.#width) + neighboorX;
+
+                // Skip border
+                if (includeBorder && this.#tiles[index].type === TILE_TYPE.BORDER) {
+                    continue;
+                }
+
+                neighboors.push(this.#tiles[index]);
+            }
+        }
+        return neighboors;
+    }
+
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     * @param {import("./tiles/tile.js").TileType} tileType 
+     * @returns {number}
+     */
+    #getTileLayout(x, y, tileType) {
+        // Get the layout depending on its neighboors from the tileType
+        // - Depending on the adjacent tile from those values (0 to 15) :
+        //  - (left = +1, top = +2, right = +4, bottom = +8)
+        let layout = 0;
+
+        let neighboors = this.#getNeighboors(x, y);
+        neighboors.forEach((singleNeighboor) => {
+            // Only check adjacent wall
+            if (singleNeighboor.type !== tileType) {
+                return;
+            }
+
+            let diffX = x - singleNeighboor.x;
+            let diffY = y - singleNeighboor.y;
+            if (diffX !== 0) {
+                layout += (diffX < 0 ? 4 : 1);
+            } else {
+                layout += (diffY < 0 ? 8 : 2);
+            }
+        });
+
+        return layout;
+    }
+
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     * @returns {boolean}
+     */
+    #isInBound(x, y) {
+        return (x >= 0 && x < this.#width && y >= 0 && y < this.#height);
+    }
 }
