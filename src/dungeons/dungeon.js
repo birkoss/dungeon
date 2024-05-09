@@ -170,9 +170,18 @@ export class Dungeon {
             return;
         }
 
-        if (!tile.entity) {
+        if (!tile.entity || tile.entity.type === TILE_ENTITY_TYPE.WALL) {
+            let existingWall;
+            if (tile.entity && tile.entity.type === TILE_ENTITY_TYPE.WALL) {
+                existingWall = tile.entity;
+            }
             tile.createEntity(this.#scene, TILE_ENTITY_TYPE.BACKGROUND, this.#theme.floor.assetKey, this.#theme.floor.assetFrame);
-            tile.entity.scaleIn();
+            this.#validateTileShadows();
+            tile.entity.scaleIn(() => {
+                if (existingWall) {
+                    existingWall.gameObject.destroy();
+                }
+            });
             return;
         }
 
