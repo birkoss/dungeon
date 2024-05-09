@@ -33,14 +33,33 @@ export class TileEntity {
 
     /**
      * @param {Phaser.Scene} scene 
-     * @param {string} [assetKey='']
-     * @param {number} [assetFrame=0]
+     * @param {string} [assetKey]
+     * @param {number | number[]} [assetFrames]
      * @returns {Phaser.GameObjects.Sprite}
      */
-    create(scene, assetKey, assetFrame) {
+    create(scene, assetKey, assetFrames) {
+        let assetFrame = Array.isArray(assetFrames) ? assetFrames[0] : assetFrames;
+
         this._gameObject = scene.add.sprite(0, 0, assetKey, assetFrame).setOrigin(0.5);
         this._gameObject.x = this._gameObject.width / 2;
         this._gameObject.y = this._gameObject.height / 2;
+
+        if (Array.isArray(assetFrames)) {
+            let animationFrames = this._gameObject.anims.generateFrameNumbers(assetKey, {
+                frames: assetFrames
+            });
+    
+            this._gameObject.anims.create({
+                key: 'idle',
+                frames: animationFrames,
+                frameRate: 2,
+                repeat: -1,
+            });
+
+            this._gameObject.anims.play('idle');
+        }
+        
+
         return this._gameObject;
     }
 

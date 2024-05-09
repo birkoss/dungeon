@@ -91,7 +91,7 @@ export class Tile {
         this.#entity.create(scene, assetKey, assetFrame);
         this.#container.add(this.#entity.gameObject);
 
-        return this.#container;
+        return this.#entity;
     }
     removeEntity() {
         this.#entity.gameObject.destroy();
