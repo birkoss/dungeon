@@ -58,7 +58,7 @@ export class DungeonScene extends Phaser.Scene {
         OK.gameObject.x = 520;
         OK.gameObject.setInteractive();
         OK.gameObject.on('pointerdown', (target) => {
-            this.#mode = true;
+            this.#mode = false;
         });
 
 
@@ -67,7 +67,7 @@ export class DungeonScene extends Phaser.Scene {
         NOP.gameObject.x = 640;
         NOP.gameObject.setInteractive();
         NOP.gameObject.on('pointerdown', (target) => {
-            this.#mode = false;
+            this.#mode = true;
         });
     }
 

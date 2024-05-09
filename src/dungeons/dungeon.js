@@ -307,12 +307,12 @@ export class Dungeon {
             let tileTopNeighboor = this.#tiles.find(singleTopTile => singleTopTile.x === singleTile.x && singleTopTile.y === singleTile.y - 1);
 
             // Only FLOOR with a WALL as TOP NEIGHBOOR with ENTITY can have shadow
-            if (tileTopNeighboor.type === TILE_TYPE.FLOOR && !tileTopNeighboor.entity && tileTopNeighboor !== tilePending?.created) {
+            if (tileTopNeighboor.type === TILE_TYPE.FLOOR && (!tileTopNeighboor.entity || tileTopNeighboor.entity.type === TILE_ENTITY_TYPE.BACKGROUND) && tileTopNeighboor !== tilePending?.created) {
                 return false;
             }
 
             // Do not add SHADOW if the TOP NEIGHBOOR with ENTITY is not a WALL
-            if (tileTopNeighboor.entity && tileTopNeighboor.entity.type !== TILE_ENTITY_TYPE.WALL) {
+            if (tileTopNeighboor.entity && (tileTopNeighboor.entity.type !== TILE_ENTITY_TYPE.WALL && tileTopNeighboor.entity.type !== TILE_ENTITY_TYPE.BACKGROUND)) {
                 return false;
             }
 
