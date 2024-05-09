@@ -7,7 +7,6 @@ import { TILE_ENTITY_TYPE, TileEntity } from "./entities/entity.js";
 /** @enum {TileType} */
 export const TILE_TYPE = Object.freeze({
     BORDER: 'BORDER',
-    WALL: 'WALL',
     FLOOR: 'FLOOR',
 });
 
@@ -103,6 +102,10 @@ export class Tile {
         this.#shadow = new TileEntity(TILE_ENTITY_TYPE.WALL);
         this.#shadow.create(scene, assetKey, assetFrame);
         this.#container.add(this.#shadow.gameObject);
+
+        if (this.#entity) {
+            this.#container.moveAbove(this.#entity.gameObject, this.#shadow.gameObject);
+        }
 
         return this.#container;
     }

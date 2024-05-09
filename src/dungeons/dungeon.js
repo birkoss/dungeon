@@ -72,9 +72,9 @@ export class Dungeon {
         }
 
         if (!tile.entity) {
+            this.#validateTileShadows({created: tile});
             tile.createEntity(this.#scene, this.#theme.wall.assetKey, this.#theme.wall.assetFrame);
             tile.entity.scaleIn();
-            this.#validateTileShadows();
             return;
         }
 
@@ -82,7 +82,7 @@ export class Dungeon {
             return;
         }
 
-        this.#validateTileShadows(tile);
+        this.#validateTileShadows({removed: tile});
         tile.entity.scaleOut(() => {
             tile.removeEntity();
         });
@@ -180,37 +180,49 @@ export class Dungeon {
     }
 
     /**
-     * 
-     * @param {Tile} [tileGoingAway] 
+     * @param {object} [tilesPending] 
+     * @param {Tile} [tilesPending.created] 
+     * @param {Tile} [tilesPending.removed] 
      */
-    #validateTileShadows(tileGoingAway) {
-        this.#tiles.forEach((singleTile) => {
-            // Only FLOOR have shadow
+    #validateTileShadows(tilesPending) {
+        // Get all tiles with shadows
+        let tilesWithShadow = this.#tiles.filter((singleTile) => {
+            // Only FLOOR can have SHADOW
             if (singleTile.type !== TILE_TYPE.FLOOR) {
-                return;
+                return false;
             }
 
-            let needShadow = false;
+            // Only FLOOR without WALL can have SHADOW
+            if ((singleTile.entity && singleTile.entity.type === TILE_ENTITY_TYPE.WALL) && singleTile !== tilesPending?.removed) {
+                return false;
+            }
+            // Only FLOOR without WALL can have SHADOW
+            if (singleTile === tilesPending?.created) {
+                return false;
+            }
 
             let tileTopNeighboor = this.#tiles.find(singleTopTile => singleTopTile.x === singleTile.x && singleTopTile.y === singleTile.y - 1);
-            // A shadow below a BORDER
-            if (tileTopNeighboor.type === TILE_TYPE.BORDER) {
-                needShadow = true;
+
+            // Only FLOOR with a WALL as TOP NEIGHBOOR with ENTITY can have shadow
+            if (tileTopNeighboor.type === TILE_TYPE.FLOOR && !tileTopNeighboor.entity && tileTopNeighboor !== tilesPending?.created) {
+                return false;
             }
 
-            // Need a shadow below a FLOOR with a WALL
-            if (tileTopNeighboor.type === TILE_TYPE.FLOOR && tileTopNeighboor.entity && tileTopNeighboor.entity.type === TILE_ENTITY_TYPE.WALL && tileTopNeighboor !== tileGoingAway) {
-                needShadow = true;
+            if (tileTopNeighboor === tilesPending?.removed) {
+                return false;
             }
 
-            if (needShadow && !singleTile.shadow) {
+            return true;
+        });
+
+        // Add/Remove tiles shadows
+        this.#tiles.forEach((singleTile) => {
+            if (tilesWithShadow.includes(singleTile) && !singleTile.shadow) {
                 singleTile.createShadow(this.#scene, this.#theme.shadow.assetKey, this.#theme.shadow.assetFrame);
-                singleTile.shadow.fadeIn(() => {
-
-                }, 400);
-                return;
+                singleTile.shadow.fadeIn(() => {}, 800);
             }
-            if (!needShadow && singleTile.shadow) {
+
+            if (!tilesWithShadow.includes(singleTile) && singleTile.shadow) {
                 singleTile.shadow.fadeOut(() => {
                     singleTile.removeShadow();
                 }, 400);
