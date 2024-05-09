@@ -26,6 +26,8 @@ export class Tile {
     #background;
     /** @type {TileEntity} */
     #entity;
+    /** @type {TileEntity} */
+    #shadow;
 
     /**
      * @param {number} x 
@@ -63,6 +65,10 @@ export class Tile {
     get entity() {
         return this.#entity;
     }
+    /** @type {TileEntity} */
+    get shadow() {
+        return this.#shadow;
+    }
 
     /**
      * @param {Phaser.Scene} scene 
@@ -91,5 +97,17 @@ export class Tile {
     removeEntity() {
         this.#entity.gameObject.destroy();
         this.#entity = undefined;
+    }
+
+    createShadow(scene, assetKey, assetFrame) {
+        this.#shadow = new TileEntity(TILE_ENTITY_TYPE.WALL);
+        this.#shadow.create(scene, assetKey, assetFrame);
+        this.#container.add(this.#shadow.gameObject);
+
+        return this.#container;
+    }
+    removeShadow() {
+        this.#shadow.gameObject.destroy();
+        this.#shadow = undefined;
     }
 }

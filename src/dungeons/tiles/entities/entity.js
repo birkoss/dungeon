@@ -46,8 +46,9 @@ export class TileEntity {
 
     /**
      * @param {() => void} [callback]
+     * @param {number} [duration]
      */
-    fadeIn(callback) {
+    fadeIn(callback, duration) {
         this._gameObject.setAlpha(0);
 
         this._gameObject.scene.add.tween({
@@ -55,7 +56,7 @@ export class TileEntity {
                 this._gameObject,
             ],
             alpha: 1,
-            duration: 500,
+            duration: duration || 500,
             ease: Phaser.Math.Easing.Cubic.Out,
             onComplete: () => {
                 if (callback) {

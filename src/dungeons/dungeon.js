@@ -56,6 +56,8 @@ export class Dungeon {
             let tileContainer = singleTile.create(this.#scene, assetKey, assetFrame);
             this.#container.add(tileContainer);
         });
+
+        this.#validateTileShadows();
     }
 
     /**
@@ -72,6 +74,7 @@ export class Dungeon {
         if (!tile.entity) {
             tile.createEntity(this.#scene, this.#theme.wall.assetKey, this.#theme.wall.assetFrame);
             tile.entity.scaleIn();
+            this.#validateTileShadows();
             return;
         }
 
@@ -79,6 +82,7 @@ export class Dungeon {
             return;
         }
 
+        this.#validateTileShadows(tile);
         tile.entity.scaleOut(() => {
             tile.removeEntity();
         });
@@ -173,5 +177,44 @@ export class Dungeon {
      */
     #isInBound(x, y) {
         return (x >= 0 && x < this.#width && y >= 0 && y < this.#height);
+    }
+
+    /**
+     * 
+     * @param {Tile} [tileGoingAway] 
+     */
+    #validateTileShadows(tileGoingAway) {
+        this.#tiles.forEach((singleTile) => {
+            // Only FLOOR have shadow
+            if (singleTile.type !== TILE_TYPE.FLOOR) {
+                return;
+            }
+
+            let needShadow = false;
+
+            let tileTopNeighboor = this.#tiles.find(singleTopTile => singleTopTile.x === singleTile.x && singleTopTile.y === singleTile.y - 1);
+            // A shadow below a BORDER
+            if (tileTopNeighboor.type === TILE_TYPE.BORDER) {
+                needShadow = true;
+            }
+
+            // Need a shadow below a FLOOR with a WALL
+            if (tileTopNeighboor.type === TILE_TYPE.FLOOR && tileTopNeighboor.entity && tileTopNeighboor.entity.type === TILE_ENTITY_TYPE.WALL && tileTopNeighboor !== tileGoingAway) {
+                needShadow = true;
+            }
+
+            if (needShadow && !singleTile.shadow) {
+                singleTile.createShadow(this.#scene, this.#theme.shadow.assetKey, this.#theme.shadow.assetFrame);
+                singleTile.shadow.fadeIn(() => {
+
+                }, 400);
+                return;
+            }
+            if (!needShadow && singleTile.shadow) {
+                singleTile.shadow.fadeOut(() => {
+                    singleTile.removeShadow();
+                }, 400);
+            }
+        });
     }
 }
