@@ -1,3 +1,4 @@
+import { DATA_ASSET_KEYS, DUNGEON_ASSET_KEYS } from "../keys/asset.js";
 import Phaser from "../lib/phaser.js";
 import { TILE_ENTITY_TYPE, TileEntity } from "./tiles/entities/entity.js";
 import { TILE_TYPE, Tile } from "./tiles/tile.js";
@@ -32,9 +33,14 @@ export class Dungeon {
         return this.#container;
     }
 
-    create(theme) {
+    /**
+     * @param {DungeonTheme} theme 
+     * @param {Level} level 
+     */
+    create(theme, level) {
         this.#theme = theme;
 
+        // Create each tiles from the current theme
         this.#tiles.forEach((singleTile) => {
             let assetKey = theme.floor.assetKey;
             let assetFrame = theme.floor.assetFrames[0];
@@ -57,6 +63,28 @@ export class Dungeon {
             this.#container.add(tileContainer);
         });
 
+        // Create each enemy and chest from the current level
+        let levelData = level.data.join("");
+        for (let i=0; i<levelData.length; i++) {
+            let data = levelData[i];
+            if (data === "0" || data === "1") {
+                continue;
+            }
+
+            // BORDER are not accounted for in the level data (- 2 = Remove thoses 2 borders)
+            let y = Math.floor(i / (this.#width - 2));
+            let x = i - (y * (this.#width - 2));
+
+            let tile = this.#tiles.find(singleTile => singleTile.x === x + 1 && singleTile.y === y + 1);
+
+            if (data === "3") {
+                tile.createEntity(this.#scene, TILE_ENTITY_TYPE.CHEST, DUNGEON_ASSET_KEYS.WORLD, 196);
+            } else if (data === "2") {
+                tile.createEntity(this.#scene, TILE_ENTITY_TYPE.ENEMY, DUNGEON_ASSET_KEYS.UNITS, 290);
+            }
+        }
+
+        // Add shadows
         this.#validateTileShadows();
     }
 
@@ -73,7 +101,7 @@ export class Dungeon {
 
         if (!tile.entity) {
             this.#validateTileShadows({created: tile});
-            tile.createEntity(this.#scene, this.#theme.wall.assetKey, this.#theme.wall.assetFrame);
+            tile.createEntity(this.#scene, TILE_ENTITY_TYPE.WALL, this.#theme.wall.assetKey, this.#theme.wall.assetFrame);
             tile.entity.scaleIn();
             return;
         }
@@ -208,6 +236,12 @@ export class Dungeon {
                 return false;
             }
 
+            // Do not add SHADOW if the TOP NEIGHBOOR with ENTITY is not a WALL
+            if (tileTopNeighboor.entity && tileTopNeighboor.entity.type !== TILE_ENTITY_TYPE.WALL) {
+                return false;
+            }
+
+            // Do not add SHADOW if the TOP NEIGHBOOR will be removed
             if (tileTopNeighboor === tilesPending?.removed) {
                 return false;
             }

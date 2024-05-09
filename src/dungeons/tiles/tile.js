@@ -86,8 +86,8 @@ export class Tile {
         return this.#container;
     }
 
-    createEntity(scene, assetKey, assetFrame) {
-        this.#entity = new TileEntity(TILE_ENTITY_TYPE.WALL);
+    createEntity(scene, type, assetKey, assetFrame) {
+        this.#entity = new TileEntity(type);
         this.#entity.create(scene, assetKey, assetFrame);
         this.#container.add(this.#entity.gameObject);
 

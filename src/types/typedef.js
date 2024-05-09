@@ -10,6 +10,13 @@
  */
 
 /** 
+ * @typedef Level
+ * @type {Object}
+ * @property {string} id
+ * @property {string[]} data
+ */
+
+/** 
  * @typedef AssetSingleFrame
  * @type {Object}
  * @property {string} assetKey

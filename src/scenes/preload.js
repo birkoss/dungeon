@@ -25,6 +25,10 @@ export class PreloadScene extends Phaser.Scene {
             DATA_ASSET_KEYS.DUNGEON_THEMES,
             'assets/data/dungeon-themes.json'
         );
+        this.load.json(
+            DATA_ASSET_KEYS.LEVELS,
+            'assets/data/levels.json'
+        );
     }
 
     create() {

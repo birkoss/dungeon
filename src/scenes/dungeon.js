@@ -25,11 +25,12 @@ export class DungeonScene extends Phaser.Scene {
 
     #createDungeon() {
         let theme = Data.getDungeonTheme(this, "main");
+        let level = Data.getLevel(this, "1-1");
 
         this.#dungeon = new Dungeon(this, 10, 10);
 
         // // Create the WALL and FLOOR
-        this.#dungeon.create(theme);
+        this.#dungeon.create(theme, level);
 
         // Enable Tile selection
         this.#dungeon.container.setInteractive(
