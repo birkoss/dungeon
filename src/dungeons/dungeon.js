@@ -1,4 +1,5 @@
 import Phaser from "../lib/phaser.js";
+import { TileEntity } from "./tiles/entities/entity.js";
 import { TILE_TYPE, Tile } from "./tiles/tile.js";
 
 export class Dungeon {
@@ -27,6 +28,10 @@ export class Dungeon {
         this.#container = this.#scene.add.container(0, 0);
     }
 
+    get container() {
+        return this.#container;
+    }
+
     create(theme) {
         this.#theme = theme;
 
@@ -42,7 +47,7 @@ export class Dungeon {
                     assetFrame = theme.walls.assetFrames[0];
                 }
 
-                let dungeonWallLayout = this.#getTileLayout(singleTile.x, singleTile.y, TILE_TYPE.WALL);
+                let dungeonWallLayout = this.#getTileLayout(singleTile.x, singleTile.y, TILE_TYPE.BORDER);
                 if (dungeonWallLayout < theme.walls.assetFrames.length) {
                     assetFrame = theme.walls.assetFrames[dungeonWallLayout];
                     if (theme.walls.alternateAssetFrames?.[dungeonWallLayout] && Phaser.Math.Between(1, 4) === 2) {
@@ -54,6 +59,20 @@ export class Dungeon {
             let tileContainer = singleTile.create(this.#scene, assetKey, assetFrame);
             this.#container.add(tileContainer);
         });
+    }
+
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     */
+    toggleAt(x, y) {
+        let tile = this.#tiles.find(singleTile => singleTile.x === x && singleTile.y === y);
+
+        if (tile.type === TILE_TYPE.BORDER) {
+            return;
+        }
+
+        tile.createEntity(this.#scene, this.#theme.hidden.assetKey, this.#theme.hidden.assetFrame);
     }
 
     #createTiles() {

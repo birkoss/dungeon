@@ -24,6 +24,8 @@ export class Tile {
 
     /** @type {TileEntity} */
     #background;
+    /** @type {TileEntity} */
+    #entity;
 
     /**
      * @param {number} x 
@@ -57,6 +59,10 @@ export class Tile {
     get background() {
         return this.#background;
     }
+    /** @type {TileEntity} */
+    get entity() {
+        return this.#entity;
+    }
 
     /**
      * @param {Phaser.Scene} scene 
@@ -71,6 +77,14 @@ export class Tile {
         this.#background = new TileEntity();
         this.#background.create(scene, assetKey, assetFrame);
         this.#container.add(this.#background.gameObject);
+
+        return this.#container;
+    }
+
+    createEntity(scene, assetKey, assetFrame) {
+        this.#entity = new TileEntity();
+        this.#entity.create(scene, assetKey, assetFrame);
+        this.#container.add(this.#entity.gameObject);
 
         return this.#container;
     }
