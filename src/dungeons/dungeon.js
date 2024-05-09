@@ -39,11 +39,12 @@ export class Dungeon {
      */
     create(theme, level) {
         this.#theme = theme;
+        let levelData = level.data.join("");
 
         // Create each tiles from the current theme
         this.#tiles.forEach((singleTile) => {
-            let assetKey = theme.floor.assetKey;
-            let assetFrame = theme.floor.assetFrames[0];
+            let assetKey = theme.unknown.assetKey;
+            let assetFrame = theme.unknown.assetFrame;
             
             if (singleTile.type === TILE_TYPE.BORDER) {
                 assetKey = theme.border.assetKey;
@@ -63,29 +64,68 @@ export class Dungeon {
             this.#container.add(tileContainer);
         });
 
-        // Create each enemy and chest from the current level
-        let levelData = level.data.join("");
-        for (let i=0; i<levelData.length; i++) {
-            let data = levelData[i];
-            if (data === "0" || data === "1") {
-                continue;
-            }
+        let totalX = new Array(this.#width-2).fill(0);
+        let totalY = new Array(this.#height-2).fill(0);
 
+        // Create each enemy and chest from the current level
+        for (let i=0; i<levelData.length; i++) {
             // BORDER are not accounted for in the level data (- 2 = Remove thoses 2 borders)
             let y = Math.floor(i / (this.#width - 2));
             let x = i - (y * (this.#width - 2));
 
+            let data = levelData[i];
+            if (data === "0") {
+                continue;
+            }
+
+            // Get total for each WALL
+            if (data === "1") {
+                totalX[x]++;
+                totalY[y]++;
+                continue;
+            }
+
             let tile = this.#tiles.find(singleTile => singleTile.x === x + 1 && singleTile.y === y + 1);
 
             if (data === "3") {
+                tile.background.gameObject.setTexture(theme.floor.assetKey);
+                tile.background.gameObject.setFrame(theme.floor.assetFrame);
+                
                 tile.createEntity(this.#scene, TILE_ENTITY_TYPE.CHEST, DUNGEON_ASSET_KEYS.WORLD, 196);
             } else if (data === "2") {
+                tile.background.gameObject.setTexture(theme.floor.assetKey);
+                tile.background.gameObject.setFrame(theme.floor.assetFrame);
+
                 tile.createEntity(this.#scene, TILE_ENTITY_TYPE.BACKGROUND, DUNGEON_ASSET_KEYS.WORLD, 2017);
 
                 let enemy = tile.createEntity(this.#scene, TILE_ENTITY_TYPE.ENEMY, DUNGEON_ASSET_KEYS.UNITS, [290, 308]);
                 enemy.gameObject.y -= 8;
             }
         }
+        
+        // Show total
+        this.#tiles.forEach(singleTile => {
+            if (singleTile.type !== TILE_TYPE.BORDER) {
+                return;
+            }
+            if (singleTile.x !== 0 && singleTile.y !== 0) {
+                return;
+            }
+            
+            if (singleTile.y === 0) {
+                if (singleTile.x == 0 || singleTile.x == this.#width -1) {
+                    return;
+                }
+                singleTile.createLabel(this.#scene, `${totalX[singleTile.x - 1]}`);
+                return;
+            }
+            if (singleTile.x === 0) {
+                if (singleTile.y == 0 || singleTile.y == this.#height -1) {
+                    return;
+                }
+                singleTile.createLabel(this.#scene, `${totalY[singleTile.y - 1]}`);
+            }
+        });
 
         // Add shadows
         this.#validateTileShadows();

@@ -3,7 +3,8 @@
  * @type {Object}
  * @property {string} id
  * @property {string} name
- * @property {AssetMultipleFrames} floor
+ * @property {AssetSingleFrame} floor
+ * @property {AssetSingleFrame} unknown
  * @property {AssetSingleFrame} wall
  * @property {AssetSingleFrame} shadow
  * @property {AssetMultipleFrames} border

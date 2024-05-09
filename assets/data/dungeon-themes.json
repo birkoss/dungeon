@@ -2,13 +2,13 @@
     {
         "id" : "main",
         "name": "Main Theme",
+        "unknown": {
+            "assetKey": "WORLD",
+            "assetFrame": 5
+        },
         "floor": {
             "assetKey": "WORLD",
-            "assetFrames": [
-                3,
-                4,
-                5
-            ]
+            "assetFrame": 3
         },
         "shadow": {
             "assetKey": "WORLD",

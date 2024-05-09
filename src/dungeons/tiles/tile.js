@@ -27,6 +27,8 @@ export class Tile {
     #entity;
     /** @type {TileEntity} */
     #shadow;
+    /** @type {Phaser.GameObjects.Text} */
+    #label;
 
     /**
      * @param {number} x 
@@ -84,6 +86,16 @@ export class Tile {
         this.#container.add(this.#background.gameObject);
 
         return this.#container;
+    }
+
+    /**
+     * 
+     * @param {Phaser.Scene} scene 
+     * @param {string} text 
+     */
+    createLabel(scene, text) {
+        this.#label = scene.add.text(this.#background.gameObject.width / 2, this.#background.gameObject.height / 2, text).setOrigin(0.5);
+        this.#container.add(this.#label);
     }
 
     createEntity(scene, type, assetKey, assetFrame) {
