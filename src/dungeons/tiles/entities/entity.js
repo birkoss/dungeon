@@ -1,12 +1,34 @@
 import Phaser from "../../../lib/phaser.js";
 
+/** @typedef {keyof typeof TILE_ENTITY_TYPE} TileEntityType */
+/** @enum {TileEntityType} */
+export const TILE_ENTITY_TYPE = Object.freeze({
+    BACKGROUND: 'BACKGROUND',
+    WALL: 'WALL',
+    ENEMY: 'ENEMY',
+    CHEST: 'CHEST',
+});
+
 export class TileEntity {
+    /** @type {TileEntityType} */
+    _type;
     /** @protected @type {Phaser.GameObjects.Sprite} */
     _gameObject;
+
+    /**
+     * @param {TileEntityType} type 
+     */
+    constructor(type) {
+        this._type = type;
+    }
 
     /** @type {Phaser.GameObjects.Sprite} */
     get gameObject() {
         return this._gameObject;
+    }
+    /** @type {TileEntityType} */
+    get type() {
+        return this._type;
     }
 
     /**
@@ -77,7 +99,7 @@ export class TileEntity {
             alpha: 1,
             scaleY: 1,
             scaleX: 1,
-            duration: 500,
+            duration: 400,
             ease: Phaser.Math.Easing.Bounce.Out,
             onComplete: () => {
                 if (callback) {
@@ -98,7 +120,7 @@ export class TileEntity {
             // alpha: 0,
             scaleY: 0,
             scaleX: 0,
-            duration: duration || 500,
+            duration: duration || 400,
             ease: Phaser.Math.Easing.Bounce.In,
             onComplete: () => {
                 if (callback) {

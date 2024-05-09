@@ -10,19 +10,15 @@
                 5
             ]
         },
-        "exit": {
-            "assetKey": "WORLD",
-            "assetFrame": 8
-        },
         "shadow": {
             "assetKey": "WORLD",
             "assetFrame": 2009
         },
-        "hidden": {
+        "wall": {
             "assetKey": "WORLD",
-            "assetFrame": 2
+            "assetFrame": 0
         },
-        "walls": {
+        "border": {
             "assetKey": "WORLD",
             "assetFrames": [
                 0,
@@ -36,24 +32,6 @@
                 13,
                 17,
                 14,
-                22,
-                16,
-                21,
-                23,
-                20
-            ],
-            "alternateAssetFrames": [
-                0,
-                12,
-                15,
-                19,
-                10,
-                26,
-                18,
-                24,
-                13,
-                17,
-                25,
                 22,
                 16,
                 21,

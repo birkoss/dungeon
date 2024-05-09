@@ -1,7 +1,7 @@
 import Phaser from "../../lib/phaser.js";
 
 import { TILE_SIZE } from "../../config.js";
-import { TileEntity } from "./entities/entity.js";
+import { TILE_ENTITY_TYPE, TileEntity } from "./entities/entity.js";
 
 /** @typedef {keyof typeof TILE_TYPE} TileType */
 /** @enum {TileType} */
@@ -74,7 +74,7 @@ export class Tile {
         this.#container = scene.add.container(this.x * TILE_SIZE, this.y * TILE_SIZE);
 
         // Create the tile background (border or floor)
-        this.#background = new TileEntity();
+        this.#background = new TileEntity(TILE_ENTITY_TYPE.BACKGROUND);
         this.#background.create(scene, assetKey, assetFrame);
         this.#container.add(this.#background.gameObject);
 
@@ -82,10 +82,14 @@ export class Tile {
     }
 
     createEntity(scene, assetKey, assetFrame) {
-        this.#entity = new TileEntity();
+        this.#entity = new TileEntity(TILE_ENTITY_TYPE.WALL);
         this.#entity.create(scene, assetKey, assetFrame);
         this.#container.add(this.#entity.gameObject);
 
         return this.#container;
+    }
+    removeEntity() {
+        this.#entity.gameObject.destroy();
+        this.#entity = undefined;
     }
 }

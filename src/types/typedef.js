@@ -4,10 +4,9 @@
  * @property {string} id
  * @property {string} name
  * @property {AssetMultipleFrames} floor
- * @property {AssetSingleFrame} exit
- * @property {AssetSingleFrame} hidden
+ * @property {AssetSingleFrame} wall
  * @property {AssetSingleFrame} shadow
- * @property {AssetMultipleFrames} walls
+ * @property {AssetMultipleFrames} border
  */
 
 /** 
@@ -22,7 +21,7 @@
  * @type {Object}
  * @property {string} assetKey
  * @property {number[]} assetFrames
- * @property {number[]} [alternateAssetFrames]
+
  */
 
 /** 

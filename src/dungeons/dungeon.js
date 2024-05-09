@@ -1,5 +1,5 @@
 import Phaser from "../lib/phaser.js";
-import { TileEntity } from "./tiles/entities/entity.js";
+import { TILE_ENTITY_TYPE, TileEntity } from "./tiles/entities/entity.js";
 import { TILE_TYPE, Tile } from "./tiles/tile.js";
 
 export class Dungeon {
@@ -40,19 +40,16 @@ export class Dungeon {
             let assetFrame = theme.floor.assetFrames[0];
             
             if (singleTile.type === TILE_TYPE.BORDER) {
-                assetKey = theme.walls.assetKey;
+                assetKey = theme.border.assetKey;
                 assetFrame = 0;
                 // Get the first frame, should always be the default wall
-                if (theme.walls.assetFrames.length > 0) {
-                    assetFrame = theme.walls.assetFrames[0];
+                if (theme.border.assetFrames.length > 0) {
+                    assetFrame = theme.border.assetFrames[0];
                 }
 
                 let dungeonWallLayout = this.#getTileLayout(singleTile.x, singleTile.y, TILE_TYPE.BORDER);
-                if (dungeonWallLayout < theme.walls.assetFrames.length) {
-                    assetFrame = theme.walls.assetFrames[dungeonWallLayout];
-                    if (theme.walls.alternateAssetFrames?.[dungeonWallLayout] && Phaser.Math.Between(1, 4) === 2) {
-                        assetFrame = theme.walls.alternateAssetFrames[dungeonWallLayout];
-                    }
+                if (dungeonWallLayout < theme.border.assetFrames.length) {
+                    assetFrame = theme.border.assetFrames[dungeonWallLayout];
                 }
             }
 
@@ -72,7 +69,19 @@ export class Dungeon {
             return;
         }
 
-        tile.createEntity(this.#scene, this.#theme.hidden.assetKey, this.#theme.hidden.assetFrame);
+        if (!tile.entity) {
+            tile.createEntity(this.#scene, this.#theme.wall.assetKey, this.#theme.wall.assetFrame);
+            tile.entity.scaleIn();
+            return;
+        }
+
+        if (tile.entity.type !== TILE_ENTITY_TYPE.WALL) {
+            return;
+        }
+
+        tile.entity.scaleOut(() => {
+            tile.removeEntity();
+        });
     }
 
     #createTiles() {
