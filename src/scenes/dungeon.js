@@ -4,10 +4,16 @@ import { SCENE_KEYS } from "../keys/scene.js";
 import { Dungeon } from "../dungeons/dungeon.js";
 import { Data } from "../data.js";
 import { TILE_SIZE } from "../config.js";
+import { TILE_ENTITY_TYPE, TileEntity } from "../dungeons/tiles/entities/entity.js";
+import { TILE_TYPE } from "../dungeons/tiles/tile.js";
+import { DUNGEON_ASSET_KEYS } from "../keys/asset.js";
 
 export class DungeonScene extends Phaser.Scene {
     /** @type {Dungeon} */
     #dungeon;
+
+    /** @type {boolean} */
+    #mode;
 
     constructor() {
         super({
@@ -17,6 +23,7 @@ export class DungeonScene extends Phaser.Scene {
 
     create() {
         this.#createDungeon();
+        this.#mode = false;
     }
 
     update() {
@@ -45,6 +52,23 @@ export class DungeonScene extends Phaser.Scene {
 
             this.#selectTile(x, y);
         });
+
+        let OK = new TileEntity(TILE_ENTITY_TYPE.BACKGROUND);
+        OK.create(this, DUNGEON_ASSET_KEYS.WORLD, 3);
+        OK.gameObject.x = 520;
+        OK.gameObject.setInteractive();
+        OK.gameObject.on('pointerdown', (target) => {
+            this.#mode = true;
+        });
+
+
+        let NOP = new TileEntity(TILE_ENTITY_TYPE.BACKGROUND);
+        NOP.create(this, DUNGEON_ASSET_KEYS.WORLD, 0);
+        NOP.gameObject.x = 640;
+        NOP.gameObject.setInteractive();
+        NOP.gameObject.on('pointerdown', (target) => {
+            this.#mode = false;
+        });
     }
 
     /**
@@ -52,6 +76,6 @@ export class DungeonScene extends Phaser.Scene {
      * @param {number} y 
      */
     #selectTile(x, y) {
-        this.#dungeon.toggleAt(x, y);
+        this.#dungeon.toggleAt(x, y, this.#mode);
     }
 }

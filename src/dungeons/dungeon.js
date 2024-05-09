@@ -90,7 +90,7 @@ export class Dungeon {
             if (data === "3") {
                 tile.background.gameObject.setTexture(theme.floor.assetKey);
                 tile.background.gameObject.setFrame(theme.floor.assetFrame);
-                
+
                 tile.createEntity(this.#scene, TILE_ENTITY_TYPE.CHEST, DUNGEON_ASSET_KEYS.WORLD, 196);
             } else if (data === "2") {
                 tile.background.gameObject.setTexture(theme.floor.assetKey);
@@ -134,29 +134,44 @@ export class Dungeon {
     /**
      * @param {number} x 
      * @param {number} y 
+     * @param {boolean} mode 
      */
-    toggleAt(x, y) {
+    toggleAt(x, y, mode) {
         let tile = this.#tiles.find(singleTile => singleTile.x === x && singleTile.y === y);
 
         if (tile.type === TILE_TYPE.BORDER) {
             return;
         }
 
+        if (mode) {
+            if (!tile.entity) {
+                this.#validateTileShadows({created: tile});
+                tile.createEntity(this.#scene, TILE_ENTITY_TYPE.WALL, this.#theme.wall.assetKey, this.#theme.wall.assetFrame);
+                tile.entity.scaleIn();
+                return;
+            }
+    
+            if (tile.entity.type !== TILE_ENTITY_TYPE.WALL) {
+                return;
+            }
+    
+            this.#validateTileShadows({removed: tile});
+            tile.entity.scaleOut(() => {
+                tile.removeEntity();
+            });
+            return;
+        }
+
         if (!tile.entity) {
-            this.#validateTileShadows({created: tile});
-            tile.createEntity(this.#scene, TILE_ENTITY_TYPE.WALL, this.#theme.wall.assetKey, this.#theme.wall.assetFrame);
+            tile.createEntity(this.#scene, TILE_ENTITY_TYPE.BACKGROUND, this.#theme.floor.assetKey, this.#theme.floor.assetFrame);
             tile.entity.scaleIn();
             return;
         }
 
-        if (tile.entity.type !== TILE_ENTITY_TYPE.WALL) {
-            return;
-        }
-
-        this.#validateTileShadows({removed: tile});
         tile.entity.scaleOut(() => {
             tile.removeEntity();
         });
+        return;
     }
 
     #createTiles() {
@@ -291,6 +306,8 @@ export class Dungeon {
 
             return true;
         });
+
+        console.log(tilesWithShadow);
 
         // Add/Remove tiles shadows
         this.#tiles.forEach((singleTile) => {

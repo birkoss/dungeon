@@ -103,6 +103,10 @@ export class Tile {
         this.#entity.create(scene, assetKey, assetFrame);
         this.#container.add(this.#entity.gameObject);
 
+        if (this.#shadow && type === TILE_ENTITY_TYPE.BACKGROUND) {
+            this.#container.moveAbove(this.#shadow.gameObject, this.#entity.gameObject);
+        }
+
         return this.#entity;
     }
     removeEntity() {
@@ -115,7 +119,7 @@ export class Tile {
         this.#shadow.create(scene, assetKey, assetFrame);
         this.#container.add(this.#shadow.gameObject);
 
-        if (this.#entity) {
+        if (this.#entity && this.#entity.type !== TILE_ENTITY_TYPE.BACKGROUND) {
             this.#container.moveAbove(this.#entity.gameObject, this.#shadow.gameObject);
         }
 

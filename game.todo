@@ -1,0 +1,4 @@
+[ ] - Button to toggle WALL/FLOOR
+[ ] - HOLD to DRAW instead of click
+    - HOLD = SET TO xxx (if not already set to this)
+[ ] - Update label after each FLIPPING
