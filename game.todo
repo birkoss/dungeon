@@ -1,6 +1,0 @@
-[ ] - HOLD to DRAW instead of click
-[ ] - Fix issue with shadows when adding or removing lots of tile
-    - Check shadow of the current TILE AND THE ONE BELOW ONLY
-    - stop creating/removing the gameObject, only show and hide
-        - Keep track of the tween in the TileEntity, and stop the current tween before starting a new one.
-[ ] - Update label after each FLIPPING

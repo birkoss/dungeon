@@ -133,4 +133,19 @@ export class Tile {
         }
         this.#shadow = undefined;
     }
+
+    /**
+     * @param {number} value
+     */
+    validateLabel(value) {
+        this.#label.setColor("#FFFFFF").setAlpha(1);
+
+        if (value.toString() === this.#label.text) {
+            this.#label.setAlpha(0.4);
+        } else {
+            if (value.toString() > this.#label.text) {
+                this.#label.setColor("#FF0000");
+            }
+        }
+    }
 }

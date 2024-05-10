@@ -73,8 +73,8 @@ export class Dungeon {
             singleTile.shadow.gameObject.setAlpha(0);
         });
 
-        let totalX = new Array(this.#width-2).fill(0);
-        let totalY = new Array(this.#height-2).fill(0);
+        let labelsTextX = new Array(this.#width-2).fill(0);
+        let labelsTextY = new Array(this.#height-2).fill(0);
 
         // Create each enemy and chest from the current level
         for (let i=0; i<levelData.length; i++) {
@@ -89,8 +89,8 @@ export class Dungeon {
 
             // Get total for each WALL
             if (data === "1") {
-                totalX[x]++;
-                totalY[y]++;
+                labelsTextX[x]++;
+                labelsTextY[y]++;
                 continue;
             }
 
@@ -125,14 +125,16 @@ export class Dungeon {
                 if (singleTile.x == 0 || singleTile.x == this.#width -1) {
                     return;
                 }
-                singleTile.createLabel(this.#scene, `${totalX[singleTile.x - 1]}`);
+                singleTile.createLabel(this.#scene, `${labelsTextX[singleTile.x - 1]}`);
+                singleTile.validateLabel(0);
                 return;
             }
             if (singleTile.x === 0) {
                 if (singleTile.y == 0 || singleTile.y == this.#height -1) {
                     return;
                 }
-                singleTile.createLabel(this.#scene, `${totalY[singleTile.y - 1]}`);
+                singleTile.createLabel(this.#scene, `${labelsTextY[singleTile.y - 1]}`);
+                singleTile.validateLabel(0);
             }
         });
 
@@ -196,6 +198,7 @@ export class Dungeon {
                 if (existingEntity) {
                     existingEntity.gameObject.destroy();
                 }
+                this.#validateLabels(tile);
             });
             return;
         }
@@ -217,6 +220,7 @@ export class Dungeon {
             });
             tile.entity.scaleOut(() => {
                 tile.removeEntity();
+                this.#validateLabels(tile);
             });
             return;            
         }
@@ -234,7 +238,6 @@ export class Dungeon {
             }
         }
     }
-
 
     /**
      * @param {number} x 
@@ -378,5 +381,30 @@ export class Dungeon {
                 }
             }
         }
+    }
+
+    /**
+     * @param {Tile} tile 
+     */
+    #validateLabels(tile) {
+        let totalX = 0;
+        for (let x=1; x<this.#width - 1; x++) {
+            let t = this.#tiles.find(singleTile => singleTile.x === x && singleTile.y === tile.y);
+            if (t.entity && t.entity.type === TILE_ENTITY_TYPE.WALL) {
+                totalX++;
+            }
+        }
+
+        this.#tiles.find(singleTile => singleTile.x === 0 && singleTile.y === tile.y).validateLabel(totalX);
+
+        let totalY = 0;
+        for (let y=1; y<this.#height - 1; y++) {
+            let t = this.#tiles.find(singleTile => singleTile.x === tile.x && singleTile.y === y);
+            if (t.entity && t.entity.type === TILE_ENTITY_TYPE.WALL) {
+                totalY++;
+            }
+        }
+
+        this.#tiles.find(singleTile => singleTile.x === tile.x && singleTile.y === 0).validateLabel(totalY);
     }
 }
