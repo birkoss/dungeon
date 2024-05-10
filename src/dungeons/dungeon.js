@@ -14,6 +14,8 @@ export class Dungeon {
 
     /** @type {DungeonTheme} */
     #theme;
+    /** @type {Level} */
+    #level;
 
     /** @type {Phaser.GameObjects.Container} */
     #container;
@@ -45,6 +47,8 @@ export class Dungeon {
      */
     create(theme, level) {
         this.#theme = theme;
+        this.#level = level;
+
         let levelData = level.data.join("");
 
         // Create each tiles from the current theme
@@ -145,12 +149,30 @@ export class Dungeon {
     }
 
     /**
+     * @returns {boolean}
+     */
+    isCompleted() {
+        let levelSolution = this.#level.data.join("").replace(/(2|3)/g, '0');
+        let levelData = new Array((this.#width - 2) * (this.#height - 2)).fill(0);
+
+        this.#tiles.forEach(singleTile => {
+            if (singleTile.entity && singleTile.entity.type === TILE_ENTITY_TYPE.WALL) {
+                let index = ((singleTile.y - 1) * (this.#width - 2)) + (singleTile.x - 1);
+                levelData[index] = "1";
+            }
+        });
+       
+        return levelData.join("") === levelSolution;
+    }
+
+    /**
      * @param {number} x 
      * @param {number} y 
      * @param {TILE_ENTITY_TYPE} newType 
      * @param {boolean} isActive
+     * @param {() => void} [callback]
      */
-    toggleAt(x, y, newType, isActive) {
+    toggleAt(x, y, newType, isActive, callback) {
         // Must be from within the map size (0, 0) -> (width - 1, height - 1)
         if (!this.#isInBound(x, y)) {
             return;
@@ -199,6 +221,10 @@ export class Dungeon {
                     existingEntity.gameObject.destroy();
                 }
                 this.#validateLabels(tile);
+
+                if (callback) {
+                    callback();
+                }
             });
             return;
         }
@@ -221,6 +247,10 @@ export class Dungeon {
             tile.entity.scaleOut(() => {
                 tile.removeEntity();
                 this.#validateLabels(tile);
+
+                if (callback) {
+                    callback();
+                }
             });
             return;            
         }

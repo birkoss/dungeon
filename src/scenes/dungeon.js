@@ -104,6 +104,10 @@ export class DungeonScene extends Phaser.Scene {
      * @param {number} y 
      */
     #selectTile(x, y) {
-        this.#dungeon.toggleAt(x, y, this.#mode, this.#state);
+        this.#dungeon.toggleAt(x, y, this.#mode, this.#state, () => {
+            if (this.#dungeon.isCompleted()) {
+                console.log("YES");
+            }
+        });
     }
 }
