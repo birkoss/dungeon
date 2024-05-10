@@ -7,7 +7,8 @@
  * @property {AssetSingleFrame} unknown
  * @property {AssetSingleFrame} wall
  * @property {AssetSingleFrame} shadow
- * @property {AssetMultipleFrames} border
+ * @property {AssetSingleFrame} border
+ * @property {AssetSingleFrame} borderLabel
  */
 
 /** 
@@ -22,14 +23,6 @@
  * @type {Object}
  * @property {string} assetKey
  * @property {number} assetFrame
- */
-
-/** 
- * @typedef AssetMultipleFrames
- * @type {Object}
- * @property {string} assetKey
- * @property {number[]} assetFrames
-
  */
 
 /** 

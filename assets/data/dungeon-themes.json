@@ -3,41 +3,24 @@
         "id" : "main",
         "name": "Main Theme",
         "unknown": {
-            "assetKey": "WORLD",
-            "assetFrame": 5
+            "assetKey": "DUNGEON",
+            "assetFrame": 4
         },
         "floor": {
-            "assetKey": "WORLD",
-            "assetFrame": 3
-        },
-        "shadow": {
-            "assetKey": "WORLD",
-            "assetFrame": 2009
+            "assetKey": "DUNGEON",
+            "assetFrame": 24
         },
         "wall": {
-            "assetKey": "WORLD",
-            "assetFrame": 0
+            "assetKey": "DUNGEON",
+            "assetFrame": 10
         },
         "border": {
-            "assetKey": "WORLD",
-            "assetFrames": [
-                0,
-                12,
-                15,
-                19,
-                10,
-                11,
-                18,
-                24,
-                13,
-                17,
-                14,
-                22,
-                16,
-                21,
-                23,
-                20
-            ]
+            "assetKey": "DUNGEON",
+            "assetFrame": 0
+        },
+        "borderLabel": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 20
         }
     }
 ]

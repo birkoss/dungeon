@@ -25,8 +25,6 @@ export class Tile {
     #background;
     /** @type {TileEntity} */
     #entity;
-    /** @type {TileEntity} */
-    #shadow;
     /** @type {Phaser.GameObjects.Text} */
     #label;
 
@@ -66,10 +64,6 @@ export class Tile {
     get entity() {
         return this.#entity;
     }
-    /** @type {TileEntity} */
-    get shadow() {
-        return this.#shadow;
-    }
 
     /**
      * @param {Phaser.Scene} scene 
@@ -103,10 +97,6 @@ export class Tile {
         this.#entity.create(scene, assetKey, assetFrame);
         this.#container.add(this.#entity.gameObject);
 
-        if (this.#shadow && type === TILE_ENTITY_TYPE.BACKGROUND) {
-            this.#container.moveAbove(this.#shadow.gameObject, this.#entity.gameObject);
-        }
-
         return this.#entity;
     }
     removeEntity() {
@@ -114,24 +104,6 @@ export class Tile {
             this.#entity.gameObject.destroy();
         }
         this.#entity = undefined;
-    }
-
-    createShadow(scene, assetKey, assetFrame) {
-        this.#shadow = new TileEntity(TILE_ENTITY_TYPE.WALL);
-        this.#shadow.create(scene, assetKey, assetFrame);
-        this.#container.add(this.#shadow.gameObject);
-
-        if (this.#entity && this.#entity.type !== TILE_ENTITY_TYPE.BACKGROUND) {
-            this.#container.moveAbove(this.#entity.gameObject, this.#shadow.gameObject);
-        }
-
-        return this.#container;
-    }
-    removeShadow() {
-        if (this.#shadow && this.#shadow.gameObject) {
-            this.#shadow.gameObject.destroy();
-        }
-        this.#shadow = undefined;
     }
 
     /**

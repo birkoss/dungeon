@@ -8,11 +8,15 @@ const game = new Phaser.Game({
     type: Phaser.AUTO,
     pixelArt: true,
     scale: {
+        mode: Phaser.Scale.FIT,
+
         parent: 'game-container',
-        width: Math.min(window.innerWidth, 896),
-        height: Math.min(window.innerHeight, 484),
+        // width: Math.min(window.innerWidth, 484),
+        // height: Math.min(window.innerHeight, 896),
+        width: window.innerWidth,
+        height: window.innerHeight,
     },
-    backgroundColor: '#000000',
+    backgroundColor: '#201208',
 });
 
 game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene);

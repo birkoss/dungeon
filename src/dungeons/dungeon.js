@@ -58,23 +58,18 @@ export class Dungeon {
             
             if (singleTile.type === TILE_TYPE.BORDER) {
                 assetKey = theme.border.assetKey;
-                assetFrame = 0;
-                // Get the first frame, should always be the default wall
-                if (theme.border.assetFrames.length > 0) {
-                    assetFrame = theme.border.assetFrames[0];
-                }
+                assetFrame = theme.border.assetFrame;
 
-                let dungeonWallLayout = this.#getTileLayout(singleTile.x, singleTile.y, TILE_TYPE.BORDER);
-                if (dungeonWallLayout < theme.border.assetFrames.length) {
-                    assetFrame = theme.border.assetFrames[dungeonWallLayout];
+                if (singleTile.x === 0 || singleTile.y === 0) {
+                    if (singleTile.x !== singleTile.y && singleTile.x < this.#width - 1 && singleTile.y < this.#height - 1) {
+                        assetKey = theme.borderLabel.assetKey;
+                        assetFrame = theme.borderLabel.assetFrame;
+                    }
                 }
             }
 
             let tileContainer = singleTile.create(this.#scene, assetKey, assetFrame);
             this.#container.add(tileContainer);
-
-            singleTile.createShadow(this.#scene, theme.shadow.assetKey, theme.shadow.assetFrame);
-            singleTile.shadow.gameObject.setAlpha(0);
         });
 
         let labelsTextX = new Array(this.#width-2).fill(0);
@@ -101,18 +96,9 @@ export class Dungeon {
             let tile = this.#tiles.find(singleTile => singleTile.x === x + 1 && singleTile.y === y + 1);
 
             if (data === "3") {
-                tile.background.gameObject.setTexture(theme.floor.assetKey);
-                tile.background.gameObject.setFrame(theme.floor.assetFrame);
-
-                tile.createEntity(this.#scene, TILE_ENTITY_TYPE.CHEST, DUNGEON_ASSET_KEYS.WORLD, 196);
+                tile.createEntity(this.#scene, TILE_ENTITY_TYPE.CHEST, DUNGEON_ASSET_KEYS.DUNGEON, 8);
             } else if (data === "2") {
-                tile.background.gameObject.setTexture(theme.floor.assetKey);
-                tile.background.gameObject.setFrame(theme.floor.assetFrame);
-
-                tile.createEntity(this.#scene, TILE_ENTITY_TYPE.BACKGROUND, DUNGEON_ASSET_KEYS.WORLD, 2017);
-
-                let enemy = tile.createEntity(this.#scene, TILE_ENTITY_TYPE.ENEMY, DUNGEON_ASSET_KEYS.UNITS, [290, 308]);
-                enemy.gameObject.y -= 8;
+                let enemy = tile.createEntity(this.#scene, TILE_ENTITY_TYPE.ENEMY, DUNGEON_ASSET_KEYS.DUNGEON, 9);
             }
         }
         
@@ -140,11 +126,6 @@ export class Dungeon {
                 singleTile.createLabel(this.#scene, `${labelsTextY[singleTile.y - 1]}`);
                 singleTile.validateLabel(0);
             }
-        });
-
-        // Add shadows
-        this.#tiles.forEach(singleTile => {
-            this.#validateTileShadows(singleTile);
         });
     }
 
@@ -211,10 +192,6 @@ export class Dungeon {
             // Keep the existing entity to remove it later
             let existingEntity = tile.entity;
 
-            this.#validateTileShadows(tile, {
-                created: true,
-                newType: newType,
-            });
             tile.createEntity(this.#scene, newType, newAssetKey, newAssetFrame);
             tile.entity.scaleIn(() => {
                 if (existingEntity) {
@@ -240,10 +217,6 @@ export class Dungeon {
                 return;
             }
 
-            this.#validateTileShadows(tile, {
-                removed: true,
-                newType: newType,
-            });
             tile.entity.scaleOut(() => {
                 tile.removeEntity();
                 this.#validateLabels(tile);
@@ -344,73 +317,6 @@ export class Dungeon {
      */
     #isInBound(x, y) {
         return (x >= 0 && x < this.#width && y >= 0 && y < this.#height);
-    }
-
-    /**
-     * @param {Tile} [tile] 
-     * @param {object} [tilePending] 
-     * @param {boolean} [tilePending.created]
-     * @param {import("./tiles/entities/entity.js").TileEntityType} [tilePending.newType] 
-     * @param {boolean} [tilePending.removed] 
-     */
-    #validateTileShadows(tile, tilePending) {
-        // Get if the tile is a WALL or not
-        let tileIsWall = (tile.type === TILE_TYPE.BORDER);
-        if (tilePending?.created && tilePending?.newType === TILE_ENTITY_TYPE.WALL) {
-            tileIsWall = true;
-        } else if (tilePending?.removed) {
-            tileIsWall = false;
-        } else if (tile.entity && tile.entity.type === TILE_ENTITY_TYPE.WALL) {
-            tileIsWall = true;
-        }
-
-        // Get if the top neighboor is a WALL or not
-        let topTileIsWall = false;
-
-        let topNeighboor = this.#tiles.find(singleTile => singleTile.x === tile.x && singleTile.y === tile.y - 1);
-        if (topNeighboor) {
-            if (topNeighboor.type === TILE_TYPE.BORDER) {
-                topTileIsWall = true;
-            } else if (topNeighboor.entity && topNeighboor.entity.type === TILE_ENTITY_TYPE.WALL) {
-                topTileIsWall = true;
-            }
-        }
-
-        // Get if the bottom neighboor is a WALL or not
-        let bottomTileIsWall = false;
-
-        let bottomNeighboor = this.#tiles.find(singleTile => singleTile.x === tile.x && singleTile.y === tile.y + 1);
-        if (bottomNeighboor) {
-            if (bottomNeighboor.type === TILE_TYPE.BORDER) {
-                bottomTileIsWall = true;
-            } else if (bottomNeighboor.entity && bottomNeighboor.entity.type === TILE_ENTITY_TYPE.WALL) {
-                bottomTileIsWall = true;
-            }
-        }
-
-        // Tile SHADOW
-        if (!tileIsWall && topTileIsWall) {
-            if (tile.shadow.gameObject.alpha === 0) {
-                tile.shadow.fadeIn(() => {}, 400);
-            }
-        } else {
-            if (tile.shadow.gameObject.alpha === 1) {
-                tile.shadow.fadeOut(() => {}, 400);
-            }
-        }
-
-        // Tile Under SHADOW
-        if (bottomNeighboor) {
-            if (tileIsWall && !bottomTileIsWall) {
-                if (bottomNeighboor.shadow.gameObject.alpha === 0) {
-                    bottomNeighboor.shadow.fadeIn(() => {}, 400);
-                }
-            } else {
-                if (bottomNeighboor.shadow.gameObject.alpha === 1) {
-                    bottomNeighboor.shadow.fadeOut(() => {}, 400);
-                }
-            }
-        }
     }
 
     /**
