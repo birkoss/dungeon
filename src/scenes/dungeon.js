@@ -10,6 +10,7 @@ import { StateMachine } from "../state-machine.js";
 import { ToggleButton } from "../ui/toggle-button.js";
 import { Toggle } from "../ui/toggle.js";
 import { KENNEY_MINI_FONT_NAME } from "../keys/font.js";
+import { Button } from "../ui/button.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -58,7 +59,27 @@ export class DungeonScene extends Phaser.Scene {
 
         this.#toggle = new Toggle();
 
-        this.add.text(padding, 30, level.id, {
+        let button = new Button(this, UI_ASSET_KEYS.BUTTON, 0, () => {
+            alert("EXIT");
+        });
+        button.add(new Phaser.GameObjects.Text(this, 0, 0, "X", {
+            fontFamily: KENNEY_MINI_FONT_NAME,
+            fontSize: 30,
+        }));
+        button.container.x = this.scale.width - button.container.getBounds().width - padding;
+        button.container.y = padding;
+
+        button = new Button(this, UI_ASSET_KEYS.BUTTON, 0, () => {
+            alert("HELP");
+        });
+        button.add(new Phaser.GameObjects.Text(this, 0, 0, "?", {
+            fontFamily: KENNEY_MINI_FONT_NAME,
+            fontSize: 30,
+        }));
+        button.container.x = this.scale.width - (button.container.getBounds().width * 2) - (padding * 2);
+        button.container.y = padding;
+
+        this.add.text(padding, button.container.y + button.container.getBounds().height / 2, level.id, {
             fontFamily: KENNEY_MINI_FONT_NAME,
             fontSize: 30,
             color: "#ffffff",
@@ -67,7 +88,7 @@ export class DungeonScene extends Phaser.Scene {
         this.#dungeon = new Dungeon(this, 10, 10);
         this.#dungeon.create(theme, level);
         this.#dungeon.container.x = (this.scale.width - this.#dungeon.container.getBounds().width) / 2;
-        this.#dungeon.container.y = 50 + padding;
+        this.#dungeon.container.y = button.container.y + button.container.getBounds().height + padding;
 
         // Enable Tile selection
         this.#dungeon.container.setInteractive(
