@@ -110,7 +110,9 @@ export class Tile {
         return this.#entity;
     }
     removeEntity() {
-        this.#entity.gameObject.destroy();
+        if (this.#entity && this.#entity.gameObject) {
+            this.#entity.gameObject.destroy();
+        }
         this.#entity = undefined;
     }
 
@@ -126,7 +128,9 @@ export class Tile {
         return this.#container;
     }
     removeShadow() {
-        this.#shadow.gameObject.destroy();
+        if (this.#shadow && this.#shadow.gameObject) {
+            this.#shadow.gameObject.destroy();
+        }
         this.#shadow = undefined;
     }
 }

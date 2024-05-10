@@ -29,8 +29,13 @@ export class Dungeon {
         this.#container = this.#scene.add.container(0, 0);
     }
 
+    /** @type {Phaser.GameObjects.Container} */
     get container() {
         return this.#container;
+    }
+    /** @type {Tile[]} */
+    get tiles() {
+        return this.#tiles;
     }
 
     /**
@@ -134,17 +139,18 @@ export class Dungeon {
     /**
      * @param {number} x 
      * @param {number} y 
-     * @param {boolean} mode 
+     * @param {TILE_ENTITY_TYPE} newType 
+     * @param {boolean} newState
      */
-    toggleAt(x, y, mode) {
+    toggleAt(x, y, newType, newState) {
         let tile = this.#tiles.find(singleTile => singleTile.x === x && singleTile.y === y);
 
         if (tile.type === TILE_TYPE.BORDER) {
             return;
         }
 
-        if (mode) {
-            if (!tile.entity || tile.entity.type === TILE_ENTITY_TYPE.BACKGROUND) {
+        if (newType === TILE_ENTITY_TYPE.WALL) {
+            if (newState && (!tile.entity || tile.entity.type === TILE_ENTITY_TYPE.BACKGROUND)) {
                 let existingEntity;
                 if (tile.entity && tile.entity.type === TILE_ENTITY_TYPE.BACKGROUND) {
                     existingEntity = tile.entity;
@@ -158,15 +164,17 @@ export class Dungeon {
                 });
                 return;
             }
-    
-            if (tile.entity.type !== TILE_ENTITY_TYPE.WALL) {
+
+            if (!tile.entity || tile.entity.type !== TILE_ENTITY_TYPE.WALL) {
                 return;
             }
     
-            this.#validateTileShadows({removed: tile});
-            tile.entity.scaleOut(() => {
-                tile.removeEntity();
-            });
+            if (!newState) {
+                this.#validateTileShadows({removed: tile});
+                tile.entity.scaleOut(() => {
+                    tile.removeEntity();
+                });
+            }
             return;
         }
 
