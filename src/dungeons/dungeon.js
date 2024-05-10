@@ -67,6 +67,9 @@ export class Dungeon {
 
             let tileContainer = singleTile.create(this.#scene, assetKey, assetFrame);
             this.#container.add(tileContainer);
+
+            singleTile.createShadow(this.#scene, theme.shadow.assetKey, theme.shadow.assetFrame);
+            singleTile.shadow.gameObject.setAlpha(0);
         });
 
         let totalX = new Array(this.#width-2).fill(0);
@@ -317,16 +320,17 @@ export class Dungeon {
 
         console.log(tile.x, "x", tile.y, " = ", needShadow);
 
-        // Add a SHADOW
-        if (needShadow && !tile.shadow) {
-            tile.createShadow(this.#scene, this.#theme.shadow.assetKey, this.#theme.shadow.assetFrame);
-            tile.shadow.fadeIn(() => {}, 800);
+        // Show the SHADOW
+        if (needShadow) {
+            tile.shadow.fadeIn(() => {
+                // ...
+            }, 800);
         }
 
-        // Remove a SHADOW
-        if (!needShadow && tile.shadow) {
+        // Hide the SHADOW
+        if (!needShadow) {
             tile.shadow.fadeOut(() => {
-                tile.removeShadow();
+                // ...
             }, 400);
         }
         
