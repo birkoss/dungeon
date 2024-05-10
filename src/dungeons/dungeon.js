@@ -186,7 +186,8 @@ export class Dungeon {
             let existingEntity = tile.entity;
 
             this.#validateTileShadows(tile, {
-                created: tile
+                created: true,
+                newType: newType,
             });
             tile.createEntity(this.#scene, newType, newAssetKey, newAssetFrame);
             tile.entity.scaleIn(() => {
@@ -209,7 +210,8 @@ export class Dungeon {
             }
 
             this.#validateTileShadows(tile, {
-                removed: tile
+                removed: true,
+                newType: newType,
             });
             tile.entity.scaleOut(() => {
                 tile.removeEntity();
@@ -312,68 +314,67 @@ export class Dungeon {
     /**
      * @param {Tile} [tile] 
      * @param {object} [tilePending] 
-     * @param {Tile} [tilePending.created] 
-     * @param {Tile} [tilePending.removed] 
+     * @param {boolean} [tilePending.created]
+     * @param {import("./tiles/entities/entity.js").TileEntityType} [tilePending.newType] 
+     * @param {boolean} [tilePending.removed] 
      */
     #validateTileShadows(tile, tilePending) {
-        let needShadow = this.tileNeedShadow(tile, tilePending);
-
-        console.log(tile.x, "x", tile.y, " = ", needShadow);
-
-        // Show the SHADOW
-        if (needShadow) {
-            tile.shadow.fadeIn(() => {
-                // ...
-            }, 800);
+        // Get if the tile is a WALL or not
+        let tileIsWall = (tile.type === TILE_TYPE.BORDER);
+        if (tilePending?.created && tilePending?.newType === TILE_ENTITY_TYPE.WALL) {
+            tileIsWall = true;
+        } else if (tilePending?.removed) {
+            tileIsWall = false;
+        } else if (tile.entity && tile.entity.type === TILE_ENTITY_TYPE.WALL) {
+            tileIsWall = true;
         }
 
-        // Hide the SHADOW
-        if (!needShadow) {
-            tile.shadow.fadeOut(() => {
-                // ...
-            }, 400);
-        }
-        
-    }
+        // Get if the top neighboor is a WALL or not
+        let topTileIsWall = false;
 
-    /**
-     * @param {Tile} [tile] 
-     * @param {object} [tilePending] 
-     * @param {Tile} [tilePending.created] 
-     * @param {Tile} [tilePending.removed] 
-     */
-    tileNeedShadow(tile, tilePending) {
-        // Only FLOOR can have SHADOW
-        if (tile.type !== TILE_TYPE.FLOOR) {
-            return false;
+        let topNeighboor = this.#tiles.find(singleTile => singleTile.x === tile.x && singleTile.y === tile.y - 1);
+        if (topNeighboor) {
+            if (topNeighboor.type === TILE_TYPE.BORDER) {
+                topTileIsWall = true;
+            } else if (topNeighboor.entity && topNeighboor.entity.type === TILE_ENTITY_TYPE.WALL) {
+                topTileIsWall = true;
+            }
         }
 
-        // Only FLOOR without WALL can have SHADOW
-        if ((tile.entity && tile.entity.type === TILE_ENTITY_TYPE.WALL) && tile !== tilePending?.removed) {
-            return false;
-        }
-        // Only FLOOR without WALL can have SHADOW
-        if (tile === tilePending?.created) {
-            return false;
-        }
+        // Get if the bottom neighboor is a WALL or not
+        let bottomTileIsWall = false;
 
-        let tileTopNeighboor = this.#tiles.find(singleTopTile => singleTopTile.x === tile.x && singleTopTile.y === tile.y - 1);
-
-        // Only FLOOR with a WALL as TOP NEIGHBOOR with ENTITY can have shadow
-        if (tileTopNeighboor.type === TILE_TYPE.FLOOR && (!tileTopNeighboor.entity || tileTopNeighboor.entity.type === TILE_ENTITY_TYPE.BACKGROUND) && tileTopNeighboor !== tilePending?.created) {
-            return false;
+        let bottomNeighboor = this.#tiles.find(singleTile => singleTile.x === tile.x && singleTile.y === tile.y + 1);
+        if (bottomNeighboor) {
+            if (bottomNeighboor.type === TILE_TYPE.BORDER) {
+                bottomTileIsWall = true;
+            } else if (bottomNeighboor.entity && bottomNeighboor.entity.type === TILE_ENTITY_TYPE.WALL) {
+                bottomTileIsWall = true;
+            }
         }
 
-        // Do not add SHADOW if the TOP NEIGHBOOR with ENTITY is not a WALL
-        if (tileTopNeighboor.entity && (tileTopNeighboor.entity.type !== TILE_ENTITY_TYPE.WALL && tileTopNeighboor.entity.type !== TILE_ENTITY_TYPE.BACKGROUND)) {
-            return false;
+        // Tile SHADOW
+        if (!tileIsWall && topTileIsWall) {
+            if (tile.shadow.gameObject.alpha === 0) {
+                tile.shadow.fadeIn(() => {}, 400);
+            }
+        } else {
+            if (tile.shadow.gameObject.alpha === 1) {
+                tile.shadow.fadeOut(() => {}, 400);
+            }
         }
 
-        // Do not add SHADOW if the TOP NEIGHBOOR will be removed
-        if (tileTopNeighboor === tilePending?.removed) {
-            return false;
+        // Tile Under SHADOW
+        if (bottomNeighboor) {
+            if (tileIsWall && !bottomTileIsWall) {
+                if (bottomNeighboor.shadow.gameObject.alpha === 0) {
+                    bottomNeighboor.shadow.fadeIn(() => {}, 400);
+                }
+            } else {
+                if (bottomNeighboor.shadow.gameObject.alpha === 1) {
+                    bottomNeighboor.shadow.fadeOut(() => {}, 400);
+                }
+            }
         }
-
-        return true;
     }
 }
