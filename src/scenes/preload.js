@@ -1,8 +1,11 @@
 import Phaser from "../lib/phaser.js";
+import * as WebFontLoader from '../lib/webfontloader.js';
 
 import { SCENE_KEYS } from "../keys/scene.js";
 import { DATA_ASSET_KEYS, DUNGEON_ASSET_KEYS } from "../keys/asset.js";
 import { TILE_SIZE } from "../config.js";
+import { KENNEY_MINI_FONT_NAME } from "../keys/font.js";
+import { WebFontFileLoader } from "../web-font-file-loader.js";
 
 export class PreloadScene extends Phaser.Scene {
     constructor() {
@@ -33,6 +36,8 @@ export class PreloadScene extends Phaser.Scene {
             DATA_ASSET_KEYS.LEVELS,
             'assets/data/levels.json'
         );
+
+        this.load.addFile(new WebFontFileLoader(this.load, [KENNEY_MINI_FONT_NAME]));
     }
 
     create() {
