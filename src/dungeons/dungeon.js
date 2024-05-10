@@ -1,6 +1,7 @@
-import { DATA_ASSET_KEYS, DUNGEON_ASSET_KEYS } from "../keys/asset.js";
 import Phaser from "../lib/phaser.js";
-import { TILE_ENTITY_TYPE, TileEntity } from "./tiles/entities/entity.js";
+
+import { DUNGEON_ASSET_KEYS } from "../keys/asset.js";
+import { TILE_ENTITY_TYPE } from "./tiles/entities/entity.js";
 import { TILE_TYPE, Tile } from "./tiles/tile.js";
 
 export class Dungeon {
@@ -148,18 +149,19 @@ export class Dungeon {
      * @param {boolean} isActive
      */
     toggleAt(x, y, newType, isActive) {
-        // Out of bound
-        if (x < 0 || y < 0 || x >= this.#width || y >= this.#height) {
+        // Must be from within the map size (0, 0) -> (width - 1, height - 1)
+        if (!this.#isInBound(x, y)) {
             return;
         }
 
+        // Must be a valid tile
         let tile = this.#tiles.find(singleTile => singleTile.x === x && singleTile.y === y);
         if (!tile) {
             return;
         }
 
-        // Must NOT be a BORDER
-        if (tile.type === TILE_TYPE.BORDER) {
+        // Must be a FLOOR
+        if (tile.type !== TILE_TYPE.FLOOR) {
             return;
         }
 
