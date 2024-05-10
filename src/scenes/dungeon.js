@@ -9,6 +9,7 @@ import { DUNGEON_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
 import { StateMachine } from "../state-machine.js";
 import { ToggleButton } from "../ui/toggle-button.js";
 import { Toggle } from "../ui/toggle.js";
+import { KENNEY_MINI_FONT_NAME } from "../keys/font.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -53,13 +54,32 @@ export class DungeonScene extends Phaser.Scene {
         // let level = Data.getLevel(this, "1-1");
         let level = Data.getLevel(this, "debug");
 
+        let padding = 20;
+
+        this.#toggle = new Toggle();
+
+        let toggleBotton = new ToggleButton(this, 0, padding, UI_ASSET_KEYS.TILE_SELECTOR, TILE_ENTITY_TYPE.BACKGROUND);
+        toggleBotton.container.x = this.scale.width - (toggleBotton.container.getBounds().width * 2) - (padding * 2);
+        toggleBotton.add(theme.floor.assetKey, theme.floor.assetFrame);
+        this.#toggle.add(toggleBotton);
+        
+        toggleBotton = new ToggleButton(this, 0, padding, UI_ASSET_KEYS.TILE_SELECTOR, TILE_ENTITY_TYPE.WALL);
+        toggleBotton.container.x = this.scale.width - toggleBotton.container.getBounds().width - padding;
+        toggleBotton.add(theme.wall.assetKey, theme.wall.assetFrame);
+        this.#toggle.add(toggleBotton);
+
+        this.#toggle.select(this.#toggle.buttons[0]);
+
+        this.add.text(padding, toggleBotton.container.y + toggleBotton.container.getBounds().height / 2, level.id, {
+            fontFamily: KENNEY_MINI_FONT_NAME,
+            fontSize: 18,
+            color: "#ffffff",
+        }).setOrigin(0, 0.5);
+
         this.#dungeon = new Dungeon(this, 10, 10);
-
-        // // Create the WALL and FLOOR
         this.#dungeon.create(theme, level);
-
         this.#dungeon.container.x = (this.scale.width - this.#dungeon.container.getBounds().width) / 2;
-        this.#dungeon.container.y = 100;
+        this.#dungeon.container.y = toggleBotton.container.y + toggleBotton.container.getBounds().height + padding;
 
         // Enable Tile selection
         this.#dungeon.container.setInteractive(
@@ -91,18 +111,6 @@ export class DungeonScene extends Phaser.Scene {
         });
         this.input.on(Phaser.Input.Events.POINTER_UP_OUTSIDE, () => this.#isSelecting = false);
         this.input.on(Phaser.Input.Events.POINTER_UP, () => this.#isSelecting = false);
-
-        this.#toggle = new Toggle();
-
-        let toggleBotton = new ToggleButton(this, 20, 30, UI_ASSET_KEYS.TILE_SELECTOR, TILE_ENTITY_TYPE.BACKGROUND);
-        toggleBotton.add(theme.floor.assetKey, theme.floor.assetFrame);
-        this.#toggle.add(toggleBotton);
-        
-        toggleBotton = new ToggleButton(this, 100, 30, UI_ASSET_KEYS.TILE_SELECTOR, TILE_ENTITY_TYPE.WALL);
-        toggleBotton.add(theme.wall.assetKey, theme.wall.assetFrame);
-        this.#toggle.add(toggleBotton);
-
-        this.#toggle.select(this.#toggle.buttons[0]);
     }
 
     #createStateMachine() {

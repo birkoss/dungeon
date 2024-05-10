@@ -35,6 +35,11 @@ export class ToggleButton {
         return this.#background;
     }
 
+    /** @type {Phaser.GameObjects.Container} */
+    get container() {
+        return this.#container;
+    }
+
     /** @type {boolean} */
     get isSelected() {
         return this.#select;
