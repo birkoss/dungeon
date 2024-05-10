@@ -23,7 +23,7 @@ export class TitleScene extends Phaser.Scene {
         let button = new Button(this, UI_ASSET_KEYS.LARGE_BUTTON, 0, () => {
             this.cameras.main.fadeOut(500, 32, 18, 8, (camera, progress) => {
                 if (progress === 1) {
-                    this.scene.start(SCENE_KEYS.DUNGEON_SCENE);
+                    this.scene.start(SCENE_KEYS.LEVEL_SCENE);
                 }
             });
         });

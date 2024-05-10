@@ -5,6 +5,7 @@ import { PreloadScene } from './scenes/preload.js';
 import { DungeonScene } from './scenes/dungeon.js';
 import { TitleScene } from './scenes/title.js';
 import { AboutScene } from './scenes/about.js';
+import { LevelScene } from './scenes/level.js';
 
 const game = new Phaser.Game({
     type: Phaser.AUTO,
@@ -20,6 +21,7 @@ const game = new Phaser.Game({
 game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene);
 game.scene.add(SCENE_KEYS.ABOUT_SCENE, AboutScene);
 game.scene.add(SCENE_KEYS.TITLE_SCENE, TitleScene);
+game.scene.add(SCENE_KEYS.LEVEL_SCENE, LevelScene);
 game.scene.add(SCENE_KEYS.DUNGEON_SCENE, DungeonScene);
 
 game.scene.start(SCENE_KEYS.PRELOAD_SCENE);
