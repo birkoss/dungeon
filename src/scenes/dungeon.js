@@ -58,28 +58,16 @@ export class DungeonScene extends Phaser.Scene {
 
         this.#toggle = new Toggle();
 
-        let toggleBotton = new ToggleButton(this, 0, padding, UI_ASSET_KEYS.TILE_SELECTOR, TILE_ENTITY_TYPE.BACKGROUND);
-        toggleBotton.container.x = this.scale.width - (toggleBotton.container.getBounds().width * 2) - (padding * 2);
-        toggleBotton.add(theme.floor.assetKey, theme.floor.assetFrame);
-        this.#toggle.add(toggleBotton);
-        
-        toggleBotton = new ToggleButton(this, 0, padding, UI_ASSET_KEYS.TILE_SELECTOR, TILE_ENTITY_TYPE.WALL);
-        toggleBotton.container.x = this.scale.width - toggleBotton.container.getBounds().width - padding;
-        toggleBotton.add(theme.wall.assetKey, theme.wall.assetFrame);
-        this.#toggle.add(toggleBotton);
-
-        this.#toggle.select(this.#toggle.buttons[0]);
-
-        this.add.text(padding, toggleBotton.container.y + toggleBotton.container.getBounds().height / 2, level.id, {
+        this.add.text(padding, 30, level.id, {
             fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 18,
+            fontSize: 30,
             color: "#ffffff",
         }).setOrigin(0, 0.5);
 
         this.#dungeon = new Dungeon(this, 10, 10);
         this.#dungeon.create(theme, level);
         this.#dungeon.container.x = (this.scale.width - this.#dungeon.container.getBounds().width) / 2;
-        this.#dungeon.container.y = toggleBotton.container.y + toggleBotton.container.getBounds().height + padding;
+        this.#dungeon.container.y = 50 + padding;
 
         // Enable Tile selection
         this.#dungeon.container.setInteractive(
@@ -111,6 +99,18 @@ export class DungeonScene extends Phaser.Scene {
         });
         this.input.on(Phaser.Input.Events.POINTER_UP_OUTSIDE, () => this.#isSelecting = false);
         this.input.on(Phaser.Input.Events.POINTER_UP, () => this.#isSelecting = false);
+
+        let toggleBotton = new ToggleButton(this, 0, (this.#dungeon.container.y + this.#dungeon.container.getBounds().height + padding), UI_ASSET_KEYS.TILE_SELECTOR, TILE_ENTITY_TYPE.BACKGROUND);
+        toggleBotton.container.x = this.#dungeon.container.x + this.#dungeon.container.getBounds().width / 2 - toggleBotton.background.width - padding;
+        toggleBotton.add(theme.floor.assetKey, theme.floor.assetFrame);
+        this.#toggle.add(toggleBotton);
+        
+        toggleBotton = new ToggleButton(this, 0, (this.#dungeon.container.y + this.#dungeon.container.getBounds().height + padding), UI_ASSET_KEYS.TILE_SELECTOR, TILE_ENTITY_TYPE.WALL);
+        toggleBotton.container.x = this.#dungeon.container.x + this.#dungeon.container.getBounds().width / 2 + padding;
+        toggleBotton.add(theme.wall.assetKey, theme.wall.assetFrame);
+        this.#toggle.add(toggleBotton);
+
+        this.#toggle.select(this.#toggle.buttons[0]);
     }
 
     #createStateMachine() {
