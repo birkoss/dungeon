@@ -65,9 +65,7 @@ export class DungeonScene extends Phaser.Scene {
                 this.#state = true;
             }
 
-            console.log('pointerdown');
             this.#selectTile(x, y);
-
         });
 
         this.#dungeon.container.on(Phaser.Input.Events.POINTER_MOVE, (target) => {
@@ -75,8 +73,6 @@ export class DungeonScene extends Phaser.Scene {
                 let x = Math.floor((target.worldX - this.#dungeon.container.x) / TILE_SIZE);
                 let y = Math.floor((target.worldY - this.#dungeon.container.y) / TILE_SIZE);
     
-                console.log(x, "X", y);
-
                 this.#selectTile(x, y);
             }
         });

@@ -140,63 +140,71 @@ export class Dungeon {
      * @param {number} x 
      * @param {number} y 
      * @param {TILE_ENTITY_TYPE} newType 
-     * @param {boolean} newState
+     * @param {boolean} isActive
      */
-    toggleAt(x, y, newType, newState) {
-        let tile = this.#tiles.find(singleTile => singleTile.x === x && singleTile.y === y);
+    toggleAt(x, y, newType, isActive) {
+        // Out of bound
+        if (x < 0 || y < 0 || x >= this.#width || y >= this.#height) {
+            return;
+        }
 
+        let tile = this.#tiles.find(singleTile => singleTile.x === x && singleTile.y === y);
+        if (!tile) {
+            return;
+        }
+
+        // Must NOT be a BORDER
         if (tile.type === TILE_TYPE.BORDER) {
             return;
         }
 
-        if (newType === TILE_ENTITY_TYPE.WALL) {
-            if (newState && (!tile.entity || tile.entity.type === TILE_ENTITY_TYPE.BACKGROUND)) {
-                let existingEntity;
-                if (tile.entity && tile.entity.type === TILE_ENTITY_TYPE.BACKGROUND) {
-                    existingEntity = tile.entity;
-                }
-                this.#validateTileShadows({created: tile});
-                tile.createEntity(this.#scene, TILE_ENTITY_TYPE.WALL, this.#theme.wall.assetKey, this.#theme.wall.assetFrame);
-                tile.entity.scaleIn(() => {
-                    if (existingEntity) {
-                        existingEntity.gameObject.destroy();
-                    }
-                });
-                return;
-            }
-
-            if (!tile.entity || tile.entity.type !== TILE_ENTITY_TYPE.WALL) {
-                return;
-            }
-    
-            if (!newState) {
-                this.#validateTileShadows({removed: tile});
-                tile.entity.scaleOut(() => {
-                    tile.removeEntity();
-                });
-            }
+        // Must NOT be a CHEST or ENEMY
+        if (tile.entity && (tile.entity.type === TILE_ENTITY_TYPE.CHEST || tile.entity.type === TILE_ENTITY_TYPE.ENEMY)) {
             return;
         }
 
-        if (!tile.entity || tile.entity.type === TILE_ENTITY_TYPE.WALL) {
-            let existingWall;
-            if (tile.entity && tile.entity.type === TILE_ENTITY_TYPE.WALL) {
-                existingWall = tile.entity;
+        // Pick the right asset key depending on the newType
+        let newAssetKey = this.#theme.wall.assetKey;
+        let newAssetFrame = this.#theme.wall.assetFrame;
+        if (newType === TILE_ENTITY_TYPE.BACKGROUND) {
+            newAssetKey = this.#theme.floor.assetKey;
+            newAssetFrame = this.#theme.floor.assetFrame;
+        }
+
+        if (isActive) {
+            // Do nothing if it's already active
+            if (tile.entity && tile.entity.type === newType) {
+                return;
             }
-            tile.createEntity(this.#scene, TILE_ENTITY_TYPE.BACKGROUND, this.#theme.floor.assetKey, this.#theme.floor.assetFrame);
-            this.#validateTileShadows();
+            
+            // Keep the existing entity to remove it later
+            let existingEntity = tile.entity;
+
+            tile.createEntity(this.#scene, newType, newAssetKey, newAssetFrame);
             tile.entity.scaleIn(() => {
-                if (existingWall) {
-                    existingWall.gameObject.destroy();
+                if (existingEntity) {
+                    existingEntity.gameObject.destroy();
                 }
             });
             return;
         }
 
-        tile.entity.scaleOut(() => {
-            tile.removeEntity();
-        });
-        return;
+        if (!isActive) {
+            // Nothing to remove, do nothing
+            if (!tile.entity) {
+                return;
+            }
+
+            // Must be the same type
+            if (tile.entity && tile.entity.type !== newType) {
+                return;
+            }
+
+            tile.entity.scaleOut(() => {
+                tile.removeEntity();
+            });
+            return;            
+        }
     }
 
     #createTiles() {
