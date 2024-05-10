@@ -2,7 +2,7 @@ import Phaser from "../lib/phaser.js";
 import * as WebFontLoader from '../lib/webfontloader.js';
 
 import { SCENE_KEYS } from "../keys/scene.js";
-import { DATA_ASSET_KEYS, DUNGEON_ASSET_KEYS } from "../keys/asset.js";
+import { DATA_ASSET_KEYS, DUNGEON_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
 import { TILE_SIZE } from "../config.js";
 import { KENNEY_MINI_FONT_NAME } from "../keys/font.js";
 import { WebFontFileLoader } from "../web-font-file-loader.js";
@@ -26,6 +26,10 @@ export class PreloadScene extends Phaser.Scene {
         this.load.spritesheet(DUNGEON_ASSET_KEYS.DUNGEON, 'assets/tilesets/dungeon.png', {
             frameWidth: 40,
             frameHeight: 40,
+        });
+        this.load.spritesheet(UI_ASSET_KEYS.TILE_SELECTOR, 'assets/tilesets/tile-selector.png', {
+            frameWidth: 64,
+            frameHeight: 64,
         });
 
         this.load.json(

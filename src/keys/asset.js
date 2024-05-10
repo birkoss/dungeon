@@ -8,3 +8,8 @@ export const DUNGEON_ASSET_KEYS = Object.freeze({
     UNITS: 'UNITS',
     DUNGEON: 'DUNGEON',
 });
+
+export const UI_ASSET_KEYS = Object.freeze({
+    TILE_SELECTOR: 'TILE_SELECTOR',
+});
+

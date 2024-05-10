@@ -8,7 +8,7 @@
         },
         "floor": {
             "assetKey": "DUNGEON",
-            "assetFrame": 24
+            "assetFrame": 14
         },
         "wall": {
             "assetKey": "DUNGEON",
