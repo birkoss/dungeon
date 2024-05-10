@@ -42,6 +42,9 @@ export class DungeonScene extends Phaser.Scene {
 
     create() {
         this.#createStateMachine();
+
+        // Fade In
+        this.cameras.main.fadeIn(500, 32, 18, 8);
     }
 
     update() {
@@ -60,7 +63,11 @@ export class DungeonScene extends Phaser.Scene {
         this.#toggle = new Toggle();
 
         let button = new Button(this, UI_ASSET_KEYS.BUTTON, 0, () => {
-            alert("EXIT");
+            this.cameras.main.fadeOut(500, 32, 18, 8, (camera, progress) => {
+                if (progress === 1) {
+                    this.scene.start(SCENE_KEYS.TITLE_SCENE);
+                }
+            });
         });
         button.add(new Phaser.GameObjects.Text(this, 0, 0, "X", {
             fontFamily: KENNEY_MINI_FONT_NAME,
@@ -70,7 +77,11 @@ export class DungeonScene extends Phaser.Scene {
         button.container.y = padding;
 
         button = new Button(this, UI_ASSET_KEYS.BUTTON, 0, () => {
-            alert("HELP");
+            this.cameras.main.fadeOut(500, 32, 18, 8, (camera, progress) => {
+                if (progress === 1) {
+                    console.log("help");
+                }
+            });
         });
         button.add(new Phaser.GameObjects.Text(this, 0, 0, "?", {
             fontFamily: KENNEY_MINI_FONT_NAME,

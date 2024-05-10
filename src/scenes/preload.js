@@ -35,6 +35,10 @@ export class PreloadScene extends Phaser.Scene {
             frameWidth: 50,
             frameHeight: 50,
         });
+        this.load.spritesheet(UI_ASSET_KEYS.LARGE_BUTTON, 'assets/tilesets/large-button.png', {
+            frameWidth: 150,
+            frameHeight: 50,
+        });
 
         this.load.json(
             DATA_ASSET_KEYS.DUNGEON_THEMES,
@@ -49,6 +53,6 @@ export class PreloadScene extends Phaser.Scene {
     }
 
     create() {
-        this.scene.start(SCENE_KEYS.DUNGEON_SCENE);
+        this.scene.start(SCENE_KEYS.ABOUT_SCENE);
     }
 }

@@ -1,4 +1,6 @@
 export const SCENE_KEYS = Object.freeze({
+    TITLE_SCENE: 'TITLE_SCENE',
+    ABOUT_SCENE: 'ABOUT_SCENE',
     PRELOAD_SCENE: 'PRELOAD_SCENE',
     DUNGEON_SCENE: 'DUNGEON_SCENE',
 });
