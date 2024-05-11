@@ -96,11 +96,14 @@ export class DungeonScene extends Phaser.Scene {
         button.container.x = this.scale.width - (button.container.getBounds().width * 2) - (padding * 2);
         button.container.y = padding;
 
-        this.add.text(padding, button.container.y + button.container.getBounds().height / 2, level.id, {
-            fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 30,
-            color: "#ffffff",
-        }).setOrigin(0, 0.5);
+        let title = this.add.bitmapText(padding, button.container.y + button.container.getBounds().height / 2, UI_ASSET_KEYS.LARGE_FONT, level.id, 36);
+        title.y -= title.height / 2;
+        // this.add.text(padding, button.container.y + button.container.getBounds().height / 2, level.id, {
+        //     fontFamily: KENNEY_MINI_FONT_NAME,
+        //     fontSize: 30,
+        //     color: "#ffffff",
+        // }).setOrigin(0, 0.5);
+
 
         this.#dungeon = new Dungeon(this, 10, 10);
         this.#dungeon.create(theme, level);

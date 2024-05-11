@@ -8,7 +8,7 @@ import { AboutScene } from './scenes/about.js';
 import { LevelScene } from './scenes/level.js';
 
 const game = new Phaser.Game({
-    type: Phaser.CANVAS,
+    type: Phaser.AUTO,
     pixelArt: true,
     scale: {
         parent: 'game-container',
