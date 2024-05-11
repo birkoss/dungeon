@@ -45,7 +45,7 @@ export class LevelScene extends Phaser.Scene {
 
         // Pages & Dungeons
         this.#container = this.add.container(0, 0);
-        this.#createPages();
+        this.#createLevels();
         this.#createDungeons();
 
         // Back Button
@@ -133,15 +133,14 @@ export class LevelScene extends Phaser.Scene {
         });
     }
 
-    #createPages() {
+    #createLevels() {
         let nbrRows = 4
         let nbrCols = 4;
 
-        let spacing = 40;
+        let spacing = 20;
+        let size = 70;
 
-        let size = 50;
-
-        let startX = ((this.scale.width - (size + spacing) * nbrCols) / 2) + spacing;
+        let startX = (this.scale.width - (nbrCols * (size + spacing))) - (spacing);
         let startY = 200;
 
         for (let p=0; p<this.#totalDungeons; p++) {
@@ -151,10 +150,20 @@ export class LevelScene extends Phaser.Scene {
                     let button = new Button(this, UI_ASSET_KEYS.LEVEL_SELECTOR, () => {
                         this.scene.start(SCENE_KEYS.DUNGEON_SCENE);
                     });
-                    button.gameObject.x = p * this.scale.width + startX + x * (50 + spacing);
-                    button.gameObject.y = startY + y * (50 + spacing);
+                    let lock = new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 0);
+                    button.add(lock);
+                    lock.setScale(0.5);
+                    lock.y += 12;
+                    let text = new Phaser.GameObjects.Text(this, 0, 0, (p+1) + "-" + ((y * nbrCols) + x + 1), {
+                        fontFamily: KENNEY_MINI_FONT_NAME,
+                        fontSize: 20,
+                    });
+                    button.add(text);
+                    text.y -= 12;
+                    button.container.x = p * this.scale.width + startX + x * (size + spacing);
+                    button.container.y = startY + y * (size + spacing);
 
-                    this.#container.add(button.gameObject);
+                    this.#container.add(button.container);
                 }
             }
         }

@@ -36,12 +36,16 @@ export class PreloadScene extends Phaser.Scene {
             frameHeight: 60,
         });
         this.load.spritesheet(UI_ASSET_KEYS.LEVEL_SELECTOR, 'assets/tilesets/level-selector.png', {
-            frameWidth: 50,
-            frameHeight: 50,
+            frameWidth: 70,
+            frameHeight: 70,
         });
         this.load.spritesheet(UI_ASSET_KEYS.TEXT_BUTTON, 'assets/tilesets/text-button.png', {
             frameWidth: 100,
             frameHeight: 60,
+        });
+        this.load.spritesheet(UI_ASSET_KEYS.ICONS, 'assets/tilesets/icons.png', {
+            frameWidth: 40,
+            frameHeight: 40,
         });
 
         this.load.image(UI_ASSET_KEYS.TRANSPARENT, 'assets/images/transparent.png');

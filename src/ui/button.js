@@ -7,9 +7,8 @@ export class Button {
     /** @type {Phaser.GameObjects.Image} */
     #gameObject;
 
-    /** @type {Phaser.GameObjects.Text|Phaser.GameObjects.Sprite|Phaser.GameObjects.Image} */
-    #gameObject2;
-    #gameObject2OriginalY;
+    /** @type {Phaser.GameObjects.Container} */
+    #gameObjectsContainer;
 
     /** @type {boolean} */
     #isPressed;
@@ -55,6 +54,9 @@ export class Button {
                 }
             }
         });
+
+        this.#gameObjectsContainer = scene.add.container(0, 0);
+        this.#container.add(this.#gameObjectsContainer);
     }
 
     /** @type {Phaser.GameObjects.Image} */
@@ -71,9 +73,8 @@ export class Button {
      * @param {Phaser.GameObjects.Text|Phaser.GameObjects.Sprite|Phaser.GameObjects.Image} gameObject
      */
     add(gameObject) {
-        this.#gameObject2 = gameObject;
+        this.#gameObjectsContainer.add(gameObject);
 
-        this.#container.add(gameObject);
         gameObject.setOrigin(0.5);
         gameObject.x = (this.#gameObject.width / 2);
         gameObject.y = (this.#gameObject.height / 2) - 3;
@@ -82,8 +83,6 @@ export class Button {
             gameObject.x += 2;
             gameObject.y -= 3;
         }
-
-        this.#gameObject2OriginalY = gameObject.y;
     }
 
     /**
@@ -101,15 +100,11 @@ export class Button {
 
     #press() {
         this.gameObject.setFrame(1);
-        if (this.#gameObject2) {
-            this.#gameObject2.y = this.#gameObject2OriginalY + 6;
-        }
+        this.#gameObjectsContainer.y = 6;
     }
 
     #release() {
         this.gameObject.setFrame(0);
-        if (this.#gameObject2) {
-            this.#gameObject2.y = this.#gameObject2OriginalY;
-        }
+        this.#gameObjectsContainer.y = 0;
     }
 }
