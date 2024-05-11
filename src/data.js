@@ -23,4 +23,19 @@ export class Data {
 
         return data.find((level) => level.id === levelId);
     }
+    
+    /**
+     * @returns {object}
+     */
+    static getSavedLevels() {
+        var data = JSON.parse(localStorage.getItem('savedLevels')) || {};
+        return data;
+    }
+
+    /**
+     * @param {object} savedLevels 
+     */
+    static saveSavedLevels(savedLevels) {
+        localStorage.setItem('savedLevels',JSON.stringify(savedLevels));
+    }
 }

@@ -99,6 +99,10 @@ export class Dungeon {
                 tile.createEntity(this.#scene, TILE_ENTITY_TYPE.CHEST, DUNGEON_ASSET_KEYS.DUNGEON, 8);
             } else if (data === "2") {
                 let enemy = tile.createEntity(this.#scene, TILE_ENTITY_TYPE.ENEMY, DUNGEON_ASSET_KEYS.DUNGEON, 9);
+                // Flip enemy next to the border
+                if (tile.x == this.#width - 2) {
+                    enemy.gameObject.setFlipX(true);
+                }
             }
         }
         

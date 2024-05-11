@@ -143,35 +143,48 @@ export class LevelScene extends Phaser.Scene {
         let startX = (this.scale.width/2 - (nbrCols * (size + spacing))/2) + spacing / 2;
         let startY = 200;
 
-
-        console.log(this.scale.width);
-        console.log(startX, "x", startY);
+        let savedLevels = Data.getSavedLevels();
+        if (Object.keys(savedLevels).length === 0) {
+            savedLevels['1-1'] = {};
+            Data.saveSavedLevels(savedLevels);
+        }
 
         for (let p=0; p<this.#totalDungeons; p++) {
             for (let y = 0; y < nbrRows; y++) {
                 for (let x = 0; x < nbrCols; x++) {
                     let button;
-                    button = new Button(this, UI_ASSET_KEYS.LEVEL_SELECTOR, () => {
+                    let levelName = (p+1) + "-" + ((y * nbrCols) + x + 1);
+                    let isLocked = !savedLevels[levelName];
 
-                        button.wiggle();
+                    button = new Button(this, UI_ASSET_KEYS.LEVEL_SELECTOR, () => {
+                        if (isLocked) {
+                            button.wiggle();
+                            return;
+                        }
                 
-                        return;
                         this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
                             if (progress === 1) {
-                                this.scene.start(SCENE_KEYS.DUNGEON_SCENE);
+                                this.scene.start(SCENE_KEYS.DUNGEON_SCENE, {
+                                    level: levelName,
+                                });
                             }
                         });
                     });
-                    let lock = new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 0);
-                    button.add(lock);
-                    lock.setScale(0.5);
-                    lock.y += 12;
-                    let text = new Phaser.GameObjects.Text(this, 0, 0, (p+1) + "-" + ((y * nbrCols) + x + 1), {
+
+                    let text = new Phaser.GameObjects.Text(this, 0, 0, levelName, {
                         fontFamily: KENNEY_MINI_FONT_NAME,
                         fontSize: 20,
                     });
                     button.add(text);
-                    text.y -= 12;
+
+                    if (isLocked) {
+                        let lock = new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 0);
+                        button.add(lock);
+                        lock.setScale(0.5);
+                        lock.y += 12;
+                        text.y -= 12;
+                    }
+
                     button.container.x = p * this.scale.width + startX + x * (size + spacing);
                     button.container.y = startY + y * (size + spacing);
 
@@ -191,8 +204,7 @@ export class LevelScene extends Phaser.Scene {
         for (let d=0; d<this.#totalDungeons; d++) {
             let dungeon = new Button(this, UI_ASSET_KEYS.DUNGEON_SELECTOR, () => {
                 if (this.#canMove) {
-                    var difference = d - this.#currentDungeon;
-                    this.#changeDungeon(difference);
+                    this.#changeDungeon(d - this.#currentDungeon);
                     this.#canMove = false;
                 }
             });

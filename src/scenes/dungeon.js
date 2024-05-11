@@ -34,10 +34,17 @@ export class DungeonScene extends Phaser.Scene {
     /** @type {StateMachine} */
     #stateMachine;
 
+    /** @type {string} */
+    #currentLevel;
+
     constructor() {
         super({
             key: SCENE_KEYS.DUNGEON_SCENE,
         });
+    }
+
+    init(data) {
+        this.#currentLevel = data?.level || "debug";
     }
 
     create() {
@@ -55,8 +62,7 @@ export class DungeonScene extends Phaser.Scene {
 
     #createDungeon() {
         let theme = Data.getDungeonTheme(this, "dungeon1");
-        // let level = Data.getLevel(this, "1-1");
-        let level = Data.getLevel(this, "debug");
+        let level = Data.getLevel(this, this.#currentLevel);
 
         let padding = 20;
 
@@ -171,7 +177,20 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.GAME_OVER,
             onEnter: () => {
-                // ...
+                let parts = this.#currentLevel.split("-");
+
+                if (parts.length === 2) {
+                    if (parts[1] === "16") {
+                        parts[0] = (parseInt(parts[0]) + 1).toString();
+                    }
+                    if (parseInt(parts[0]) <= 4) {
+                        let savedLevels = Data.getSavedLevels();
+                        savedLevels[parts[0] + '-' + parts[1]] = {};
+                        Data.saveSavedLevels(savedLevels);
+                    }
+                }
+
+                // TODO: Show BRAVO!
             },
         });
 
