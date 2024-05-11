@@ -126,7 +126,7 @@ export class Button {
         fade.scene.tweens.add({
             targets: fade,
             alpha: 0.4,
-            duration: 300,
+            duration: 200,
             ease: Phaser.Math.Easing.Sine.Out,
             onComplete: () => {
                 this.#container.scene.time.addEvent({
@@ -141,7 +141,7 @@ export class Button {
                             fade.scene.tweens.add({
                                 targets: fade,
                                 alpha: 0,
-                                duration: 300,
+                                duration: 200,
                                 ease: Phaser.Math.Easing.Sine.In,
                                 onComplete: () => {
                                     fade.destroy();
