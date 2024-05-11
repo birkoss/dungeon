@@ -1,7 +1,7 @@
 import Phaser from "../lib/phaser.js";
 
 import { SCENE_KEYS } from "../keys/scene.js";
-import { UI_ASSET_KEYS } from "../keys/asset.js";
+import { DUNGEON_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
 import { KENNEY_MINI_FONT_NAME } from "../keys/font.js";
 import { Button } from "../ui/button.js";
 
@@ -10,11 +10,11 @@ export class LevelScene extends Phaser.Scene {
     #canMove;
 
     /** @type {number} */
-    #currentPage;
+    #currentDungeon;
     /** @type {number} */
-    #totalPages;
-    /** @type{Phaser.GameObjects.Sprite[]} */
-    #pages;
+    #totalDungeons;
+    /** @type{Button[]} */
+    #dungeons;
     
     /** @type {Phaser.GameObjects.TileSprite} */
     #background;
@@ -29,8 +29,8 @@ export class LevelScene extends Phaser.Scene {
     }
 
     create() {
-        this.#totalPages = 6;
-        this.#currentPage = 0;
+        this.#totalDungeons = 4;
+        this.#currentDungeon = 0;
         this.#canMove = true;
 
         // Draggable background
@@ -64,22 +64,22 @@ export class LevelScene extends Phaser.Scene {
         this.cameras.main.fadeIn(500, 32, 18, 8);
     }
 
-    #changePage(page) {
-        this.#currentPage += page;
+    #changeDungeon(page) {
+        this.#currentDungeon += page;
 
         // Update pages navigation
-        for (let p=0; p<this.#totalPages; p++) {
-            if (p === this.#currentPage) {
-                this.#pages[p].setScale(1);
+        for (let p=0; p<this.#totalDungeons; p++) {
+            if (p === this.#currentDungeon) {
+                this.#dungeons[p].toggle(true);
             } else {
-                this.#pages[p].setScale(0.7);
+                this.#dungeons[p].toggle(false);
             }
         }
 
         var currentPosition = this.#background.x;
         this.tweens.add({
             targets: this.#background,
-            x: this.#currentPage * -this.scale.width,
+            x: this.#currentDungeon * -this.scale.width,
             duration: 300,
             ease: "Cubic.easeOut",
             callbackScope: this,
@@ -96,7 +96,7 @@ export class LevelScene extends Phaser.Scene {
     }
 
     #createBackground() {
-        this.#background = this.add.tileSprite(0, 0, this.#totalPages * this.scale.width, this.scale.height, UI_ASSET_KEYS.BUTTON).setOrigin(0).setAlpha(0.1);
+        this.#background = this.add.tileSprite(0, 0, this.#totalDungeons * this.scale.width, this.scale.height, UI_ASSET_KEYS.TRANSPARENT).setOrigin(0);
         this.#background.setInteractive();
         this.input.setDraggable(this.#background);
 
@@ -119,12 +119,12 @@ export class LevelScene extends Phaser.Scene {
             this.canMove = false;
             var delta = gameObject.startPosition - gameObject.x;
             if (delta > this.scale.width / 8) {
-                this.#changePage(1) ;
+                this.#changeDungeon(1) ;
             } else {
                 if (delta < -this.scale.width / 8) {
-                    this.#changePage(-1);
+                    this.#changeDungeon(-1);
                 } else {
-                    this.#changePage(0);
+                    this.#changeDungeon(0);
                 }
             }
         });
@@ -133,10 +133,10 @@ export class LevelScene extends Phaser.Scene {
     #createPages() {
         this.#container = this.add.container(0, 0);
 
-        this.#pages = [];
+        this.#dungeons = [];
 
         let nbrRows = 4
-        let nbrCols = 3;
+        let nbrCols = 4;
 
         let spacing = 40;
 
@@ -145,37 +145,39 @@ export class LevelScene extends Phaser.Scene {
         let startX = ((this.scale.width - (size + spacing) * nbrCols) / 2) + spacing;
         let startY = 200;
 
-        for (let p=0; p<this.#totalPages; p++) {
+        for (let p=0; p<this.#totalDungeons; p++) {
             // Create each level
             for (let y = 0; y < nbrRows; y++) {
                 for (let x = 0; x < nbrCols; x++) {
-                    let button = this.add.image(p * this.scale.width + startX + x * (50 + spacing), startY + y * (50 + spacing), UI_ASSET_KEYS.BUTTON);
-
-                    button.setInteractive();
-                    button.on(Phaser.Input.Events.POINTER_DOWN, () => {
+                    let button = new Button(this, UI_ASSET_KEYS.LEVEL_SELECTOR, 0, () => {
                         this.scene.start(SCENE_KEYS.DUNGEON_SCENE);
                     });
-                    this.#container.add(button);
+                    button.gameObject.x = p * this.scale.width + startX + x * (50 + spacing);
+                    button.gameObject.y = startY + y * (50 + spacing);
+
+                    this.#container.add(button.gameObject);
                 }
             }
 
-            // Create Page Navigation
-            let page = this.add.sprite(this.scale.width / 2 + (p - Math.floor(this.#totalPages / 2) + 0.5 * (1 - this.#totalPages % 2)) * 60, 600, UI_ASSET_KEYS.BUTTON);
-            page.setInteractive();
-            page.on(Phaser.Input.Events.POINTER_DOWN, () => {
+            // Create Dungeon Navigation
+            let dungeon = new Button(this, UI_ASSET_KEYS.DUNGEON_SELECTOR, 0, () => {
                 if (this.#canMove) {
-                    var difference = p - this.#currentPage;
-                    this.#changePage(difference);
+                    var difference = p - this.#currentDungeon;
+                    this.#changeDungeon(difference);
                     this.#canMove = false;
                 }
             });
+            let tile = new Phaser.GameObjects.Image(this, 0, 0, DUNGEON_ASSET_KEYS.DUNGEON, 0);
+            dungeon.add(tile);
+            dungeon.container.x = this.scale.width / 2 + (p - Math.floor(this.#totalDungeons / 2) + 0.5 * (1 - this.#totalDungeons % 2)) * 80;
+            dungeon.container.y = 600;
 
-            this.#pages.push(page);
+            this.#dungeons.push(dungeon);
 
-            if (p === this.#currentPage) {
-                this.#pages[p].setScale(1);
+            if (p === this.#currentDungeon) {
+                this.#dungeons[p].toggle(true);
             } else {
-                this.#pages[p].setScale(0.7);
+                this.#dungeons[p].toggle(false);
             }
         }
     }

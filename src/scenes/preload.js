@@ -39,6 +39,16 @@ export class PreloadScene extends Phaser.Scene {
             frameWidth: 150,
             frameHeight: 50,
         });
+        this.load.spritesheet(UI_ASSET_KEYS.DUNGEON_SELECTOR, 'assets/tilesets/dungeon-selector.png', {
+            frameWidth: 54,
+            frameHeight: 60,
+        });
+        this.load.spritesheet(UI_ASSET_KEYS.LEVEL_SELECTOR, 'assets/tilesets/level-selector.png', {
+            frameWidth: 50,
+            frameHeight: 50,
+        });
+
+        this.load.image(UI_ASSET_KEYS.TRANSPARENT, 'assets/images/transparent.png');
 
         this.load.json(
             DATA_ASSET_KEYS.DUNGEON_THEMES,

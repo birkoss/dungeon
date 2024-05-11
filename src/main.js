@@ -8,14 +8,14 @@ import { AboutScene } from './scenes/about.js';
 import { LevelScene } from './scenes/level.js';
 
 const game = new Phaser.Game({
-    type: Phaser.AUTO,
+    type: Phaser.CANVAS,
     pixelArt: true,
     scale: {
         parent: 'game-container',
         width: window.innerWidth,
         height: window.innerHeight,
     },
-    backgroundColor: '#201208',
+    backgroundColor: '#333333',
 });
 
 game.scene.add(SCENE_KEYS.PRELOAD_SCENE, PreloadScene);
