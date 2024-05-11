@@ -44,7 +44,7 @@ export class DungeonScene extends Phaser.Scene {
         this.#createStateMachine();
 
         // Fade In
-        this.cameras.main.fadeIn(500, 32, 18, 8);
+        this.cameras.main.fadeIn(500, 51, 51, 51);
     }
 
     update() {
@@ -63,7 +63,7 @@ export class DungeonScene extends Phaser.Scene {
         this.#toggle = new Toggle();
 
         let button = new Button(this, UI_ASSET_KEYS.BUTTON, () => {
-            this.cameras.main.fadeOut(500, 32, 18, 8, (camera, progress) => {
+            this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.TITLE_SCENE);
                 }
@@ -77,7 +77,7 @@ export class DungeonScene extends Phaser.Scene {
         button.container.y = padding;
 
         button = new Button(this, UI_ASSET_KEYS.BUTTON, () => {
-            this.cameras.main.fadeOut(500, 32, 18, 8, (camera, progress) => {
+            this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
                     console.log("help");
                 }

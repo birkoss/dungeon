@@ -25,8 +25,8 @@ export class AboutScene extends Phaser.Scene {
         }).setOrigin(0.5, 0).setWordWrapWidth(this.scale.width - 80);
 
         // Back
-        let button = new Button(this, UI_ASSET_KEYS.LARGE_BUTTON, () => {
-            this.cameras.main.fadeOut(500, 32, 18, 8, (camera, progress) => {
+        let button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
+            this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.TITLE_SCENE);
                 }
@@ -40,7 +40,7 @@ export class AboutScene extends Phaser.Scene {
         button.container.y = (this.scale.height - button.container.getBounds().height - 100);
 
         // Fade In
-        this.cameras.main.fadeIn(500, 32, 18, 8);
+        this.cameras.main.fadeIn(500, 51, 51, 51);
     }
 
 }
