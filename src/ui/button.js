@@ -71,19 +71,14 @@ export class Button {
     }
 
     /**
-     * @param {Phaser.GameObjects.Text|Phaser.GameObjects.Sprite|Phaser.GameObjects.Image} gameObject
+     * @param {Phaser.GameObjects.Text|Phaser.GameObjects.Sprite|Phaser.GameObjects.Image|Phaser.GameObjects.BitmapText} gameObject
      */
     add(gameObject) {
         this.#gameObjectsContainer.add(gameObject);
+        gameObject.setOrigin(0);
 
-        gameObject.setOrigin(0.5);
-        gameObject.x = (this.#gameObject.width / 2);
-        gameObject.y = (this.#gameObject.height / 2) - 3;
-
-        if (gameObject instanceof Phaser.GameObjects.Text) {
-            gameObject.x += 2;
-            gameObject.y -= 3;
-        }
+        gameObject.x = Math.floor((this.#gameObject.width - gameObject.displayWidth) / 2);
+        gameObject.y = Math.floor((this.#gameObject.height - gameObject.displayHeight) / 2) - 3;
     }
 
     /**

@@ -38,10 +38,8 @@ export class LevelScene extends Phaser.Scene {
         this.#createBackground();
 
         // Title
-        this.add.text(this.scale.width / 2, 60, "Select a Level", {
-            fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 30,
-        }).setOrigin(0.5, 0);
+        let title = this.add.bitmapText(0, 60, UI_ASSET_KEYS.LARGE_FONT, "Select a Level", 36);
+        title.x = Math.floor((this.scale.width - title.width) / 2);
 
         // Pages & Dungeons
         this.#container = this.add.container(0, 0);
@@ -56,10 +54,7 @@ export class LevelScene extends Phaser.Scene {
                 }
             });
         });
-        button.add(new Phaser.GameObjects.Text(this, 0, 0, "Back", {
-            fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 30,
-        }));
+        button.add(new Phaser.GameObjects.BitmapText(this, 0, 0, UI_ASSET_KEYS.SMALL_FONT, "Back", 30));
         button.container.x = (this.scale.width - button.container.getBounds().width) / 2;
         button.container.y = 700;
 
@@ -171,18 +166,15 @@ export class LevelScene extends Phaser.Scene {
                         });
                     });
 
-                    let text = new Phaser.GameObjects.Text(this, 0, 0, levelName, {
-                        fontFamily: KENNEY_MINI_FONT_NAME,
-                        fontSize: 20,
-                    });
+                    let text = new Phaser.GameObjects.BitmapText(this, 0, 0, UI_ASSET_KEYS.SMALL_FONT, levelName, 20);
                     button.add(text);
 
                     if (isLocked) {
                         let lock = new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 0);
-                        button.add(lock);
                         lock.setScale(0.5);
-                        lock.y += 12;
-                        text.y -= 12;
+                        button.add(lock);
+                        lock.y += 10;
+                        text.y -= 14;
                     }
 
                     button.container.x = p * this.scale.width + startX + x * (size + spacing);

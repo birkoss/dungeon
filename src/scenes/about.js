@@ -14,15 +14,10 @@ export class AboutScene extends Phaser.Scene {
 
     create() {
         // Title
-        this.add.text(this.scale.width / 2, 100, "About", {
-            fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 30,
-        }).setOrigin(0.5, 0);
+        let title = this.add.bitmapText(0, 60, UI_ASSET_KEYS.LARGE_FONT, "About", 36);
+        title.x = Math.floor((this.scale.width - title.width) / 2);
 
-        this.add.text(this.scale.width / 2, 200, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vel massa ac nisi accumsan ornare. Etiam id risus eu lectus molestie feugiat. Ut id lacus sapien. Vestibulum diam odio, congue nec lobortis non, sagittis eget nisl.", {
-            fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 26,
-        }).setOrigin(0.5, 0).setWordWrapWidth(this.scale.width - 80);
+        this.add.bitmapText(40, 200, UI_ASSET_KEYS.LARGE_FONT, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vel massa ac nisi accumsan ornare. Etiam id risus eu lectus molestie feugiat. Ut id lacus sapien. Vestibulum diam odio, congue nec lobortis non, sagittis eget nisl.", 24).setMaxWidth(this.scale.width - 80);
 
         // Back
         let button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
@@ -32,10 +27,7 @@ export class AboutScene extends Phaser.Scene {
                 }
             });
         });
-        button.add(new Phaser.GameObjects.Text(this, 0, 0, "Back", {
-            fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 30,
-        }));
+        button.add(new Phaser.GameObjects.BitmapText(this, 0, 0, UI_ASSET_KEYS.SMALL_FONT, "BACK", 30));
         button.container.x = (this.scale.width - button.container.getBounds().width) / 2;
         button.container.y = (this.scale.height - button.container.getBounds().height - 100);
 

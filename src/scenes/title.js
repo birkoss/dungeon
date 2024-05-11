@@ -14,10 +14,8 @@ export class TitleScene extends Phaser.Scene {
 
     create() {
         // Title
-        this.add.text(this.scale.width / 2, 100, "Untitled", {
-            fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 30,
-        }).setOrigin(0.5, 0);
+        let title = this.add.bitmapText(0, 60, UI_ASSET_KEYS.LARGE_FONT, "Untitled\nGame", 48, Phaser.GameObjects.BitmapText.ALIGN_CENTER);
+        title.x = Math.floor((this.scale.width - title.width) / 2);
 
         // Play
         let button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
@@ -27,11 +25,8 @@ export class TitleScene extends Phaser.Scene {
                 }
             });
         });
-        button.add(new Phaser.GameObjects.Text(this, 0, 0, "Play", {
-            fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 30,
-        }));
-        button.container.x = (this.scale.width - button.container.getBounds().width) / 2;
+        button.add(new Phaser.GameObjects.BitmapText(this, 0, 0, UI_ASSET_KEYS.SMALL_FONT, "PLAY", 30));
+        button.container.x = Math.floor((this.scale.width - button.container.getBounds().width) / 2);
         button.container.y = 250;
 
         // About
@@ -42,10 +37,7 @@ export class TitleScene extends Phaser.Scene {
                 }
             });
         });
-        button.add(new Phaser.GameObjects.Text(this, 0, 0, "About", {
-            fontFamily: KENNEY_MINI_FONT_NAME,
-            fontSize: 30,
-        }));
+        button.add(new Phaser.GameObjects.BitmapText(this, 0, 0, UI_ASSET_KEYS.SMALL_FONT, "ABOUT", 30));
         button.container.x = (this.scale.width - button.container.getBounds().width) / 2;
         button.container.y = 400;
 
