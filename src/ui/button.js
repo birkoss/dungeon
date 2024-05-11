@@ -1,3 +1,4 @@
+import { UI_ASSET_KEYS } from "../keys/asset.js";
 import Phaser from "../lib/phaser.js";
 
 export class Button {
@@ -96,6 +97,61 @@ export class Button {
         } else {
             this.#release();
         }
+    }
+
+    /**
+     * @param {number} [duration=10]
+     */
+    wiggle(duration) {
+        let positions = [];
+
+        // Add random position
+        for (let i=0; i<(duration || 15); i++) {
+            positions.push({
+                x: this.#container.x + Phaser.Math.Between(-4, 4),
+                y: this.#container.y + Phaser.Math.Between(-4, 4),
+            });
+        }
+
+        // Get back to original position
+        positions.push({
+            x: this.#container.x,
+            y: this.#container.y,
+        });
+
+        var fade = new Phaser.GameObjects.Rectangle(this.#container.scene, 0, 0, this.#container.getBounds().width, this.#container.getBounds().height, 0xff0000, 1).setOrigin(0);
+        fade.setAlpha(0);
+        this.#container.add(fade);
+
+        fade.scene.tweens.add({
+            targets: fade,
+            alpha: 0.4,
+            duration: 300,
+            ease: Phaser.Math.Easing.Sine.Out,
+            onComplete: () => {
+                this.#container.scene.time.addEvent({
+                    repeat: positions.length - 1,
+                    delay: 40,
+                    callback: () => {
+                        let position = positions.shift();
+                         this.#container.x = position.x;
+                         this.#container.y = position.y; 
+        
+                         if (positions.length === 0) {
+                            fade.scene.tweens.add({
+                                targets: fade,
+                                alpha: 0,
+                                duration: 300,
+                                ease: Phaser.Math.Easing.Sine.In,
+                                onComplete: () => {
+                                    fade.destroy();
+                                }
+                            });
+                         }
+                    },
+                });
+            }
+        });
     }
 
     #press() {

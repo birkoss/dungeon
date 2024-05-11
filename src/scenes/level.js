@@ -147,7 +147,12 @@ export class LevelScene extends Phaser.Scene {
             // Create each level
             for (let y = 0; y < nbrRows; y++) {
                 for (let x = 0; x < nbrCols; x++) {
-                    let button = new Button(this, UI_ASSET_KEYS.LEVEL_SELECTOR, () => {
+                    let button;
+                    button = new Button(this, UI_ASSET_KEYS.LEVEL_SELECTOR, () => {
+
+                        button.wiggle();
+                
+                        return;
                         this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
                             if (progress === 1) {
                                 this.scene.start(SCENE_KEYS.DUNGEON_SCENE);
