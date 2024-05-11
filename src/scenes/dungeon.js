@@ -54,7 +54,7 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     #createDungeon() {
-        let theme = Data.getDungeonTheme(this, "main");
+        let theme = Data.getDungeonTheme(this, "dungeon1");
         // let level = Data.getLevel(this, "1-1");
         let level = Data.getLevel(this, "debug");
 

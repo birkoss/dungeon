@@ -4,6 +4,7 @@ import { SCENE_KEYS } from "../keys/scene.js";
 import { DUNGEON_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
 import { KENNEY_MINI_FONT_NAME } from "../keys/font.js";
 import { Button } from "../ui/button.js";
+import { Data } from "../data.js";
 
 export class LevelScene extends Phaser.Scene {
     /** @type {boolean} */
@@ -167,7 +168,8 @@ export class LevelScene extends Phaser.Scene {
                     this.#canMove = false;
                 }
             });
-            let tile = new Phaser.GameObjects.Image(this, 0, 0, DUNGEON_ASSET_KEYS.DUNGEON, 0);
+            let theme = Data.getDungeonTheme(this, "dungeon" + (p+1));
+            let tile = new Phaser.GameObjects.Image(this, 0, 0, theme.border.assetKey, theme.border.assetFrame);
             dungeon.add(tile);
             dungeon.container.x = this.scale.width / 2 + (p - Math.floor(this.#totalDungeons / 2) + 0.5 * (1 - this.#totalDungeons % 2)) * 80;
             dungeon.container.y = 600;

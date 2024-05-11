@@ -1,6 +1,6 @@
 [
     {
-        "id" : "main",
+        "id" : "dungeon1",
         "name": "Main Theme",
         "unknown": {
             "assetKey": "DUNGEON",
@@ -21,6 +21,75 @@
         "borderLabel": {
             "assetKey": "DUNGEON",
             "assetFrame": 20
+        }
+    },{
+        "id" : "dungeon2",
+        "name": "Main Theme",
+        "unknown": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 4
+        },
+        "floor": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 14
+        },
+        "wall": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 10
+        },
+        "border": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 1
+        },
+        "borderLabel": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 21
+        }
+    },{
+        "id" : "dungeon3",
+        "name": "Main Theme",
+        "unknown": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 4
+        },
+        "floor": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 14
+        },
+        "wall": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 10
+        },
+        "border": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 2
+        },
+        "borderLabel": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 22
+        }
+    },{
+        "id" : "dungeon4",
+        "name": "Main Theme",
+        "unknown": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 4
+        },
+        "floor": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 14
+        },
+        "wall": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 10
+        },
+        "border": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 3
+        },
+        "borderLabel": {
+            "assetKey": "DUNGEON",
+            "assetFrame": 23
         }
     }
 ]

@@ -4,8 +4,6 @@ export const DATA_ASSET_KEYS = Object.freeze({
 });
 
 export const DUNGEON_ASSET_KEYS = Object.freeze({
-    WORLD: 'WORLD',
-    UNITS: 'UNITS',
     DUNGEON: 'DUNGEON',
 });
 
