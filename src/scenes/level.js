@@ -43,8 +43,10 @@ export class LevelScene extends Phaser.Scene {
             fontSize: 30,
         }).setOrigin(0.5, 0);
 
-        // Pages
+        // Pages & Dungeons
+        this.#container = this.add.container(0, 0);
         this.#createPages();
+        this.#createDungeons();
 
         // Back Button
         let button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
@@ -132,10 +134,6 @@ export class LevelScene extends Phaser.Scene {
     }
 
     #createPages() {
-        this.#container = this.add.container(0, 0);
-
-        this.#dungeons = [];
-
         let nbrRows = 4
         let nbrCols = 4;
 
@@ -159,28 +157,33 @@ export class LevelScene extends Phaser.Scene {
                     this.#container.add(button.gameObject);
                 }
             }
+        }
+    }
 
-            // Create Dungeon Navigation
+    #createDungeons() {
+        this.#dungeons = [];
+
+        let spacing = 24;
+        let size = 60;
+        let startX = (this.scale.width - (this.#totalDungeons * (size + spacing))) - (spacing / 2);
+
+        for (let d=0; d<this.#totalDungeons; d++) {
             let dungeon = new Button(this, UI_ASSET_KEYS.DUNGEON_SELECTOR, () => {
                 if (this.#canMove) {
-                    var difference = p - this.#currentDungeon;
+                    var difference = d - this.#currentDungeon;
                     this.#changeDungeon(difference);
                     this.#canMove = false;
                 }
             });
-            let theme = Data.getDungeonTheme(this, "dungeon" + (p+1));
+            let theme = Data.getDungeonTheme(this, "dungeon" + (d+1));
             let tile = new Phaser.GameObjects.Image(this, 0, 0, theme.border.assetKey, theme.border.assetFrame);
             dungeon.add(tile);
-            dungeon.container.x = this.scale.width / 2 + (p - Math.floor(this.#totalDungeons / 2) + 0.5 * (1 - this.#totalDungeons % 2)) * 80;
+            dungeon.container.x = startX + (d * (dungeon.container.getBounds().width + spacing));
             dungeon.container.y = 600;
 
             this.#dungeons.push(dungeon);
-
-            if (p === this.#currentDungeon) {
-                this.#dungeons[p].toggle(true);
-            } else {
-                this.#dungeons[p].toggle(false);
-            }
         }
+
+        this.#dungeons[0].toggle(true);
     }
 }
