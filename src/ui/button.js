@@ -1,4 +1,3 @@
-import { UI_ASSET_KEYS } from "../keys/asset.js";
 import Phaser from "../lib/phaser.js";
 
 export class Button {

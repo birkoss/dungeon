@@ -1,8 +1,7 @@
 import Phaser from "../lib/phaser.js";
 
 import { SCENE_KEYS } from "../keys/scene.js";
-import { DUNGEON_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
-import { KENNEY_MINI_FONT_NAME } from "../keys/font.js";
+import { UI_ASSET_KEYS } from "../keys/asset.js";
 import { Button } from "../ui/button.js";
 import { Data } from "../data.js";
 

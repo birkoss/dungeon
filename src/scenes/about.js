@@ -2,7 +2,6 @@ import Phaser from "../lib/phaser.js";
 
 import { SCENE_KEYS } from "../keys/scene.js";
 import { UI_ASSET_KEYS } from "../keys/asset.js";
-import { KENNEY_MINI_FONT_NAME } from "../keys/font.js";
 import { Button } from "../ui/button.js";
 
 export class AboutScene extends Phaser.Scene {

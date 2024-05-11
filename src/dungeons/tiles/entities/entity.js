@@ -137,7 +137,6 @@ export class TileEntity {
             targets: [
                 this._gameObject,
             ],
-            // alpha: 0,
             scaleY: 0,
             scaleX: 0,
             duration: duration || 400,

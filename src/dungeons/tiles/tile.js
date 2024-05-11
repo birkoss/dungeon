@@ -2,7 +2,6 @@ import Phaser from "../../lib/phaser.js";
 
 import { TILE_SIZE } from "../../config.js";
 import { TILE_ENTITY_TYPE, TileEntity } from "./entities/entity.js";
-import { KENNEY_MINI_FONT_NAME } from "../../keys/font.js";
 import { UI_ASSET_KEYS } from "../../keys/asset.js";
 
 /** @typedef {keyof typeof TILE_TYPE} TileType */
@@ -91,10 +90,6 @@ export class Tile {
      */
     createLabel(scene, text) {
         this.#label = scene.add.bitmapText((this.#background.gameObject.width / 2) - 4, (this.#background.gameObject.height / 2) - 11, UI_ASSET_KEYS.SMALL_FONT, text, 20);
-        // this.#label = scene.add.text(this.#background.gameObject.width / 2, (this.#background.gameObject.height / 2) - 2, text, {
-        //     fontFamily: KENNEY_MINI_FONT_NAME,
-        //     fontSize: 16,
-        // }).setOrigin(0.5);
         this.#container.add(this.#label);
     }
 

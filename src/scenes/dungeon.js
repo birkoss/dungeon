@@ -5,11 +5,10 @@ import { Dungeon } from "../dungeons/dungeon.js";
 import { Data } from "../data.js";
 import { TILE_SIZE } from "../config.js";
 import { TILE_ENTITY_TYPE } from "../dungeons/tiles/entities/entity.js";
-import { DUNGEON_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
+import { UI_ASSET_KEYS } from "../keys/asset.js";
 import { StateMachine } from "../state-machine.js";
 import { ToggleButton } from "../ui/toggle-button.js";
 import { Toggle } from "../ui/toggle.js";
-import { KENNEY_MINI_FONT_NAME } from "../keys/font.js";
 import { Button } from "../ui/button.js";
 
 const MAIN_STATES = Object.freeze({
