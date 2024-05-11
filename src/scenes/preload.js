@@ -23,8 +23,8 @@ export class PreloadScene extends Phaser.Scene {
             frameHeight: 64,
         });
         this.load.spritesheet(UI_ASSET_KEYS.BUTTON, 'assets/tilesets/button.png', {
-            frameWidth: 50,
-            frameHeight: 50,
+            frameWidth: 54,
+            frameHeight: 60,
         });
         this.load.spritesheet(UI_ASSET_KEYS.LARGE_BUTTON, 'assets/tilesets/large-button.png', {
             frameWidth: 150,

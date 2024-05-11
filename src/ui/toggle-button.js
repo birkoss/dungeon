@@ -6,6 +6,10 @@ export class ToggleButton {
 
     /** @type {Phaser.GameObjects.Image} */
     #background;
+    /** @type {Phaser.GameObjects.Image} */
+    #image;
+    /** @type {number} */
+    #imageOriginY;
 
     /** @type {any} */
     #value;
@@ -55,19 +59,23 @@ export class ToggleButton {
      * @param {number} assetFrame
      */
     add(assetKey, assetFrame) {
-        let image = this.#container.scene.add.image(0, 0, assetKey, assetFrame);
-        this.#container.add(image);
-        image.x = this.#background.width / 2;
-        image.y = this.#background.height / 2;
+        this.#image = this.#container.scene.add.image(0, 0, assetKey, assetFrame);
+        this.#container.add(this.#image);
+        this.#image.x = this.#background.width / 2;
+        this.#image.y = (this.#background.height / 2) - 3;
+
+        this.#imageOriginY = this.#image.y;
     }
 
     select() {
-        this.#background.setFrame(0);
+        this.#background.setFrame(1);
         this.#select = true;
+        this.#image.y = this.#imageOriginY + 6;
     }
 
     unselect() {
-        this.#background.setFrame(1);
+        this.#background.setFrame(0);
         this.#select = false;
+        this.#image.y = this.#imageOriginY;
     }
 }
