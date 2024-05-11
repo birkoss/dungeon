@@ -140,11 +140,14 @@ export class LevelScene extends Phaser.Scene {
         let spacing = 20;
         let size = 70;
 
-        let startX = (this.scale.width - (nbrCols * (size + spacing))) - (spacing);
+        let startX = (this.scale.width/2 - (nbrCols * (size + spacing))/2) + spacing / 2;
         let startY = 200;
 
+
+        console.log(this.scale.width);
+        console.log(startX, "x", startY);
+
         for (let p=0; p<this.#totalDungeons; p++) {
-            // Create each level
             for (let y = 0; y < nbrRows; y++) {
                 for (let x = 0; x < nbrCols; x++) {
                     let button;
@@ -183,7 +186,7 @@ export class LevelScene extends Phaser.Scene {
 
         let spacing = 24;
         let size = 60;
-        let startX = (this.scale.width - (this.#totalDungeons * (size + spacing))) - (spacing / 2);
+        let startX = (this.scale.width/2 - (this.#totalDungeons * (size + spacing))/2) + spacing;
 
         for (let d=0; d<this.#totalDungeons; d++) {
             let dungeon = new Button(this, UI_ASSET_KEYS.DUNGEON_SELECTOR, () => {
