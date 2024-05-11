@@ -48,7 +48,7 @@ export class LevelScene extends Phaser.Scene {
 
         // Back Button
         let button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
-            this.cameras.main.fadeOut(500, 32, 18, 8, (camera, progress) => {
+            this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.TITLE_SCENE);
                 }
@@ -62,7 +62,7 @@ export class LevelScene extends Phaser.Scene {
         button.container.y = 700;
 
         // Fade In
-        this.cameras.main.fadeIn(500, 32, 18, 8);
+        this.cameras.main.fadeIn(500, 51, 51, 51);
     }
 
     #changeDungeon(page) {

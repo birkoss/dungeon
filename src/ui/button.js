@@ -101,11 +101,15 @@ export class Button {
 
     #press() {
         this.gameObject.setFrame(1);
-        this.#gameObject2.y = this.#gameObject2OriginalY + 6;
+        if (this.#gameObject2) {
+            this.#gameObject2.y = this.#gameObject2OriginalY + 6;
+        }
     }
 
     #release() {
         this.gameObject.setFrame(0);
-        this.#gameObject2.y = this.#gameObject2OriginalY;
+        if (this.#gameObject2) {
+            this.#gameObject2.y = this.#gameObject2OriginalY;
+        }
     }
 }
