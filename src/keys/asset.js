@@ -14,5 +14,6 @@ export const UI_ASSET_KEYS = Object.freeze({
     LEVEL_SELECTOR: 'LEVEL_SELECTOR',
     BUTTON: 'BUTTON',
     LARGE_BUTTON: 'LARGE_BUTTON',
+    TEXT_BUTTON: 'TEXT_BUTTON',
 });
 

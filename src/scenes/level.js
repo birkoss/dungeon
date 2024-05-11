@@ -47,7 +47,7 @@ export class LevelScene extends Phaser.Scene {
         this.#createPages();
 
         // Back Button
-        let button = new Button(this, UI_ASSET_KEYS.LARGE_BUTTON, 0, () => {
+        let button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
             this.cameras.main.fadeOut(500, 32, 18, 8, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.TITLE_SCENE);
@@ -150,7 +150,7 @@ export class LevelScene extends Phaser.Scene {
             // Create each level
             for (let y = 0; y < nbrRows; y++) {
                 for (let x = 0; x < nbrCols; x++) {
-                    let button = new Button(this, UI_ASSET_KEYS.LEVEL_SELECTOR, 0, () => {
+                    let button = new Button(this, UI_ASSET_KEYS.LEVEL_SELECTOR, () => {
                         this.scene.start(SCENE_KEYS.DUNGEON_SCENE);
                     });
                     button.gameObject.x = p * this.scale.width + startX + x * (50 + spacing);
@@ -161,7 +161,7 @@ export class LevelScene extends Phaser.Scene {
             }
 
             // Create Dungeon Navigation
-            let dungeon = new Button(this, UI_ASSET_KEYS.DUNGEON_SELECTOR, 0, () => {
+            let dungeon = new Button(this, UI_ASSET_KEYS.DUNGEON_SELECTOR, () => {
                 if (this.#canMove) {
                     var difference = p - this.#currentDungeon;
                     this.#changeDungeon(difference);

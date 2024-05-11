@@ -20,15 +20,14 @@ export class Button {
     /**
      * @param {Phaser.Scene} scene
      * @param {string} assetKey 
-     * @param {number} assetFrame
      * @param {() => void} [callback]
      */
-    constructor(scene, assetKey, assetFrame, callback) {
+    constructor(scene, assetKey, callback) {
         this.#container = scene.add.container(0, 0);
         this.#isPressed = false;
         this.#isToggled = false;
 
-        this.#gameObject = scene.add.image(0, 0, assetKey, assetFrame);
+        this.#gameObject = scene.add.image(0, 0, assetKey, 0);
         this.#gameObject.setOrigin(0);
         this.#container.add(this.#gameObject);
 

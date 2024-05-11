@@ -39,6 +39,10 @@ export class PreloadScene extends Phaser.Scene {
             frameWidth: 50,
             frameHeight: 50,
         });
+        this.load.spritesheet(UI_ASSET_KEYS.TEXT_BUTTON, 'assets/tilesets/text-button.png', {
+            frameWidth: 100,
+            frameHeight: 60,
+        });
 
         this.load.image(UI_ASSET_KEYS.TRANSPARENT, 'assets/images/transparent.png');
 

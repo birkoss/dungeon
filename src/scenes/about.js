@@ -25,7 +25,7 @@ export class AboutScene extends Phaser.Scene {
         }).setOrigin(0.5, 0).setWordWrapWidth(this.scale.width - 80);
 
         // Back
-        let button = new Button(this, UI_ASSET_KEYS.LARGE_BUTTON, 0, () => {
+        let button = new Button(this, UI_ASSET_KEYS.LARGE_BUTTON, () => {
             this.cameras.main.fadeOut(500, 32, 18, 8, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.TITLE_SCENE);
