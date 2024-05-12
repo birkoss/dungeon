@@ -28,7 +28,7 @@ export class Popup {
         this.#background.y += this.#background.height / 2;
         this.#container.add(this.#background);
 
-        let button = new Button(scene, UI_ASSET_KEYS.BUTTON, () => {
+        let button = new Button(scene, UI_ASSET_KEYS.BUTTON_RED, () => {
             this.hide();
         });
         button.add(new Phaser.GameObjects.Image(scene, 0, 0, UI_ASSET_KEYS.ICONS, 4).setScale(0.75));
@@ -54,14 +54,14 @@ export class Popup {
         this.#container.scene.add.tween({
             targets: this.#overlay,
             alpha: 0.8,
-            duration: 300,
+            duration: 450,
             ease: Phaser.Math.Easing.Cubic.Out,
         });
 
         this.#container.scene.add.tween({
             targets: this.#container,
             alpha: 1,
-            duration: 300,
+            duration: 450,
             ease: Phaser.Math.Easing.Cubic.Out,
         });
     }
@@ -70,14 +70,14 @@ export class Popup {
         this.#container.scene.add.tween({
             targets: this.#container,
             alpha: 0,
-            duration: 300,
+            duration: 450,
             ease: Phaser.Math.Easing.Cubic.Out,
         });
 
         this.#container.scene.add.tween({
             targets: this.#overlay,
             alpha: 0,
-            duration: 300,
+            duration: 450,
             ease: Phaser.Math.Easing.Cubic.Out,
         });
     }
