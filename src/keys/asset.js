@@ -14,7 +14,7 @@ export const UI_ASSET_KEYS = Object.freeze({
     BUTTON: 'BUTTON',
     TEXT_BUTTON: 'TEXT_BUTTON',
     ICONS: 'ICONS',
-    SMALL_FONT: 'SMALL_FONT',   // 10, 20, 30
-    LARGE_FONT: 'LARGE_FONT',   // 12, 24, 36
+    SMALL_FONT: 'SMALL_FONT',           // Size: 10, 20, 30
+    LARGE_FONT: 'LARGE_FONT',           // Size: 12, 24, 36
 });
 

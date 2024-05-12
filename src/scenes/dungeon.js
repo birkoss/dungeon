@@ -10,6 +10,7 @@ import { StateMachine } from "../state-machine.js";
 import { ToggleButton } from "../ui/toggle-button.js";
 import { Toggle } from "../ui/toggle.js";
 import { Button } from "../ui/button.js";
+import { Popup } from "../ui/popup.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -79,11 +80,8 @@ export class DungeonScene extends Phaser.Scene {
         button.container.y = padding;
 
         button = new Button(this, UI_ASSET_KEYS.BUTTON, () => {
-            this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
-                if (progress === 1) {
-                    console.log("help");
-                }
-            });
+            let popup = new Popup(this);
+            popup.show();
         });
         button.add(new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 3).setScale(0.75));
         button.container.x = this.scale.width - (button.container.getBounds().width * 2) - (padding * 2);
