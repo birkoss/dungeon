@@ -168,7 +168,7 @@ export class DungeonScene extends Phaser.Scene {
         toggleBotton.add(theme.wall.assetKey, theme.wall.assetFrame);
         this.#toggle.add(toggleBotton);
 
-        this.#toggle.select(this.#toggle.buttons[0]);
+        this.#toggle.select(this.#toggle.buttons[1]);
     }
 
     #createStateMachine() {
