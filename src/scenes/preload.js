@@ -1,7 +1,7 @@
 import Phaser from "../lib/phaser.js";
 
 import { SCENE_KEYS } from "../keys/scene.js";
-import { DATA_ASSET_KEYS, DUNGEON_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
+import { DATA_ASSET_KEYS, DUNGEON_ASSET_KEYS, HELP_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
 
 export class PreloadScene extends Phaser.Scene {
     constructor() {
@@ -41,6 +41,9 @@ export class PreloadScene extends Phaser.Scene {
         });
 
         this.load.image(UI_ASSET_KEYS.TRANSPARENT, 'assets/images/transparent.png');
+        this.load.image(HELP_ASSET_KEYS.HELP_PAGE2, 'assets/images/helpPage2.png');
+        this.load.image(HELP_ASSET_KEYS.HELP_PAGE3, 'assets/images/helpPage3.png');
+        this.load.image(HELP_ASSET_KEYS.HELP_PAGE5, 'assets/images/helpPage5.png');
 
         this.load.json(
             DATA_ASSET_KEYS.DUNGEON_THEMES,

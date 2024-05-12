@@ -19,3 +19,8 @@ export const UI_ASSET_KEYS = Object.freeze({
     LARGE_FONT: 'LARGE_FONT',           // Size: 12, 24, 36
 });
 
+export const HELP_ASSET_KEYS = Object.freeze({
+    HELP_PAGE2: 'HELP_PAGE2',
+    HELP_PAGE3: 'HELP_PAGE3',
+    HELP_PAGE5: 'HELP_PAGE5',
+});

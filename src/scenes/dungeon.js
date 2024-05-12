@@ -5,7 +5,7 @@ import { Dungeon } from "../dungeons/dungeon.js";
 import { Data } from "../data.js";
 import { TILE_SIZE } from "../config.js";
 import { TILE_ENTITY_TYPE } from "../dungeons/tiles/entities/entity.js";
-import { UI_ASSET_KEYS } from "../keys/asset.js";
+import { HELP_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
 import { StateMachine } from "../state-machine.js";
 import { ToggleButton } from "../ui/toggle-button.js";
 import { Toggle } from "../ui/toggle.js";
@@ -81,6 +81,38 @@ export class DungeonScene extends Phaser.Scene {
 
         button = new Button(this, UI_ASSET_KEYS.BUTTON, () => {
             let popup = new Popup(this);
+
+            let page = this.add.container(0, 0);
+            let text = this.add.bitmapText(0, 0, UI_ASSET_KEYS.LARGE_FONT, "This is a logic puzzle\n\nThe goal is simple : place walls to form a dungeon.\n\nHowever, you must follow some basic rules!", 24).setTint(0x000000).setOrigin(0).setMaxWidth(this.scale.width - 60);
+            page.add(text);
+            popup.addPage(page);
+
+            page = this.add.container(0, 0);
+            text = this.add.bitmapText(0, 0, UI_ASSET_KEYS.LARGE_FONT, "Printed number on the surrounding borders indicate the number of walls in that row or column.\n\nThe number will be faded away when the row or column is completed (but not necessary valid).\n\nThe number will be red if the number of walls exceed this number.", 24).setTint(0x000000).setOrigin(0).setMaxWidth(this.scale.width - 60);
+            let image = this.add.image(0, text.y + text.height + 20, HELP_ASSET_KEYS.HELP_PAGE2).setOrigin(0);
+            page.add(text);
+            page.add(image);
+            popup.addPage(page);
+
+            page = this.add.container(0, 0);
+            text = this.add.bitmapText(0, 0, UI_ASSET_KEYS.LARGE_FONT, "Each tile without wall is either a hallway or a treasure room.\n\nTreasure room are always 3x3 with a single entrance and a single piece of treasure. The treasure can be in any square within the treasure room.", 24).setTint(0x000000).setOrigin(0).setMaxWidth(this.scale.width - 60);
+            image = this.add.image(0, text.y + text.height + 20, HELP_ASSET_KEYS.HELP_PAGE3).setOrigin(0);
+            page.add(text);
+            page.add(image);
+            popup.addPage(page);
+
+            page = this.add.container(0, 0);
+            text = this.add.bitmapText(0, 0, UI_ASSET_KEYS.LARGE_FONT, "Hallway are always a single tile wide. This means that, outside of treasure rooms, they will never be a 2x2 block of floor.\n\nAll floor are connected into a single contiguous shape.", 24).setTint(0x000000).setOrigin(0).setMaxWidth(this.scale.width - 60);
+            page.add(text);
+            popup.addPage(page);
+
+            page = this.add.container(0, 0);
+            text = this.add.bitmapText(0, 0, UI_ASSET_KEYS.LARGE_FONT, "Every dead end contains a monster. Every monster is in dead end.", 24).setTint(0x000000).setOrigin(0).setMaxWidth(this.scale.width - 60);
+            image = this.add.image(0, text.y + text.height + 20, HELP_ASSET_KEYS.HELP_PAGE5).setOrigin(0);
+            page.add(text);
+            page.add(image);
+            popup.addPage(page);
+
             popup.show();
         });
         button.add(new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 3).setScale(0.75));
