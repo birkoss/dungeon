@@ -168,6 +168,7 @@ export class Popup {
             page.container.y = 700;
 
             this.#pages.push(page);
+            this.#container.add(page.container);
         }
 
         this.#pages[0].toggle(true);
