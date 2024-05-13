@@ -1,7 +1,7 @@
 import Phaser from "../lib/phaser.js";
 
 import { SCENE_KEYS } from "../keys/scene.js";
-import { DATA_ASSET_KEYS, DUNGEON_ASSET_KEYS, HELP_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
+import { DATA_ASSET_KEYS, DUNGEON_ASSET_KEYS, HELP_ASSET_KEYS, SOUND_ASSET_KEY, UI_ASSET_KEYS } from "../keys/asset.js";
 
 export class PreloadScene extends Phaser.Scene {
     constructor() {
@@ -47,6 +47,10 @@ export class PreloadScene extends Phaser.Scene {
             frameWidth: 150,
             frameHeight: 60,
         });
+        this.load.spritesheet(UI_ASSET_KEYS.PAGE_BUTTON, 'assets/tilesets/page-button.png', {
+            frameWidth: 34,
+            frameHeight: 40,
+        });
         this.load.spritesheet(UI_ASSET_KEYS.ICONS, 'assets/tilesets/icons.png', {
             frameWidth: 40,
             frameHeight: 40,
@@ -68,9 +72,13 @@ export class PreloadScene extends Phaser.Scene {
 
         this.load.bitmapFont(UI_ASSET_KEYS.SMALL_FONT, 'assets/fonts/small-font.png', 'assets/fonts/small-font.xml');
         this.load.bitmapFont(UI_ASSET_KEYS.LARGE_FONT, 'assets/fonts/large-font.png', 'assets/fonts/large-font.xml');
+
+        this.load.audio(SOUND_ASSET_KEY.CLICK, ["assets/sounds/click.wav"]);
+        this.load.audio(SOUND_ASSET_KEY.TOGGLE, ["assets/sounds/toggle.wav"]);
+        this.load.audio(SOUND_ASSET_KEY.PAINT, ["assets/sounds/paint.wav"]);
     }
 
     create() {
-        this.scene.start(SCENE_KEYS.DUNGEON_SCENE);
+        this.scene.start(SCENE_KEYS.TITLE_SCENE);
     }
 }

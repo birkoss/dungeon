@@ -1,3 +1,4 @@
+import { SOUND_ASSET_KEY } from "../keys/asset.js";
 import Phaser from "../lib/phaser.js";
 
 import { ToggleButton } from "./toggle-button.js";
@@ -28,6 +29,7 @@ export class Toggle {
 
         button.background.setInteractive();
         button.background.on(Phaser.Input.Events.POINTER_DOWN, () => {
+            button.background.scene.sound.add(SOUND_ASSET_KEY.TOGGLE, { loop: false }).play();
             this.select(button);
         });
     }

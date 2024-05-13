@@ -1,3 +1,4 @@
+import { SOUND_ASSET_KEY } from "../keys/asset.js";
 import Phaser from "../lib/phaser.js";
 
 export class Button {
@@ -46,6 +47,8 @@ export class Button {
         })
         this.#gameObject.on(Phaser.Input.Events.POINTER_UP, () => {
             if (this.isPressed) {
+                this.#gameObject.scene.sound.add(SOUND_ASSET_KEY.CLICK, { loop: false }).play();
+
                 this.isPressed = false;
                 this.#release();
 

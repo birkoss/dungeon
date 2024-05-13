@@ -40,22 +40,22 @@ export class LevelScene extends Phaser.Scene {
         // Title
         let panel = new Panel(this, "SELECT A LEVEL");
 
-        // Pages & Dungeons
-        this.#container = this.add.container(0, 0);
-        this.#createLevels();
-        this.#createDungeons();
-
         // Back Button
-        let button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
+        let button = new Button(this, UI_ASSET_KEYS.BUTTON_BLUE, () => {
             this.cameras.main.fadeOut(300, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.TITLE_SCENE);
                 }
             });
         });
-        button.add(new Phaser.GameObjects.BitmapText(this, 0, 0, UI_ASSET_KEYS.SMALL_FONT, "Back", 30));
-        button.container.x = (this.scale.width - button.container.getBounds().width) / 2;
-        button.container.y = 700;
+        button.add(new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 9).setScale(0.75));
+        button.container.x = 14;
+        button.container.y = 7;
+
+        // Pages & Dungeons
+        this.#container = this.add.container(0, 0);
+        this.#createLevels();
+        this.#createDungeons();
 
         // Fade In
         this.cameras.main.fadeIn(300, 51, 51, 51);

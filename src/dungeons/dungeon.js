@@ -1,6 +1,6 @@
 import Phaser from "../lib/phaser.js";
 
-import { DUNGEON_ASSET_KEYS } from "../keys/asset.js";
+import { DUNGEON_ASSET_KEYS, SOUND_ASSET_KEY } from "../keys/asset.js";
 import { TILE_ENTITY_TYPE } from "./tiles/entities/entity.js";
 import { TILE_TYPE, Tile } from "./tiles/tile.js";
 
@@ -196,6 +196,7 @@ export class Dungeon {
             // Keep the existing entity to remove it later
             let existingEntity = tile.entity;
 
+            tile.container.scene.sound.add(SOUND_ASSET_KEY.PAINT, { loop: false }).play();
             tile.createEntity(this.#scene, newType, newAssetKey, newAssetFrame);
             tile.entity.scaleIn(() => {
                 if (existingEntity) {
@@ -221,6 +222,7 @@ export class Dungeon {
                 return;
             }
 
+            tile.container.scene.sound.add(SOUND_ASSET_KEY.PAINT, { loop: false }).play();
             tile.entity.scaleOut(() => {
                 tile.removeEntity();
                 this.#validateLabels(tile);

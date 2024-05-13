@@ -67,7 +67,7 @@ export class Popup {
      * @param {Phaser.GameObjects.Container} page 
      */
     addPage(page) {
-        page.y = this.#background.y + 80;
+        page.y = this.#background.y + 60;
         page.x = (this.#pagesContainer.length * this.#container.scene.scale.width) + 30;
 
         this.#pagesContainer.add(page);
@@ -90,6 +90,9 @@ export class Popup {
         });
 
         this.#createNavigation();
+
+        this.#draggableGameObject.setInteractive();
+        this.#container.scene.input.setDraggable(this.#draggableGameObject);
     }
 
     hide() {
@@ -112,8 +115,6 @@ export class Popup {
         this.#currentPage = 0;
 
         this.#draggableGameObject = this.#container.scene.add.tileSprite(0, 0, this.#container.scene.scale.height, this.#container.scene.scale.height, UI_ASSET_KEYS.TRANSPARENT).setOrigin(0);
-        this.#draggableGameObject.setInteractive();
-        this.#container.scene.input.setDraggable(this.#draggableGameObject);
 
         this.#container.scene.input.on(Phaser.Input.Events.DRAG_START, (pointer, gameObject) => {
             gameObject.startPosition = gameObject.x;
@@ -121,7 +122,7 @@ export class Popup {
         });
 
         this.#container.scene.input.on(Phaser.Input.Events.DRAG, (pointer, gameObject, dragX, dragY) => {
-            if(dragX <= 10 && dragX >= -gameObject.width + this.#container.scene.scale.width - 10){
+            if (dragX <= 10 && dragX >= -gameObject.width + this.#container.scene.scale.width - 10) {
                 gameObject.x = dragX;
                 var delta = gameObject.x - gameObject.currentPosition;
                 gameObject.currentPosition = dragX;
@@ -133,7 +134,6 @@ export class Popup {
         this.#container.scene.input.on(Phaser.Input.Events.DRAG_END, (pointer, gameObject) => {
             this.canMove = false;
             var delta = gameObject.startPosition - gameObject.x;
-            console.log(delta);
             if (delta > this.#container.scene.scale.width / 8) {
                 this.#changePage(1) ;
             } else {
@@ -151,11 +151,11 @@ export class Popup {
         this.#canMove = true;
         
         let spacing = 24;
-        let size = 60;
+        let size = 40;
         let startX = (this.#container.scene.scale.width/2 - (this.#pagesContainer.length * (size + spacing))/2) + spacing;
 
         for (let d=0; d<this.#pagesContainer.length; d++) {
-            let page = new Button(this.#container.scene, UI_ASSET_KEYS.DUNGEON_SELECTOR, () => {
+            let page = new Button(this.#container.scene, UI_ASSET_KEYS.PAGE_BUTTON, () => {
                 if (this.#canMove) {
                     this.#changePage(d - this.#currentPage);
                     this.#canMove = false;
@@ -164,8 +164,9 @@ export class Popup {
             let text = new Phaser.GameObjects.BitmapText(this.#container.scene, 0, 0, UI_ASSET_KEYS.SMALL_FONT, (d+1).toString(), 30);
             page.add(text);
             text.x += 2;
+            text.y -= 2;
             page.container.x = startX + (d * (page.container.getBounds().width + spacing));
-            page.container.y = 700;
+            page.container.y = 680;
 
             this.#pages.push(page);
             this.#container.add(page.container);

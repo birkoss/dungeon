@@ -17,6 +17,7 @@ export const UI_ASSET_KEYS = Object.freeze({
     BUTTON_BLUE: 'BUTTON_BLUE',
     TEXT_BUTTON: 'TEXT_BUTTON',
     LARGE_TEXT_BUTTON: 'LARGE_TEXT_BUTTON',
+    PAGE_BUTTON: 'PAGE_BUTTON',
     ICONS: 'ICONS',
     SMALL_FONT: 'SMALL_FONT',           // Size: 10, 20, 30
     LARGE_FONT: 'LARGE_FONT',           // Size: 12, 24, 36
@@ -26,4 +27,10 @@ export const HELP_ASSET_KEYS = Object.freeze({
     HELP_PAGE2: 'HELP_PAGE2',
     HELP_PAGE3: 'HELP_PAGE3',
     HELP_PAGE5: 'HELP_PAGE5',
+});
+
+export const SOUND_ASSET_KEY = Object.freeze({
+    CLICK: 'CLICK',
+    TOGGLE: 'TOGGLE',
+    PAINT: 'PAINT',
 });

@@ -71,15 +71,15 @@ export class DungeonScene extends Phaser.Scene {
 
         let panel = new Panel(this, level.id);
 
-        let button = new Button(this, UI_ASSET_KEYS.BUTTON_RED, () => {
+        let button = new Button(this, UI_ASSET_KEYS.BUTTON_BLUE, () => {
             this.cameras.main.fadeOut(300, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
-                    this.scene.start(SCENE_KEYS.TITLE_SCENE);
+                    this.scene.start(SCENE_KEYS.LEVEL_SCENE);
                 }
             });
         });
-        button.add(new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 4).setScale(0.75));
-        button.container.x = this.scale.width - button.container.getBounds().width - 14;
+        button.add(new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 9).setScale(0.75));
+        button.container.x = 14;
         button.container.y = 7;
 
         button = new Button(this, UI_ASSET_KEYS.BUTTON_GREEN, () => {
@@ -119,7 +119,7 @@ export class DungeonScene extends Phaser.Scene {
             popup.show();
         });
         button.add(new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 3).setScale(0.75));
-        button.container.x = 14;
+        button.container.x = this.scale.width - button.container.getBounds().width - 14;
         button.container.y = 7;
 
         this.#dungeon = new Dungeon(this, 10, 10);
