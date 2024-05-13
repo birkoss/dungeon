@@ -17,8 +17,8 @@ export class TitleScene extends Phaser.Scene {
         title.x = Math.floor((this.scale.width - title.width) / 2);
 
         // Play
-        let button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
-            this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
+        let button = new Button(this, UI_ASSET_KEYS.LARGE_TEXT_BUTTON, () => {
+            this.cameras.main.fadeOut(300, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.LEVEL_SCENE);
                 }
@@ -29,8 +29,8 @@ export class TitleScene extends Phaser.Scene {
         button.container.y = 250;
 
         // About
-        button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
-            this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
+        button = new Button(this, UI_ASSET_KEYS.LARGE_TEXT_BUTTON, () => {
+            this.cameras.main.fadeOut(300, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.CREDITS_SCENE);
                 }
@@ -41,6 +41,6 @@ export class TitleScene extends Phaser.Scene {
         button.container.y = 400;
 
         // Fade In
-        this.cameras.main.fadeIn(500, 51, 51, 51);
+        this.cameras.main.fadeIn(300, 51, 51, 51);
     }
 }

@@ -3,6 +3,7 @@ import Phaser from "../lib/phaser.js";
 import { SCENE_KEYS } from "../keys/scene.js";
 import { UI_ASSET_KEYS } from "../keys/asset.js";
 import { Button } from "../ui/button.js";
+import { Panel } from "../ui/panel.js";
 
 export class CreditsScene extends Phaser.Scene {
     constructor() {
@@ -12,8 +13,7 @@ export class CreditsScene extends Phaser.Scene {
     }
 
     create() {
-        // Title
-        this.add.bitmapText(this.scale.width / 2, 60, UI_ASSET_KEYS.LARGE_FONT, "CREDITS", 36).setOrigin(0.5);
+        let panel = new Panel(this, "CREDITS");
 
         this.add.bitmapText(this.scale.width / 2, 140, UI_ASSET_KEYS.SMALL_FONT, "Programming", 30).setMaxWidth(this.scale.width - 80).setOrigin(0.5);
         this.add.bitmapText(this.scale.width / 2, 174, UI_ASSET_KEYS.LARGE_FONT, "Mathieu Robichaud", 24).setMaxWidth(this.scale.width - 80).setOrigin(0.5);
@@ -35,7 +35,7 @@ export class CreditsScene extends Phaser.Scene {
 
         // Back
         let button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
-            this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
+            this.cameras.main.fadeOut(300, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.TITLE_SCENE);
                 }
@@ -46,7 +46,7 @@ export class CreditsScene extends Phaser.Scene {
         button.container.y = (this.scale.height - button.container.getBounds().height - 100);
 
         // Fade In
-        this.cameras.main.fadeIn(500, 51, 51, 51);
+        this.cameras.main.fadeIn(300, 51, 51, 51);
     }
 
 }
