@@ -11,6 +11,7 @@ import { ToggleButton } from "../ui/toggle-button.js";
 import { Toggle } from "../ui/toggle.js";
 import { Button } from "../ui/button.js";
 import { Popup } from "../ui/popup.js";
+import { Panel } from "../ui/panel.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -68,7 +69,9 @@ export class DungeonScene extends Phaser.Scene {
 
         this.#toggle = new Toggle();
 
-        let button = new Button(this, UI_ASSET_KEYS.BUTTON, () => {
+        let panel = new Panel(this, level.id);
+
+        let button = new Button(this, UI_ASSET_KEYS.BUTTON_RED, () => {
             this.cameras.main.fadeOut(300, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
                     this.scene.start(SCENE_KEYS.TITLE_SCENE);
@@ -76,10 +79,10 @@ export class DungeonScene extends Phaser.Scene {
             });
         });
         button.add(new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 4).setScale(0.75));
-        button.container.x = this.scale.width - button.container.getBounds().width - padding;
-        button.container.y = padding;
+        button.container.x = this.scale.width - button.container.getBounds().width - 14;
+        button.container.y = 7;
 
-        button = new Button(this, UI_ASSET_KEYS.BUTTON, () => {
+        button = new Button(this, UI_ASSET_KEYS.BUTTON_GREEN, () => {
             let popup = new Popup(this);
 
             let page = this.add.container(0, 0);
@@ -116,16 +119,13 @@ export class DungeonScene extends Phaser.Scene {
             popup.show();
         });
         button.add(new Phaser.GameObjects.Image(this, 0, 0, UI_ASSET_KEYS.ICONS, 3).setScale(0.75));
-        button.container.x = this.scale.width - (button.container.getBounds().width * 2) - (padding * 2);
-        button.container.y = padding;
-
-        let title = this.add.bitmapText(padding, button.container.y + button.container.getBounds().height / 2, UI_ASSET_KEYS.LARGE_FONT, level.id, 36);
-        title.y -= title.height / 2;
+        button.container.x = 14;
+        button.container.y = 7;
 
         this.#dungeon = new Dungeon(this, 10, 10);
         this.#dungeon.create(theme, level);
         this.#dungeon.container.x = (this.scale.width - this.#dungeon.container.getBounds().width) / 2;
-        this.#dungeon.container.y = button.container.y + button.container.getBounds().height + padding;
+        this.#dungeon.container.y = button.container.y + button.container.getBounds().height + 18;
 
         // Enable Tile selection
         this.#dungeon.container.setInteractive(
@@ -158,12 +158,12 @@ export class DungeonScene extends Phaser.Scene {
         this.input.on(Phaser.Input.Events.POINTER_UP_OUTSIDE, () => this.#isSelecting = false);
         this.input.on(Phaser.Input.Events.POINTER_UP, () => this.#isSelecting = false);
 
-        let toggleBotton = new ToggleButton(this, 0, (this.#dungeon.container.y + this.#dungeon.container.getBounds().height + padding), UI_ASSET_KEYS.BUTTON, TILE_ENTITY_TYPE.BACKGROUND);
+        let toggleBotton = new ToggleButton(this, 0, (this.#dungeon.container.y + this.#dungeon.container.getBounds().height + padding), UI_ASSET_KEYS.BUTTON_GRAY, TILE_ENTITY_TYPE.BACKGROUND);
         toggleBotton.container.x = this.#dungeon.container.x + this.#dungeon.container.getBounds().width / 2 - toggleBotton.background.width - padding;
         toggleBotton.add(theme.floor.assetKey, theme.floor.assetFrame);
         this.#toggle.add(toggleBotton);
         
-        toggleBotton = new ToggleButton(this, 0, (this.#dungeon.container.y + this.#dungeon.container.getBounds().height + padding), UI_ASSET_KEYS.BUTTON, TILE_ENTITY_TYPE.WALL);
+        toggleBotton = new ToggleButton(this, 0, (this.#dungeon.container.y + this.#dungeon.container.getBounds().height + padding), UI_ASSET_KEYS.BUTTON_GRAY, TILE_ENTITY_TYPE.WALL);
         toggleBotton.container.x = this.#dungeon.container.x + this.#dungeon.container.getBounds().width / 2 + padding;
         toggleBotton.add(theme.wall.assetKey, theme.wall.assetFrame);
         this.#toggle.add(toggleBotton);

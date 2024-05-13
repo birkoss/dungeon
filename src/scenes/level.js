@@ -4,6 +4,7 @@ import { SCENE_KEYS } from "../keys/scene.js";
 import { UI_ASSET_KEYS } from "../keys/asset.js";
 import { Button } from "../ui/button.js";
 import { Data } from "../data.js";
+import { Panel } from "../ui/panel.js";
 
 export class LevelScene extends Phaser.Scene {
     /** @type {boolean} */
@@ -37,8 +38,7 @@ export class LevelScene extends Phaser.Scene {
         this.#createBackground();
 
         // Title
-        let title = this.add.bitmapText(0, 60, UI_ASSET_KEYS.LARGE_FONT, "Select a Level", 36);
-        title.x = Math.floor((this.scale.width - title.width) / 2);
+        let panel = new Panel(this, "SELECT A LEVEL");
 
         // Pages & Dungeons
         this.#container = this.add.container(0, 0);

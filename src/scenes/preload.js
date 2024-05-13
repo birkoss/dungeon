@@ -15,11 +15,19 @@ export class PreloadScene extends Phaser.Scene {
             frameWidth: 40,
             frameHeight: 40,
         });
-        this.load.spritesheet(UI_ASSET_KEYS.BUTTON, 'assets/tilesets/button.png', {
+        this.load.spritesheet(UI_ASSET_KEYS.BUTTON_GRAY, 'assets/tilesets/button-gray.png', {
             frameWidth: 54,
             frameHeight: 60,
         });
         this.load.spritesheet(UI_ASSET_KEYS.BUTTON_RED, 'assets/tilesets/button-red.png', {
+            frameWidth: 54,
+            frameHeight: 60,
+        });
+        this.load.spritesheet(UI_ASSET_KEYS.BUTTON_GREEN, 'assets/tilesets/button-green.png', {
+            frameWidth: 54,
+            frameHeight: 60,
+        });
+        this.load.spritesheet(UI_ASSET_KEYS.BUTTON_BLUE, 'assets/tilesets/button-blue.png', {
             frameWidth: 54,
             frameHeight: 60,
         });
@@ -63,6 +71,6 @@ export class PreloadScene extends Phaser.Scene {
     }
 
     create() {
-        this.scene.start(SCENE_KEYS.CREDITS_SCENE);
+        this.scene.start(SCENE_KEYS.DUNGEON_SCENE);
     }
 }
