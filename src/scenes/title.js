@@ -32,11 +32,11 @@ export class TitleScene extends Phaser.Scene {
         button = new Button(this, UI_ASSET_KEYS.TEXT_BUTTON, () => {
             this.cameras.main.fadeOut(500, 51, 51, 51, (camera, progress) => {
                 if (progress === 1) {
-                    this.scene.start(SCENE_KEYS.ABOUT_SCENE);
+                    this.scene.start(SCENE_KEYS.CREDITS_SCENE);
                 }
             });
         });
-        button.add(new Phaser.GameObjects.BitmapText(this, 0, 0, UI_ASSET_KEYS.SMALL_FONT, "ABOUT", 30));
+        button.add(new Phaser.GameObjects.BitmapText(this, 0, 0, UI_ASSET_KEYS.SMALL_FONT, "CREDITS", 30));
         button.container.x = (this.scale.width - button.container.getBounds().width) / 2;
         button.container.y = 400;
 
