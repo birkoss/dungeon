@@ -149,7 +149,7 @@ export class DungeonScene extends Phaser.Scene {
                                             singleActionSprite.hide();
                                         });
                 
-                                        const defender = this.#map.units.find(singleUnit => singleUnit.x === newX && singleUnit.y === newY);
+                                        const defender = this.#map.units.find(singleUnit => singleUnit.isAlive && singleUnit.x === newX && singleUnit.y === newY);
                                         this.#map.units[0].attack(defender, () => {
                                             this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
                                         });

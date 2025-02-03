@@ -148,7 +148,7 @@ export class Map {
         let isAttackable = false;
 
         this.units.forEach((singleUnit, index) => {
-            if (index > 0 && singleUnit.x === x && singleUnit.y === y) {
+            if (index > 0 && singleUnit.isAlive && singleUnit.x === x && singleUnit.y === y) {
                 isAttackable = true;
             }
         });
