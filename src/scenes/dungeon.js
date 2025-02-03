@@ -53,6 +53,13 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     createUnits() {
+        let emptyTiles = this.#map.getEmptyTiles();
+        console.log(emptyTiles);
+
+        for (let i=1; i<100; i++) {
+            console.log(this.#map.fill(i, emptyTiles.length));
+        }
+
         let item = new Item(this, 1, 1, 3);
         this.#map.addItem(item);
 
@@ -105,57 +112,57 @@ export class DungeonScene extends Phaser.Scene {
                         }
 
                         if (this.#map.isWalkable(newX, newY)) {
-                            actions.push(
-                                new Action(
-                                    this,
-                                    (newX * 10 * scale) + this.#map.container.x,
-                                    (newY * 10 * scale) + this.#map.container.y,
-                                    0,
-                                    () => {
-                                        this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
+                            const action = new Action(
+                                this,
+                                (newX * 10 * scale) + this.#map.container.x,
+                                (newY * 10 * scale) + this.#map.container.y,
+                                0,
+                                () => {
+                                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
+        
+                                    actions.forEach((singleActionSprite) => {
+                                        singleActionSprite.hide();
+                                    });
             
-                                        actions.forEach((singleActionSprite) => {
-                                            singleActionSprite.hide();
+                                    this.#map.fixDepth(this.#map.units[0], newX, newY);
+                                    this.#map.units[0].move(newX, newY, () => {
+                                        this.#map.items.forEach((singleItem) => {
+                                            if (singleItem.x === this.#map.units[0].x && singleItem.y === this.#map.units[0].y) {
+                                                this.cameras.main.fadeOut(500, 0, 0, 0, (camera, progress) => {
+                                                    if (progress === 1) {
+                                                        this.scene.restart();
+                                                    }
+                                                });
+                                                return;
+                                            }
                                         });
-                
-                                        this.#map.fixDepth(this.#map.units[0], newX, newY);
-                                        this.#map.units[0].move(newX, newY, () => {
-                                            this.#map.items.forEach((singleItem) => {
-                                                if (singleItem.x === this.#map.units[0].x && singleItem.y === this.#map.units[0].y) {
-                                                    this.cameras.main.fadeOut(500, 0, 0, 0, (camera, progress) => {
-                                                        if (progress === 1) {
-                                                            this.scene.restart();
-                                                        }
-                                                    });
-                                                    return;
-                                                }
-                                            });
-                                            this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
-                                        });
-                                    }
-                                )
+                                        this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
+                                    });
+                                }
                             );
+                            action.gameObject.setTint(0x008751);
+                            actions.push(action);
                         } else if(this.#map.isAttackable(newX, newY)) {
-                            actions.push(
-                                new Action(
-                                    this,
-                                    (newX * 10 * scale) + this.#map.container.x,
-                                    (newY * 10 * scale) + this.#map.container.y,
-                                    0,
-                                    () => {
-                                        this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
+                            const action = new Action(
+                                this,
+                                (newX * 10 * scale) + this.#map.container.x,
+                                (newY * 10 * scale) + this.#map.container.y,
+                                0,
+                                () => {
+                                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
+        
+                                    actions.forEach((singleActionSprite) => {
+                                        singleActionSprite.hide();
+                                    });
             
-                                        actions.forEach((singleActionSprite) => {
-                                            singleActionSprite.hide();
-                                        });
-                
-                                        const defender = this.#map.units.find(singleUnit => singleUnit.isAlive && singleUnit.x === newX && singleUnit.y === newY);
-                                        this.#map.units[0].attack(defender, () => {
-                                            this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
-                                        });
-                                    }
-                                )
+                                    const defender = this.#map.units.find(singleUnit => singleUnit.isAlive && singleUnit.x === newX && singleUnit.y === newY);
+                                    this.#map.units[0].attack(defender, () => {
+                                        this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
+                                    });
+                                }
                             );
+                            action.gameObject.setTint(0xff004d);
+                            actions.push(action);
                         }
                     }
                 }

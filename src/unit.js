@@ -68,7 +68,7 @@ export class Unit {
     takeDamage(amount) {
         this.#hp = Math.max(this.#hp - amount, 0);
 
-        this.#gameObject.setTint(0xff0000);
+        this.#gameObject.setTint(0xff004d);
 
         this.#scene.time.delayedCall(400, () => {
             this.#gameObject.setTint(0xffffff);

@@ -94,16 +94,33 @@ export class Map {
         this.#items.push(item);
     }
 
+    fill(floor, total) {
+        const tiles = [];
+
+        for (let i=0; i<floor/5; i++) {
+            tiles.push('coin');
+        }
+
+        for (let i=0; i<floor-1; i++) {
+            tiles.push('enemy');
+        }
+
+        Phaser.Utils.Array.Shuffle(tiles);
+
+        if (floor % 5 === 0) {
+            tiles.unshift('potion');
+        }
+
+        const amount = Math.min(floor < 4 ? floor : 3 + floor / 4, total / 4.5);
+        return tiles.slice(0, amount);
+    }
+
     findPaths(start, end, tiles) {
         let grid = JSON.parse(JSON.stringify(this.#tiles));
 
         this.items.forEach(item => {
             grid[item.y * this.#width + item.x] = 1;
         });
-        
-        // for (let i=1; i<this.#units.length; i++) {
-        //     grid[this.#units[i].y * this.#width + this.#units[i].x] = 1;
-        // };
 
         tiles.forEach(tile => { 
             grid[tile.y * this.#width + tile.x] = 1;
@@ -119,6 +136,14 @@ export class Map {
                 this.#container.moveAbove(unit.gameObject, singleUnit.gameObject);
             }
         });
+    }
+
+    getEmptyTiles() {
+        let floor = this.#tiles.filter(singleTile => singleTile === 0);
+        
+
+
+        return floor;
     }
 
     isInBound(x, y) {
