@@ -1,0 +1,27 @@
+export const UI_ASSET_KEYS = Object.freeze({
+    BLANK: 'UI_ASSET_KEYS.BLANK',
+});
+
+export const DUNGEON_ASSET_KEYS = Object.freeze({
+    WORLD: 'DUNGEON_ASSET_KEYS.WORLD',
+    UNIT: 'DUNGEON_ASSET_KEYS.UNIT',
+    ITEM: 'DUNGEON_ASSET_KEYS.ITEM',
+    FONT: 'DUNGEON_ASSET_KEYS.FONT',
+    STAT: 'DUNGEON_ASSET_KEYS.STAT',
+    ACTION: 'DUNGEON_ASSET_KEYS.ACTION',
+    STATE: 'DUNGEON_ASSET_KEYS.STATE',
+});
+
+export const DATA_ASSET_KEYS = Object.freeze({
+    ITEM: 'DATA_ASSET_KEYS.ITEM',
+    UNIT: 'DATA_ASSET_KEYS.UNIT',
+});
+
+export const PANEL_ASSET_KEYS = Object.freeze({
+    FONT: 'PANEL_ASSET_KEYS.FONT',
+});
+
+export const EFFECT_ASSET_KEYS = Object.freeze({
+    SMALL: 'EFFECT_ASSET_KEYS.SMALL',
+    LARGE: 'EFFECT_ASSET_KEYS.LARGE',
+});
