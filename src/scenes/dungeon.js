@@ -6,6 +6,7 @@ import { Unit } from "../unit.js";
 import { StateMachine } from "../state-machine.js";
 import { Map } from "../map.js";
 import { Action } from "../action.js";
+import { Item } from "../item.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_LEVEL: 'CREATE_LEVEL',
@@ -22,9 +23,6 @@ export class DungeonScene extends Phaser.Scene {
     /** @type {Map} */
     #map;
 
-    /** @type {Unit[]} */
-    #units;
-
     /** @type {StateMachine} */
     #stateMachine;
 
@@ -35,8 +33,6 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     create() {
-        this.#units = [];
-
         this.#createStateMachine();
         this.#stateMachine.setState(MAIN_STATES.CREATE_LEVEL);
     }
@@ -52,6 +48,8 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.CREATE_LEVEL,
             onEnter: () => {
+                this.cameras.main.fadeOut(0, 0, 0, 0);
+                this.cameras.main.fadeIn(500);
                 this.#map = new Map(this, 8, 10);
 
                 this.#map.container.x = this.game.canvas.width / 2 - this.#map.container.getBounds().width / 2 + 20;
@@ -64,8 +62,16 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.PLACE_UNITS,
             onEnter: () => {
+                let item = new Item(this, 1, 1, 3);
+                this.#map.addItem(item);
+
                 let unit = new Unit(this, 1, 2, 0);
-                this.#units.push(unit);
+                this.#map.addUnit(unit);
+
+                unit = new Unit(this, 6, 5, 204);
+                this.#map.addUnit(unit);
+
+                unit = new Unit(this, 6, 1, 204);
                 this.#map.addUnit(unit);
 
                 this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
@@ -83,8 +89,8 @@ export class DungeonScene extends Phaser.Scene {
                             continue;
                         }
 
-                        let newX = this.#units[0].x + x;
-                        let newY = this.#units[0].y + y;
+                        let newX = this.#map.units[0].x + x;
+                        let newY = this.#map.units[0].y + y;
 
                         if (!this.#map.isInBound(newX, newY)) {
                             continue;
@@ -106,8 +112,18 @@ export class DungeonScene extends Phaser.Scene {
                                     singleActionSprite.hide();
                                 });
         
-                                this.#units[0].move(newX, newY, () => {
-                                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+                                this.#map.units[0].move(newX, newY, () => {
+                                    this.#map.items.forEach((singleItem) => {
+                                        if (singleItem.x === this.#map.units[0].x && singleItem.y === this.#map.units[0].y) {
+                                            this.cameras.main.fadeOut(500, 0, 0, 0, (camera, progress) => {
+                                                if (progress === 1) {
+                                                    this.scene.restart();
+                                                }
+                                            });
+                                            return;
+                                        }
+                                    });
+                                    this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
                                 });
                             }
                         );
@@ -128,7 +144,24 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.ENEMY_TURN,
             onEnter: () => {
-                // ...
+                if (this.#map.units.length > 1) {
+                    for (let i=1; i<this.#map.units.length; i++) {
+
+                        let paths = this.#map.findPaths(
+                            { x: this.#map.units[i].x, y: this.#map.units[i].y },
+                            { x: this.#map.units[0].x, y: this.#map.units[0].y }
+                        );
+
+                        console.log(paths);
+
+                        if (paths.length > 1) {
+                            let path = paths[0];
+                            this.#map.units[i].move(path.x, path.y, () => {
+                                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+                            });
+                        }
+                    }
+                }
             },
         });
 

@@ -13,7 +13,7 @@ export class Action {
 
         this.#scene = scene;
 
-        this.#gameObject = scene.add.sprite(x, y, DUNGEON_ASSET_KEYS.ACTION, frame).setScale(scale);
+        this.#gameObject = scene.add.sprite(x, y, DUNGEON_ASSET_KEYS.ACTION, frame).setScale(scale).setTint(0xdcdcdc);
 
         this.#gameObject.anims.create({
             key: 'idle',

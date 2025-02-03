@@ -1,4 +1,5 @@
 import { DUNGEON_ASSET_KEYS } from "./keys/asset.js";
+import { Pathfinding } from "./pathfinding.js";
 
 export class Map {
     /** @type {Phaser.GameObjects.Container} */
@@ -9,7 +10,13 @@ export class Map {
     #width;
     #height;
 
+    #units;
+    #items;
+
     constructor(scene, width, height) {
+        this.#units = [];
+        this.#items = [];
+
         this.#scene = scene;
         this.#width = width;
         this.#height = height;
@@ -73,9 +80,32 @@ export class Map {
     }
 
     get container() { return this.#container; }
+    get units() { return this.#units; }
+    get items() { return this.#items; }
 
     addUnit(unit) {
         this.#container.add(unit.gameObject);
+        this.#units.push(unit);
+    }
+
+    addItem(item) {
+        this.#container.add(item.gameObject);
+        this.#items.push(item);
+    }
+
+    findPaths(start, end) {
+        let grid = JSON.parse(JSON.stringify(this.#tiles));
+
+        this.items.forEach(item => {
+            grid[item.y * this.#width + item.x] = 1;
+        });
+        
+        for (let i=1; i<this.#units.length; i++) {
+            grid[this.#units[i].y * this.#width + this.#units[i].x] = 1;
+        };
+
+        let pathfinding = new Pathfinding(grid, this.#width, this.#height);
+        return pathfinding.find(start, end);
     }
 
     isInBound(x, y) {
@@ -83,6 +113,17 @@ export class Map {
     }
 
     isWalkable(x, y) {
-        return this.#tiles[y * this.#width + x] === 0;
+        if (!this.isInBound(x, y)) {
+            return false;
+        }
+
+        let isWalkable = this.#tiles[y * this.#width + x] === 0;
+
+        this.units.forEach(unit => {
+            if (unit.x === x && unit.y === y) {
+                isWalkable = false;
+            }
+        });
+        return isWalkable;
     }
 }
