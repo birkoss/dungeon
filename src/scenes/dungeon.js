@@ -1,12 +1,11 @@
 import Phaser from "../lib/phaser.js";
 
 import { SCENE_KEYS } from "../keys/scene.js";
-import { DUNGEON_ASSET_KEYS } from "../keys/asset.js";
 import { Unit } from "../unit.js";
 import { StateMachine } from "../state-machine.js";
 import { Map } from "../map.js";
-import { Action } from "../action.js";
 import { Item } from "../item.js";
+import { Action } from "../action.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_LEVEL: 'CREATE_LEVEL',
@@ -58,12 +57,13 @@ export class DungeonScene extends Phaser.Scene {
         this.#map.addItem(item);
 
         let unit = new Unit(this, 1, 8, 0);
+        unit.hp = 10;
         this.#map.addUnit(unit);
 
         unit = new Unit(this, 1, 7, 204);
         this.#map.addUnit(unit);
 
-        unit = new Unit(this, 2, 6, 204);
+        unit = new Unit(this, 1, 6, 204);
         this.#map.addUnit(unit);
 
         this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
@@ -89,7 +89,7 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.PLAYER_TURN,
             onEnter: () => {
-                let action_sprites = [];
+                let actions = [];
 
                 for (let y=-1; y<=1; y++) {
                     for (let x=-1; x<=1; x++) {
@@ -104,38 +104,59 @@ export class DungeonScene extends Phaser.Scene {
                             continue;
                         }
 
-                        if (!this.#map.isWalkable(newX, newY)) {
-                            continue
-                        }
-
-                        let action = new Action(
-                            this,
-                            (newX * 10 * scale) + this.#map.container.x,
-                            (newY * 10 * scale) + this.#map.container.y,
-                            0,
-                            () => {
-                                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
-
-                                action_sprites.forEach((singleActionSprite) => {
-                                    singleActionSprite.hide();
-                                });
-        
-                                this.#map.units[0].move(newX, newY, () => {
-                                    this.#map.items.forEach((singleItem) => {
-                                        if (singleItem.x === this.#map.units[0].x && singleItem.y === this.#map.units[0].y) {
-                                            this.cameras.main.fadeOut(500, 0, 0, 0, (camera, progress) => {
-                                                if (progress === 1) {
-                                                    this.scene.restart();
+                        if (this.#map.isWalkable(newX, newY)) {
+                            actions.push(
+                                new Action(
+                                    this,
+                                    (newX * 10 * scale) + this.#map.container.x,
+                                    (newY * 10 * scale) + this.#map.container.y,
+                                    0,
+                                    () => {
+                                        this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
+            
+                                        actions.forEach((singleActionSprite) => {
+                                            singleActionSprite.hide();
+                                        });
+                
+                                        this.#map.fixDepth(this.#map.units[0], newX, newY);
+                                        this.#map.units[0].move(newX, newY, () => {
+                                            this.#map.items.forEach((singleItem) => {
+                                                if (singleItem.x === this.#map.units[0].x && singleItem.y === this.#map.units[0].y) {
+                                                    this.cameras.main.fadeOut(500, 0, 0, 0, (camera, progress) => {
+                                                        if (progress === 1) {
+                                                            this.scene.restart();
+                                                        }
+                                                    });
+                                                    return;
                                                 }
                                             });
-                                            return;
-                                        }
-                                    });
-                                    this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
-                                });
-                            }
-                        );
-                        action_sprites.push(action);
+                                            this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
+                                        });
+                                    }
+                                )
+                            );
+                        } else if(this.#map.isAttackable(newX, newY)) {
+                            actions.push(
+                                new Action(
+                                    this,
+                                    (newX * 10 * scale) + this.#map.container.x,
+                                    (newY * 10 * scale) + this.#map.container.y,
+                                    0,
+                                    () => {
+                                        this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
+            
+                                        actions.forEach((singleActionSprite) => {
+                                            singleActionSprite.hide();
+                                        });
+                
+                                        const defender = this.#map.units.find(singleUnit => singleUnit.x === newX && singleUnit.y === newY);
+                                        this.#map.units[0].attack(defender, () => {
+                                            this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
+                                        });
+                                    }
+                                )
+                            );
+                        }
                     }
                 }
             },
@@ -160,6 +181,9 @@ export class DungeonScene extends Phaser.Scene {
                 let differentPaths = [];
                 // 
                 for (let i=1; i<this.#map.units.length; i++) {
+                    if (!this.#map.units[i].isAlive) {
+                        continue;
+                    }
                     let path = {
                         'units': [
                             this.#map.units[i],
@@ -168,7 +192,7 @@ export class DungeonScene extends Phaser.Scene {
                         'total': 0,
                     }
                     for (let j=1; j<this.#map.units.length; j++) {
-                        if (i === j) {
+                        if (i === j || !this.#map.units[j].isAlive) {
                             continue;
                         }
                         path['units'].push(this.#map.units[j]);
@@ -195,6 +219,8 @@ export class DungeonScene extends Phaser.Scene {
                         if (paths.length > 1) {
                             differentPaths[d]['paths'].push(paths[0]);
                             path['total'] += paths.length - 1;
+                        } else {
+                            differentPaths[d]['paths'].push({ x: path['units'][i].x, y: path['units'][i].y });
                         }
                     }
                 }
@@ -210,12 +236,26 @@ export class DungeonScene extends Phaser.Scene {
                     differentPaths[shortestPathIndex]['units'].forEach((singleUnit, index) => {
                         const path = differentPaths[shortestPathIndex]['paths'][index];
 
-                        singleUnit.move(path.x, path.y, () => {
-                            if (index === differentPaths[shortestPathIndex]['units'].length - 1) {
-                                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
-                            }
-                        });
+                        if (singleUnit.x === path.x && singleUnit.y === path.y) {
+                            singleUnit.attack(this.#map.units[0], () => {
+                                if (index === differentPaths[shortestPathIndex]['units'].length - 1) {
+                                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+                                }
+                            });
+                        } else {
+                            this.#map.fixDepth(singleUnit, path.x, path.y);
+
+                            singleUnit.move(path.x, path.y, () => {
+                                if (index === differentPaths[shortestPathIndex]['units'].length - 1) {
+                                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+                                }
+                            });
+                        }
                     });
+                }
+
+                if (differentPaths.length === 0) {
+                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
                 }
             },
         });

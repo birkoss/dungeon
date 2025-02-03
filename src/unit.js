@@ -16,7 +16,7 @@ export class Unit {
     constructor(scene, x, y, frame) {
         const scale = 4;
 
-        this.#hp = 3;
+        this.#hp = 1;
 
         this.#scene = scene;
         this.#x = x;
@@ -43,7 +43,9 @@ export class Unit {
     get x() { return this.#x; }
     get y() { return this.#y; }
 
-    attackUnit(defender, callback) {
+    set hp(value) { this.#hp = value; }
+
+    attack(defender, callback) {
         let newAnimationKey = this.#gameObject.anims.currentAnim.key;
 
         if (defender.y == this.y) {

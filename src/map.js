@@ -82,6 +82,7 @@ export class Map {
     get container() { return this.#container; }
     get units() { return this.#units; }
     get items() { return this.#items; }
+    get width() { return this.#width; }
 
     addUnit(unit) {
         this.#container.add(unit.gameObject);
@@ -112,6 +113,14 @@ export class Map {
         return pathfinding.find(start, end);
     }
 
+    fixDepth(unit, x, y) {
+        this.#units.forEach(singleUnit => {
+            if (!singleUnit.isAlive && singleUnit.x === x && singleUnit.y === y) {
+                this.#container.moveAbove(unit.gameObject, singleUnit.gameObject);
+            }
+        });
+    }
+
     isInBound(x, y) {
         return x >= 0 && x < this.#width && y >= 0 && y < this.#height;
     }
@@ -124,10 +133,25 @@ export class Map {
         let isWalkable = this.#tiles[y * this.#width + x] === 0;
 
         this.units.forEach(unit => {
-            if (unit.x === x && unit.y === y) {
+            if (unit.isAlive && unit.x === x && unit.y === y) {
                 isWalkable = false;
             }
         });
         return isWalkable;
+    }
+
+    isAttackable(x, y) {
+        if (!this.isInBound(x, y)) {
+            return false;
+        }
+
+        let isAttackable = false;
+
+        this.units.forEach((singleUnit, index) => {
+            if (index > 0 && singleUnit.x === x && singleUnit.y === y) {
+                isAttackable = true;
+            }
+        });
+        return isAttackable;
     }
 }
