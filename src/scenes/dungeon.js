@@ -42,39 +42,47 @@ export class DungeonScene extends Phaser.Scene {
         }
     }
 
+    #createMap() {
+        this.cameras.main.fadeOut(0, 0, 0, 0);
+        this.cameras.main.fadeIn(500);
+        this.#map = new Map(this, 8, 10);
+
+        this.#map.container.x = this.game.canvas.width / 2 - this.#map.container.getBounds().width / 2 + 20;
+        this.#map.container.y = 20;
+
+        this.#stateMachine.setState(MAIN_STATES.PLACE_UNITS);
+    }
+
+    createUnits() {
+        let item = new Item(this, 1, 1, 3);
+        this.#map.addItem(item);
+
+        let unit = new Unit(this, 1, 8, 0);
+        this.#map.addUnit(unit);
+
+        unit = new Unit(this, 1, 7, 204);
+        this.#map.addUnit(unit);
+
+        unit = new Unit(this, 2, 6, 204);
+        this.#map.addUnit(unit);
+
+        this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+    }
+
     #createStateMachine() {
         this.#stateMachine = new StateMachine('MAIN', this);
 
         this.#stateMachine.addState({
             name: MAIN_STATES.CREATE_LEVEL,
             onEnter: () => {
-                this.cameras.main.fadeOut(0, 0, 0, 0);
-                this.cameras.main.fadeIn(500);
-                this.#map = new Map(this, 8, 10);
-
-                this.#map.container.x = this.game.canvas.width / 2 - this.#map.container.getBounds().width / 2 + 20;
-                this.#map.container.y = 20;
-
-                this.#stateMachine.setState(MAIN_STATES.PLACE_UNITS);
+                this.#createMap();
             },
         });
 
         this.#stateMachine.addState({
             name: MAIN_STATES.PLACE_UNITS,
             onEnter: () => {
-                let item = new Item(this, 1, 1, 3);
-                this.#map.addItem(item);
-
-                let unit = new Unit(this, 1, 2, 0);
-                this.#map.addUnit(unit);
-
-                unit = new Unit(this, 6, 5, 204);
-                this.#map.addUnit(unit);
-
-                unit = new Unit(this, 6, 1, 204);
-                this.#map.addUnit(unit);
-
-                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+                this.createUnits();
             },
         });
 
@@ -130,7 +138,6 @@ export class DungeonScene extends Phaser.Scene {
                         action_sprites.push(action);
                     }
                 }
-                // ...
             },
         });
 
@@ -144,23 +151,71 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.ENEMY_TURN,
             onEnter: () => {
-                if (this.#map.units.length > 1) {
-                    for (let i=1; i<this.#map.units.length; i++) {
+                // No more enemy on the map
+                // TODO: No more alive enemy on the map
+                if (this.#map.units.length === 1) {
+                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+                }
+
+                let differentPaths = [];
+                // 
+                for (let i=1; i<this.#map.units.length; i++) {
+                    let path = {
+                        'units': [
+                            this.#map.units[i],
+                        ],
+                        'paths': [],
+                        'total': 0,
+                    }
+                    for (let j=1; j<this.#map.units.length; j++) {
+                        if (i === j) {
+                            continue;
+                        }
+                        path['units'].push(this.#map.units[j]);
+                    }
+                    differentPaths.push(path);
+                }
+
+                for (let d=0; d<differentPaths.length; d++) {
+                    let path = differentPaths[d];
+                    for (let i=0; i<path['units'].length; i++) {
+                        let enemyTilePosition = JSON.parse(JSON.stringify(path['paths']));
+
+                        // Add remaining units at their current position
+                        for (let j=i+1; j<path['units'].length; j++) {
+                            enemyTilePosition.push({x: path['units'][j].x, y: path['units'][j].y});
+                        }
 
                         let paths = this.#map.findPaths(
-                            { x: this.#map.units[i].x, y: this.#map.units[i].y },
-                            { x: this.#map.units[0].x, y: this.#map.units[0].y }
+                            { x: path['units'][i].x, y: path['units'][i].y },
+                            { x: this.#map.units[0].x, y: this.#map.units[0].y },
+                            enemyTilePosition
                         );
-
-                        console.log(paths);
-
+    
                         if (paths.length > 1) {
-                            let path = paths[0];
-                            this.#map.units[i].move(path.x, path.y, () => {
-                                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
-                            });
+                            differentPaths[d]['paths'].push(paths[0]);
+                            path['total'] += paths.length - 1;
                         }
                     }
+                }
+
+                let shortestPathIndex = differentPaths.length - 1;
+                for (let d=0; d<differentPaths.length - 1; d++) {
+                    if (differentPaths[d]['total'] < differentPaths[shortestPathIndex]['total']) {
+                        shortestPathIndex = d;
+                    }
+                }
+
+                if (shortestPathIndex !== -1) {
+                    differentPaths[shortestPathIndex]['units'].forEach((singleUnit, index) => {
+                        const path = differentPaths[shortestPathIndex]['paths'][index];
+
+                        singleUnit.move(path.x, path.y, () => {
+                            if (index === differentPaths[shortestPathIndex]['units'].length - 1) {
+                                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+                            }
+                        });
+                    });
                 }
             },
         });

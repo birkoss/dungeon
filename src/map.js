@@ -93,16 +93,20 @@ export class Map {
         this.#items.push(item);
     }
 
-    findPaths(start, end) {
+    findPaths(start, end, tiles) {
         let grid = JSON.parse(JSON.stringify(this.#tiles));
 
         this.items.forEach(item => {
             grid[item.y * this.#width + item.x] = 1;
         });
         
-        for (let i=1; i<this.#units.length; i++) {
-            grid[this.#units[i].y * this.#width + this.#units[i].x] = 1;
-        };
+        // for (let i=1; i<this.#units.length; i++) {
+        //     grid[this.#units[i].y * this.#width + this.#units[i].x] = 1;
+        // };
+
+        tiles.forEach(tile => { 
+            grid[tile.y * this.#width + tile.x] = 1;
+        });
 
         let pathfinding = new Pathfinding(grid, this.#width, this.#height);
         return pathfinding.find(start, end);
