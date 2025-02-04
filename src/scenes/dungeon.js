@@ -70,7 +70,7 @@ export class DungeonScene extends Phaser.Scene {
 
         tile = emptyTiles.pop();
         // let unit = new Unit(this, tile.x, tile.y, 0);
-        let unit = new Unit(this, 1, 8, 0);
+        let unit = new Unit(this, 1, 7, 0);
         unit.hp = 10;
         this.#map.addUnit(unit);
 
@@ -92,13 +92,13 @@ export class DungeonScene extends Phaser.Scene {
         //     }
         // });
 
-        unit = new Unit(this, 2, 8, 204);
-        this.#map.addUnit(unit);
-
-        unit = new Unit(this, 1, 7, 204);
-        this.#map.addUnit(unit);
-
         unit = new Unit(this, 2, 7, 204);
+        this.#map.addUnit(unit);
+
+        unit = new Unit(this, 1, 6, 204);
+        this.#map.addUnit(unit);
+
+        unit = new Unit(this, 2, 6, 204);
         this.#map.addUnit(unit);
 
         this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
@@ -216,140 +216,50 @@ export class DungeonScene extends Phaser.Scene {
 
         this.#stateMachine.addState({
             name: MAIN_STATES.ENEMY_TURN,
-            onEnter: () => {
-                // No more enemy on the map
-                // TODO: No more alive enemy on the map
-                if (this.#map.units.length === 1) {
-                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
-                }
-
-                let differentPaths = [];
-
-                console.log(this.#map.units);
-                // 
+            onEnter: () => {                
+                // No alive enemy on the map
+                let everyEnemyIsDead = true;
                 for (let i=1; i<this.#map.units.length; i++) {
-                    if (!this.#map.units[i].isAlive) {
-                        continue;
+                    if (this.#map.units[i].isAlive) {
+                        everyEnemyIsDead = false;
+                        break;
                     }
-                    let path = {
-                        'units': [
-                            this.#map.units[i],
-                        ],
-                        'paths': [],
-                        'total': 0,
-                    }
-                    for (let j=1; j<this.#map.units.length; j++) {
-                        if (i === j || !this.#map.units[j].isAlive) {
-                            continue;
-                        }
-                        path['units'].push(this.#map.units[j]);
-                    }
-                    differentPaths.push(path);
+                }
+                if (everyEnemyIsDead) {
+                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+                    return;
                 }
 
-                for (let d=0; d<differentPaths.length; d++) {
-                    let path = differentPaths[d];
-                    for (let i=0; i<path['units'].length; i++) {
-                        let enemyTilePosition = JSON.parse(JSON.stringify(path['paths']));
+                let actions = this.#createEnemyActions();
+                let totalActions = 0;
 
-                        // Add remaining units at their current position
-                        for (let j=i+1; j<path['units'].length; j++) {
-                            enemyTilePosition.push({x: path['units'][j].x, y: path['units'][j].y});
-                        }
-
-                        let paths = this.#map.findPaths(
-                            { x: path['units'][i].x, y: path['units'][i].y },
-                            { x: this.#map.units[0].x, y: this.#map.units[0].y },
-                            enemyTilePosition
-                        );
-
-                        console.log("PATHS", paths);    
-    
-                        if (paths.length === 0) {
-                            // If the paths is 0, then it's blocked by another enemy
-                            // - Lets get the unblocked paths from this unit to the player
-                            let unblockedPaths = this.#map.findPaths(
-                                { x: path['units'][i].x, y: path['units'][i].y },
-                                { x: this.#map.units[0].x, y: this.#map.units[0].y },
-                                []
-                            ).reverse();
-                
-                            // Remove the destination
-                            unblockedPaths.shift();
-                            // Remove the previous tile since we know it's blocked by another enemy
-                            unblockedPaths.shift();
-                
-                            console.log("UNBLOCKED PATHS", unblockedPaths);
-                
-                            let alternativePath = { x: path['units'][i].x, y: path['units'][i].y };
-
-                            for (let p=0; p<unblockedPaths.length; p++) {
-                                let newPaths = this.#map.findPaths(
-                                    { x: path['units'][i].x, y: path['units'][i].y },
-                                    { x: unblockedPaths[p].x, y: unblockedPaths[p].y },
-                                    enemyTilePosition
-                                );
-                
-                                if (newPaths.length > 0) {
-                                    alternativePath = newPaths[0];
-                                    break;
-                                }
+                actions.forEach((singleAction, singleIndex) => {
+                    totalActions++;
+                    if (singleAction.type === 'attack') {
+                        singleAction.attacker.attack(singleAction.defender, () => {
+                            totalActions--;
+                            if (totalActions === 0) {
+                                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
                             }
-
-                            differentPaths[d]['paths'].push(alternativePath);
-                            path['total'] += unblockedPaths.length + 1;
-                        } else if (paths.length > 1) {
-                            differentPaths[d]['paths'].push(paths[0]);
-                            path['total'] += paths.length - 1;
-                        } else {
-                            differentPaths[d]['paths'].push({ x: path['units'][i].x, y: path['units'][i].y });
-                        }
+                        });
+                        return;
                     }
-                }
+                    if (singleAction.type === 'move') {
+                        this.#map.fixDepth(singleAction.unit, singleAction.destination.x, singleAction.destination.y);
 
-                let shortestPathIndex = differentPaths.length - 1;
-                for (let d=0; d<differentPaths.length - 1; d++) {
-                    if (differentPaths[d]['total'] < differentPaths[shortestPathIndex]['total']) {
-                        shortestPathIndex = d;
+                        singleAction.unit.move(singleAction.destination.x, singleAction.destination.y, () => {
+                            totalActions--;
+                            if (totalActions === 0) {
+                                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
+                            }
+                        });
+                        return;
                     }
-                }
+                });
 
-                console.log(differentPaths.length, " different paths, shortest path index: ", shortestPathIndex);
-                console.log(differentPaths);
-                
-
-                if (shortestPathIndex !== -1) {
-                    differentPaths[shortestPathIndex]['units'].forEach((singleUnit, index) => {
-                        const path = differentPaths[shortestPathIndex]['paths'][index];
-
-                        // TODO: Create actions[] list for attacking and moving
-                        if (singleUnit.x === path.x && singleUnit.y === path.y) {
-                            // Can't move, check if we can attack instead
-                            console.log("UNIT ATTACKUING...;");
-                            // TODO: Check if the unit is adjacent the player BEFORE attacking
-                            // ELSE: Do nothing
-                            singleUnit.attack(this.#map.units[0], () => {
-                                if (index === differentPaths[shortestPathIndex]['units'].length - 1) {
-                                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
-                                }
-                            });
-                        } else {
-                            this.#map.fixDepth(singleUnit, path.x, path.y);
-
-                            singleUnit.move(path.x, path.y, () => {
-                                if (index === differentPaths[shortestPathIndex]['units'].length - 1) {
-                                    this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
-                                }
-                            });
-                        }
-                    });
-                }
-
-                if (differentPaths.length === 0) {
+                if (totalActions === 0) {
                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
                 }
-
-                // Execute actions and change state machine state when all are done!
             },
         });
 
@@ -361,4 +271,137 @@ export class DungeonScene extends Phaser.Scene {
         });
     }
 
+    #createEnemyActions() {
+        const actions = [];
+
+        let combinaisons = [];
+
+        // Create each possible combinaisons where each enemy is the first to move
+        for (let i=1; i<this.#map.units.length; i++) {
+            if (!this.#map.units[i].isAlive) {
+                continue;
+            }
+            let combinaison = {
+                'units': [
+                    this.#map.units[i],
+                ],
+                'destinations': [],
+                'distance': 0,
+            }
+            // Add each other enemies
+            for (let j=1; j<this.#map.units.length; j++) {
+                if (i === j || !this.#map.units[j].isAlive) {
+                    continue;
+                }
+                combinaison['units'].push(this.#map.units[j]);
+            }
+            combinaisons.push(combinaison);
+        }
+
+        // Resolve each combinaisons (find the path for each units and calculate the distance)
+        combinaisons.forEach((singleCombinaison) => {
+            for (let i=0; i<singleCombinaison['units'].length; i++) {
+                // Copy already calculated destinations
+                let enemyTilePosition = JSON.parse(JSON.stringify(singleCombinaison['destinations']));
+
+                // Add remaining units at their CURRENT position
+                for (let j=i+1; j<singleCombinaison['units'].length; j++) {
+                    enemyTilePosition.push(
+                        {x: singleCombinaison['units'][j].x, y: singleCombinaison['units'][j].y}
+                    );
+                }
+
+                // Find the shortest path from this unit to the player
+                let paths = this.#map.findPaths(
+                    { x: singleCombinaison['units'][i].x, y: singleCombinaison['units'][i].y },
+                    { x: this.#map.units[0].x, y: this.#map.units[0].y },
+                    enemyTilePosition
+                );
+  
+                if (paths.length === 1) {
+                    // Adjacent to the player
+                    singleCombinaison['destinations'].push({ x: singleCombinaison['units'][i].x, y: singleCombinaison['units'][i].y });
+                    singleCombinaison['distance'] += 1;
+                } else if (paths.length === 0) {
+                    // No path (Blocked by another enemy)
+
+                    // Lets get the unblocked paths from this unit to the player
+                    let unblockedPaths = this.#map.findPaths(
+                        { x: singleCombinaison['units'][i].x, y: singleCombinaison['units'][i].y },
+                        { x: this.#map.units[0].x, y: this.#map.units[0].y },
+                        []
+                    );
+                    
+                    // Reverse the array to start from the end up to the unit
+                    unblockedPaths.reverse();
+                    // Remove the destination
+                    unblockedPaths.shift();
+                    // Remove the previous tile since we already know it's blocked by another enemy
+                    unblockedPaths.shift();
+        
+                    // Default position is no movemement
+                    let alternativePath = { x: singleCombinaison['units'][i].x, y: singleCombinaison['units'][i].y };
+
+                    // First the first unblocked path (with enemy in the way)
+                    for (let p=0; p<unblockedPaths.length; p++) {
+                        let newPaths = this.#map.findPaths(
+                            { x: singleCombinaison['units'][i].x, y: singleCombinaison['units'][i].y },
+                            { x: unblockedPaths[p].x, y: unblockedPaths[p].y },
+                            enemyTilePosition
+                        );
+        
+                        // If we found a path, then we can use it
+                        if (newPaths.length > 0) {
+                            alternativePath = newPaths.shift();
+                            break;
+                        }
+                    }
+
+                    singleCombinaison['destinations'].push(alternativePath);
+                    singleCombinaison['distance'] += unblockedPaths.length + 1;
+                } else {
+                    // Found a path, move to the next position
+                    singleCombinaison['destinations'].push(paths.shift());
+                    singleCombinaison['distance'] += paths.length - 1;
+                }
+            }
+        });
+
+        // Find the shortest distance
+        let shortestIndex = combinaisons.length - 1;
+        for (let d=0; d<combinaisons.length - 1; d++) {
+            if (combinaisons[d]['distance'] < combinaisons[shortestIndex]['distance']) {
+                shortestIndex = d;
+            }
+        }
+
+        // Found a shortest distance
+        if (shortestIndex !== -1) {
+            combinaisons[shortestIndex]['units'].forEach((singleUnit, index) => {
+                const destination = combinaisons[shortestIndex]['destinations'][index];
+
+                if (singleUnit.x === destination.x && singleUnit.y === destination.y) {
+                    // Can't move
+                    
+                    // Can we attack the player (are we adjacent) ?
+                    if (Math.abs(singleUnit.x - this.#map.units[0].x) + Math.abs(singleUnit.y - this.#map.units[0].y) === 1) {
+                        actions.push({
+                            'type': 'attack',
+                            'attacker': singleUnit,
+                            'defender': this.#map.units[0],
+                        });
+                    }
+                } else {
+                    // Move to the destination
+                    actions.push({
+                        'type': 'move',
+                        'unit': singleUnit,
+                        'destination': destination,
+                    });
+                }
+            });
+        }
+
+        return actions;
+    }
 }
