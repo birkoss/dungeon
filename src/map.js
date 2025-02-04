@@ -1,5 +1,7 @@
+import { Item } from "./item.js";
 import { DUNGEON_ASSET_KEYS } from "./keys/asset.js";
 import { Pathfinding } from "./pathfinding.js";
+import { Tile, TILE_TYPE } from "./tile.js";
 
 export class Map {
     /** @type {Phaser.GameObjects.Container} */
@@ -11,9 +13,14 @@ export class Map {
     #height;
 
     #units;
+    /** @type {Item[]} */
     #items;
 
+    #floor;
+
     constructor(scene, width, height) {
+        this.#floor = 1;
+
         this.#units = [];
         this.#items = [];
 
@@ -22,8 +29,6 @@ export class Map {
         this.#height = height;
 
         this.#container = this.#scene.add.container(0, 0);
-
-        const scale = 4;
 
         this.#tiles = [];
 
@@ -38,41 +43,37 @@ export class Map {
             [4, 7],
         ];
 
+        let type;
         for (let y = 0; y < this.#height; y++) {
             for (let x = 0; x < this.#width; x++) {  
-                let type = 1;
-
-                let sprite = 0;
+                type = TILE_TYPE.WALL;
 
                 if (x > 0 && x < 7 && y > 0 && y < 9) {
-                    sprite = 20;
-                    type = 0;
+                    type = TILE_TYPE.FLOOR;
                 }
 
                 for (let wall of walls) {
                     if (x == wall[0] && y == wall[1]) {
-                        sprite = 0;
-                        type = 1;
+                        type = TILE_TYPE.WALL;
                     }
                 }
 
-                this.#tiles.push(type);
+                let tile = new Tile(this.#scene, x, y, type);
+                this.#container.add(tile.container);
+                this.#tiles.push(tile);
 
-                const tile = this.#scene.add.image(x * 10 * scale, y * 10 * scale, DUNGEON_ASSET_KEYS.WORLD, sprite).setScale(scale);
-                this.#container.add(tile);
+                tile.createBackground(this.#scene);
                 
-
-                if (type === 0) {
+                if (type === TILE_TYPE.FLOOR) {
                     let needShadow = false;
 
                     // Top tile of a floor is a wall
-                    if (y > 0 && this.#tiles[(y - 1) * this.#width + x] === 1) {
+                    if (y > 0 && this.#tiles[(y - 1) * this.#width + x].type === TILE_TYPE.WALL) {
                         needShadow = true;
                     }
 
                     if (needShadow) {
-                        const shadow = this.#scene.add.image(x * 10 * scale, y * 10 * scale, DUNGEON_ASSET_KEYS.WORLD, 21).setScale(scale);
-                        this.#container.add(shadow);
+                        tile.createShadow(this.#scene);
                     }
                 }
             }
@@ -80,8 +81,9 @@ export class Map {
     }
 
     get container() { return this.#container; }
-    get units() { return this.#units; }
+    get floor() { return this.#floor; }
     get items() { return this.#items; }
+    get units() { return this.#units; }
     get width() { return this.#width; }
 
     addUnit(unit) {
@@ -136,10 +138,15 @@ export class Map {
                 this.#container.moveAbove(unit.gameObject, singleUnit.gameObject);
             }
         });
+        this.#items.forEach(singleItem => {
+            if (singleItem.x === x && singleItem.y === y) {
+                this.#container.moveAbove(unit.gameObject, singleItem.gameObject);
+            }
+        });
     }
 
     getEmptyTiles() {
-        let floor = this.#tiles.filter(singleTile => singleTile === 0);
+        let floor = this.#tiles.filter(singleTile => singleTile.type === TILE_TYPE.FLOOR);
         
 
 
@@ -155,7 +162,7 @@ export class Map {
             return false;
         }
 
-        let isWalkable = this.#tiles[y * this.#width + x] === 0;
+        let isWalkable = this.#tiles[y * this.#width + x].type === TILE_TYPE.FLOOR;
 
         this.units.forEach(unit => {
             if (unit.isAlive && unit.x === x && unit.y === y) {
@@ -178,5 +185,15 @@ export class Map {
             }
         });
         return isAttackable;
+    }
+
+    useItemAt(x, y) {
+        let item = this.items.find(singleItem => singleItem.x === x && singleItem.y === y);
+        item.gameObject.destroy();
+
+        const index = this.#items.indexOf(item);
+        if (index > -1) {
+            this.#items.splice(index, 1);
+        }
     }
 }
