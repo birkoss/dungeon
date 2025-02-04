@@ -18,7 +18,7 @@ export class Action {
         this.#gameObject.anims.create({
             key: 'idle',
             frames: this.#gameObject.anims.generateFrameNumbers(DUNGEON_ASSET_KEYS.ACTION, { frames: [frame, frame+1] }),
-            frameRate: 1,
+            frameRate: 2,
             repeat: -1,
         });
         this.#gameObject.anims.play('idle');
