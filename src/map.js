@@ -1,6 +1,7 @@
 import { Item } from "./item.js";
+import { DUNGEON_ASSET_KEYS, UI_ASSET_KEYS } from "./keys/asset.js";
 import { Pathfinding } from "./pathfinding.js";
-import { Tile, TILE_TYPE } from "./tile.js";
+import { Tile, TILE_SCALE, TILE_TYPE } from "./tile.js";
 import { Unit } from "./unit.js";
 
 const MAP_CONTAINERS = {
@@ -21,6 +22,8 @@ export class Map {
     #containerItems;
     /** @type {Phaser.GameObjects.Container} */
     #containerUnits;
+    /** @type {Phaser.GameObjects.Container} */
+    #containerOverlay;
 
     #scene;
 
@@ -48,10 +51,13 @@ export class Map {
         this.#containerActions = this.#scene.add.container(0, 0);
         this.#containerItems = this.#scene.add.container(0, 0);
         this.#containerUnits = this.#scene.add.container(0, 0);
-        this.#container.add([this.#containerTiles, this.#containerActions, this.#containerItems, this.#containerUnits]);
+        this.#containerOverlay = this.#scene.add.container(0, 0);
+        
+        this.#container.add([this.#containerTiles, this.#containerActions, this.#containerItems, this.#containerUnits, this.#containerOverlay]);
     }
 
     get container() { return this.#container; }
+    get height() { return this.#height; }
     get items() { return this.#items; }
     get units() { return this.#units; }
     get width() { return this.#width; }
@@ -69,6 +75,13 @@ export class Map {
     addItem(item) {
         this.#containerItems.add(item.gameObject);
         this.#items.push(item);
+    }
+
+    clearActions() {
+        this.#actions.forEach(action => {
+            action.hide();
+        });
+        this.#actions = [];
     }
 
     fill(floor, total) {
@@ -141,6 +154,8 @@ export class Map {
         });
         this.#units = [];
 
+        this.#containerOverlay.removeAll();
+
         let walls = [
             [3, 2],
             [3, 3],
@@ -155,6 +170,10 @@ export class Map {
         let type;
         for (let y = 0; y < this.#height; y++) {
             for (let x = 0; x < this.#width; x++) {  
+                const img = this.#scene.add.image(x * 40, y * 40, UI_ASSET_KEYS.BLANK).setScale(TILE_SCALE).setTint(0x000000).setOrigin(0.5);
+                console.log(img.displayWidth);
+                this.#containerOverlay.add(img);
+
                 type = TILE_TYPE.WALL;
 
                 if (x > 0 && x < 7 && y > 0 && y < 9) {
@@ -234,6 +253,16 @@ export class Map {
         });
       
         return isAttackable;
+    }
+
+    isRevealedAt(x, y) {
+        let index = (y * this.#width) + x;
+        return this.#containerOverlay.list[index].alpha === 0;
+    }
+
+    revealAt(x, y) {
+        let index = (y * this.#width) + x;
+        this.#containerOverlay.list[index].setAlpha(0);    
     }
 
     useItemAt(x, y) {

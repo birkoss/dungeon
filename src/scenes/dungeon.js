@@ -1,4 +1,5 @@
 import Phaser from "../lib/phaser.js";
+import Mrpas from "../lib/mrpas.js";
 
 import { SCENE_KEYS } from "../keys/scene.js";
 import { Unit } from "../unit.js";
@@ -6,7 +7,7 @@ import { StateMachine } from "../state-machine.js";
 import { Map } from "../map.js";
 import { Item, ITEM_TYPE } from "../item.js";
 import { Action } from "../action.js";
-import { TILE_SCALE } from "../tile.js";
+import { TILE_SCALE, TILE_TYPE } from "../tile.js";
 import { Panel } from "../ui/panel.js";
 
 const MAIN_STATES = Object.freeze({
@@ -19,6 +20,9 @@ const MAIN_STATES = Object.freeze({
 });
 
 export class DungeonScene extends Phaser.Scene {
+    /** @type {Mrpas} */
+    #fov;
+
     /** @type {Panel} */
     #panel;
 
@@ -48,9 +52,20 @@ export class DungeonScene extends Phaser.Scene {
 
         this.#createStateMachine();
         this.#stateMachine.setState(MAIN_STATES.CREATE_LEVEL);
+
+        this.#fov = new Mrpas(
+            this.#map.width,
+            this.#map.height,
+            (x, y) => {
+			    const tile = this.#map.getTileAt(x, y);
+			    return tile && tile.type === TILE_TYPE.FLOOR;
+		    }
+        );
     }
 
     update() {
+        this.#updateFOV();
+
         if (this.#stateMachine) {
             this.#stateMachine.update();
         }
@@ -83,7 +98,8 @@ export class DungeonScene extends Phaser.Scene {
         this.#map.addItem(item);
 
         tile = emptyTiles.pop();
-        let unit = new Unit(this, tile.x, tile.y, 0);
+        // let unit = new Unit(this, tile.x, tile.y, 0);
+        let unit = new Unit(this, 1, 1, 0);
         unit.hp = 10;
         this.#map.addUnit(unit);
 
@@ -104,6 +120,9 @@ export class DungeonScene extends Phaser.Scene {
                 this.#map.addUnit(unit);
             }
         });
+
+        unit = new Unit(this, 1, 4, 204);
+        this.#map.addUnit(unit);
 
         this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
     }
@@ -131,8 +150,6 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.PLAYER_TURN,
             onEnter: () => {
-                let actions = [];
-
                 for (let y=-1; y<=1; y++) {
                     for (let x=-1; x<=1; x++) {
                         if (Math.abs(x) === Math.abs(y)) {
@@ -149,15 +166,13 @@ export class DungeonScene extends Phaser.Scene {
                         if (this.#map.isWalkable(newX, newY)) {
                             const action = new Action(
                                 this,
-                                (newX * 10 * TILE_SCALE) + this.#map.container.x,
-                                (newY * 10 * TILE_SCALE) + this.#map.container.y,
+                                (newX * 10 * TILE_SCALE),
+                                (newY * 10 * TILE_SCALE),
                                 0,
                                 () => {
                                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
         
-                                    actions.forEach((singleActionSprite) => {
-                                        singleActionSprite.hide();
-                                    });
+                                    this.#map.clearActions();
 
                                     let action = {
                                         type: 'move',
@@ -193,7 +208,7 @@ export class DungeonScene extends Phaser.Scene {
                                 }
                             );
                             action.gameObject.setTint(0x008751);
-                            actions.push(action);
+                            this.#map.addAction(action);
                         } else if(this.#map.isAttackable(newX, newY)) {
                             const action = new Action(
                                 this,
@@ -203,9 +218,7 @@ export class DungeonScene extends Phaser.Scene {
                                 () => {
                                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
         
-                                    actions.forEach((singleActionSprite) => {
-                                        singleActionSprite.hide();
-                                    });
+                                    this.#map.clearActions();
             
                                     let action = {
                                         'type': 'attack',
@@ -219,7 +232,6 @@ export class DungeonScene extends Phaser.Scene {
                             );
                             action.gameObject.setTint(0xff004d);
                             this.#map.addAction(action);
-                            actions.push(action);
                         }
                     }
                 }
@@ -439,5 +451,37 @@ export class DungeonScene extends Phaser.Scene {
         if (totalActions === 0 && callback) {
             callback();
         }
+    }
+
+    #updateFOV() {
+        if (!this.#fov || !this.#map || this.#map.units.length === 0) {
+            return;
+        }
+    
+        // Get player's position and radius
+        const player_x = this.#map.units[0].x;
+        const player_y = this.#map.units[0].y;
+        const player_radius = 2;
+
+        // Compute fov from player's position
+        this.#fov.compute(
+            player_x,
+            player_y,
+            player_radius,
+            (x, y) => {
+                const tile = this.#map.getTileAt(x, y);
+                if (!tile) {
+                    return false;
+                }
+                return this.#map.isRevealedAt(x, y);
+            },
+            (x, y) => {
+                const tile = this.#map.getTileAt(x, y);
+                if (!tile) {
+                    return;
+                }
+                this.#map.revealAt(x, y);
+            }
+        );
     }
 }
