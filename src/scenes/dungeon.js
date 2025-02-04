@@ -43,12 +43,16 @@ export class DungeonScene extends Phaser.Scene {
         this.#createStateMachine();
         this.#stateMachine.setState(MAIN_STATES.CREATE_LEVEL);
     }
+    
     update() {
         if (this.#stateMachine) {
             this.#stateMachine.update();
         }
     }
 
+    /**
+     * Create the map
+     */
     #createMap() {
         this.cameras.main.fadeOut(0, 0, 0, 0);
         this.cameras.main.fadeIn(500);
@@ -58,6 +62,9 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.setState(MAIN_STATES.PLACE_UNITS);
     }
 
+    /**
+     * Create the units and items
+     */
     createUnits() {
         let emptyTiles = this.#map.getEmptyTiles();
         Phaser.Utils.Array.Shuffle(emptyTiles);
@@ -104,6 +111,9 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
     }
 
+    /**
+     * Create the state machine
+     */
     #createStateMachine() {
         this.#stateMachine = new StateMachine('MAIN', this);
 
@@ -151,9 +161,14 @@ export class DungeonScene extends Phaser.Scene {
                                     actions.forEach((singleActionSprite) => {
                                         singleActionSprite.hide();
                                     });
-            
-                                    this.#map.fixDepth(this.#map.units[0], newX, newY);
-                                    this.#map.units[0].move(newX, newY, () => {
+
+                                    let action = {
+                                        type: 'move',
+                                        unit: this.#map.units[0],
+                                        destination: { x: newX, y: newY },
+                                    }
+
+                                    this.#executeActions([action], () => {
                                         let item = this.#map.items.find(singleItem => singleItem.x === this.#map.units[0].x && singleItem.y === this.#map.units[0].y);
                                         if (item) {
                                             if (item.type === ITEM_TYPE.EXIT) {
@@ -192,9 +207,12 @@ export class DungeonScene extends Phaser.Scene {
                                         singleActionSprite.hide();
                                     });
             
-                                    console.log("PLAYER ATTACKING...");
-                                    const defender = this.#map.units.find(singleUnit => singleUnit.isAlive && singleUnit.x === newX && singleUnit.y === newY);
-                                    this.#map.units[0].attack(defender, () => {
+                                    let action = {
+                                        'type': 'attack',
+                                        'attacker': this.#map.units[0],
+                                        'defender': this.#map.units.find(singleUnit => singleUnit.isAlive && singleUnit.x === newX && singleUnit.y === newY),
+                                    };
+                                    this.#executeActions([action], () => {
                                         this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
                                     });
                                 }
@@ -230,36 +248,12 @@ export class DungeonScene extends Phaser.Scene {
                     return;
                 }
 
+                // Generate the best enemy actions
                 let actions = this.#createEnemyActions();
-                let totalActions = 0;
 
-                actions.forEach((singleAction, singleIndex) => {
-                    totalActions++;
-                    if (singleAction.type === 'attack') {
-                        singleAction.attacker.attack(singleAction.defender, () => {
-                            totalActions--;
-                            if (totalActions === 0) {
-                                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
-                            }
-                        });
-                        return;
-                    }
-                    if (singleAction.type === 'move') {
-                        this.#map.fixDepth(singleAction.unit, singleAction.destination.x, singleAction.destination.y);
-
-                        singleAction.unit.move(singleAction.destination.x, singleAction.destination.y, () => {
-                            totalActions--;
-                            if (totalActions === 0) {
-                                this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
-                            }
-                        });
-                        return;
-                    }
-                });
-
-                if (totalActions === 0) {
+                this.#executeActions(actions, () => {
                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
-                }
+                });
             },
         });
 
@@ -271,17 +265,20 @@ export class DungeonScene extends Phaser.Scene {
         });
     }
 
+    /**
+     * Create the best actions for the enemies
+     */
     #createEnemyActions() {
         const actions = [];
 
-        let combinaisons = [];
+        const combinaisons = [];
 
         // Create each possible combinaisons where each enemy is the first to move
         for (let i=1; i<this.#map.units.length; i++) {
             if (!this.#map.units[i].isAlive) {
                 continue;
             }
-            let combinaison = {
+            const combinaison = {
                 'units': [
                     this.#map.units[i],
                 ],
@@ -302,7 +299,7 @@ export class DungeonScene extends Phaser.Scene {
         combinaisons.forEach((singleCombinaison) => {
             for (let i=0; i<singleCombinaison['units'].length; i++) {
                 // Copy already calculated destinations
-                let enemyTilePosition = JSON.parse(JSON.stringify(singleCombinaison['destinations']));
+                const enemyTilePosition = JSON.parse(JSON.stringify(singleCombinaison['destinations']));
 
                 // Add remaining units at their CURRENT position
                 for (let j=i+1; j<singleCombinaison['units'].length; j++) {
@@ -312,7 +309,7 @@ export class DungeonScene extends Phaser.Scene {
                 }
 
                 // Find the shortest path from this unit to the player
-                let paths = this.#map.findPaths(
+                const paths = this.#map.findPaths(
                     { x: singleCombinaison['units'][i].x, y: singleCombinaison['units'][i].y },
                     { x: this.#map.units[0].x, y: this.#map.units[0].y },
                     enemyTilePosition
@@ -326,7 +323,7 @@ export class DungeonScene extends Phaser.Scene {
                     // No path (Blocked by another enemy)
 
                     // Lets get the unblocked paths from this unit to the player
-                    let unblockedPaths = this.#map.findPaths(
+                    const unblockedPaths = this.#map.findPaths(
                         { x: singleCombinaison['units'][i].x, y: singleCombinaison['units'][i].y },
                         { x: this.#map.units[0].x, y: this.#map.units[0].y },
                         []
@@ -344,7 +341,7 @@ export class DungeonScene extends Phaser.Scene {
 
                     // First the first unblocked path (with enemy in the way)
                     for (let p=0; p<unblockedPaths.length; p++) {
-                        let newPaths = this.#map.findPaths(
+                        const newPaths = this.#map.findPaths(
                             { x: singleCombinaison['units'][i].x, y: singleCombinaison['units'][i].y },
                             { x: unblockedPaths[p].x, y: unblockedPaths[p].y },
                             enemyTilePosition
@@ -403,5 +400,43 @@ export class DungeonScene extends Phaser.Scene {
         }
 
         return actions;
+    }
+
+    /**
+     * Execute a list of actions at the same time
+     * - Callback is called when all actions are completed
+     * @param {Array} actions
+     * @param {() => void} [callback]
+     */
+    #executeActions(actions, callback) {
+        let totalActions = 0;
+
+        actions.forEach((singleAction, singleIndex) => {
+            totalActions++;
+            if (singleAction.type === 'attack') {
+                singleAction.attacker.attack(singleAction.defender, () => {
+                    totalActions--;
+                    if (totalActions === 0 && callback) {
+                        callback();
+                    }
+                });
+                return;
+            }
+            if (singleAction.type === 'move') {
+                this.#map.fixDepth(singleAction.unit, singleAction.destination.x, singleAction.destination.y);
+
+                singleAction.unit.move(singleAction.destination.x, singleAction.destination.y, () => {
+                    totalActions--;
+                    if (totalActions === 0 && callback) {
+                        callback();
+                    }
+                });
+                return;
+            }
+        });
+
+        if (totalActions === 0 && callback) {
+            callback();
+        }
     }
 }
