@@ -178,7 +178,7 @@ export class Map {
         let type;
         for (let y = 0; y < this.#height; y++) {
             for (let x = 0; x < this.#width; x++) {  
-                const img = this.#scene.add.image(x * 40, y * 40, UI_ASSET_KEYS.BLANK).setScale(TILE_SCALE).setTint(0x000000).setAlpha(0.5).setOrigin(0.5);
+                const img = this.#scene.add.image(x * 40, y * 40, UI_ASSET_KEYS.BLANK).setScale(TILE_SCALE).setTint(0x000000).setAlpha(1).setOrigin(0.5);
                 this.#containerOverlay.add(img);
                 this.#overlays.push(img);
 
@@ -266,7 +266,6 @@ export class Map {
     isRevealedAt(x, y) {
         let index = (y * this.#width) + x;
         return this.#overlays[index].alpha === 0;
-        return false;
     }
 
     revealAt(x, y) {

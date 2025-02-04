@@ -307,7 +307,7 @@ export class DungeonScene extends Phaser.Scene {
             }
             // Add each other enemies
             for (let j=1; j<this.#map.units.length; j++) {
-                if (i === j || !this.#map.units[j].isAlive) {
+                if (i === j || !this.#map.units[j].isAlive || !this.#map.units[j].isActive) {
                     continue;
                 }
                 combinaison['units'].push(this.#map.units[j]);
