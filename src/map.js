@@ -1,11 +1,26 @@
 import { Item } from "./item.js";
-import { DUNGEON_ASSET_KEYS } from "./keys/asset.js";
 import { Pathfinding } from "./pathfinding.js";
 import { Tile, TILE_TYPE } from "./tile.js";
+
+const MAP_CONTAINERS = {
+    TILE: 0,
+    ACTION: 1,
+    ITEM: 2,
+    UNIT: 3,
+};
 
 export class Map {
     /** @type {Phaser.GameObjects.Container} */
     #container;
+    /** @type {Phaser.GameObjects.Container} */
+    #containerTiles;
+    /** @type {Phaser.GameObjects.Container} */
+    #containerActions;
+    /** @type {Phaser.GameObjects.Container} */
+    #containerItems;
+    /** @type {Phaser.GameObjects.Container} */
+    #containerUnits;
+
     #scene;
 
     #tiles;
@@ -13,20 +28,26 @@ export class Map {
     #height;
 
     #units;
+    #actions;
     /** @type {Item[]} */
     #items;
 
     constructor(scene, width, height) {
         this.#units = [];
         this.#items = [];
+        this.#actions = [];
+        this.#tiles = [];
 
         this.#scene = scene;
         this.#width = width;
         this.#height = height;
 
         this.#container = this.#scene.add.container(0, 0);
-
-        this.#tiles = [];
+        this.#containerTiles = this.#scene.add.container(0, 0);
+        this.#containerActions = this.#scene.add.container(0, 0);
+        this.#containerItems = this.#scene.add.container(0, 0);
+        this.#containerUnits = this.#scene.add.container(0, 0);
+        this.#container.add([this.#containerTiles, this.#containerActions, this.#containerItems, this.#containerUnits]);
     }
 
     get container() { return this.#container; }
@@ -34,13 +55,18 @@ export class Map {
     get units() { return this.#units; }
     get width() { return this.#width; }
 
+    addAction(action) {
+        this.#containerActions.add(action.gameObject);
+        this.#actions.push(action);
+    }
+
     addUnit(unit) {
-        this.#container.add(unit.gameObject);
+        this.#containerUnits.add(unit.gameObject);
         this.#units.push(unit);
     }
 
     addItem(item) {
-        this.#container.add(item.gameObject);
+        this.#containerItems.add(item.gameObject);
         this.#items.push(item);
     }
 
@@ -140,7 +166,7 @@ export class Map {
                 }
 
                 let tile = new Tile(this.#scene, x, y, type);
-                this.#container.add(tile.container);
+                this.#containerTiles.add(tile.container);
                 this.#tiles.push(tile);
 
                 tile.createBackground(this.#scene);
@@ -163,6 +189,14 @@ export class Map {
 
     getEmptyTiles() {
         return this.#tiles.filter(singleTile => singleTile.type === TILE_TYPE.FLOOR);
+    }
+
+    getTileAt(x, y) {
+        if (!this.isInBound(x, y)) {
+            return null;
+        }
+
+        return this.#tiles.find(singleTile => singleTile.x === x && singleTile.y === y);
     }
 
     isInBound(x, y) {

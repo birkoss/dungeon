@@ -43,7 +43,7 @@ export class DungeonScene extends Phaser.Scene {
         this.#createStateMachine();
         this.#stateMachine.setState(MAIN_STATES.CREATE_LEVEL);
     }
-    
+
     update() {
         if (this.#stateMachine) {
             this.#stateMachine.update();
@@ -61,7 +61,7 @@ export class DungeonScene extends Phaser.Scene {
 
         this.#stateMachine.setState(MAIN_STATES.PLACE_UNITS);
     }
-
+    
     /**
      * Create the units and items
      */
@@ -197,8 +197,8 @@ export class DungeonScene extends Phaser.Scene {
                         } else if(this.#map.isAttackable(newX, newY)) {
                             const action = new Action(
                                 this,
-                                (newX * 10 * TILE_SCALE) + this.#map.container.x,
-                                (newY * 10 * TILE_SCALE) + this.#map.container.y,
+                                (newX * 10 * TILE_SCALE),
+                                (newY * 10 * TILE_SCALE),
                                 0,
                                 () => {
                                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
@@ -218,6 +218,7 @@ export class DungeonScene extends Phaser.Scene {
                                 }
                             );
                             action.gameObject.setTint(0xff004d);
+                            this.#map.addAction(action);
                             actions.push(action);
                         }
                     }
