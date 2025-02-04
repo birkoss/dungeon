@@ -6,6 +6,7 @@ import { StateMachine } from "../state-machine.js";
 import { Map } from "../map.js";
 import { Item, ITEM_TYPE } from "../item.js";
 import { Action } from "../action.js";
+import { TILE_SCALE } from "../tile.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_LEVEL: 'CREATE_LEVEL',
@@ -16,11 +17,12 @@ const MAIN_STATES = Object.freeze({
     END_TURN: 'END_TURN',
 });
 
-const scale = 4;
-
 export class DungeonScene extends Phaser.Scene {
     /** @type {Map} */
     #map;
+
+    /** @type {number} */
+    #floor;
 
     /** @type {StateMachine} */
     #stateMachine;
@@ -32,6 +34,12 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     create() {
+        this.#floor = 1;
+
+        this.#map = new Map(this, 8, 10);
+        this.#map.container.x = this.game.canvas.width / 2 - this.#map.width*10*TILE_SCALE / 2 + 20;
+        this.#map.container.y = 20;
+
         this.#createStateMachine();
         this.#stateMachine.setState(MAIN_STATES.CREATE_LEVEL);
     }
@@ -44,10 +52,8 @@ export class DungeonScene extends Phaser.Scene {
     #createMap() {
         this.cameras.main.fadeOut(0, 0, 0, 0);
         this.cameras.main.fadeIn(500);
-        this.#map = new Map(this, 8, 10);
 
-        this.#map.container.x = this.game.canvas.width / 2 - this.#map.container.getBounds().width / 2 + 20;
-        this.#map.container.y = 20;
+        this.#map.generate();
 
         this.#stateMachine.setState(MAIN_STATES.PLACE_UNITS);
     }
@@ -71,7 +77,7 @@ export class DungeonScene extends Phaser.Scene {
         unit.hp = 10;
         this.#map.addUnit(unit);
 
-        let tiles = this.#map.fill(this.#map.floor, emptyTiles.length);
+        let tiles = this.#map.fill(this.#floor, emptyTiles.length);
         console.log(tiles);
 
         tiles.forEach((singleTile) => {
@@ -130,8 +136,8 @@ export class DungeonScene extends Phaser.Scene {
                         if (this.#map.isWalkable(newX, newY)) {
                             const action = new Action(
                                 this,
-                                (newX * 10 * scale) + this.#map.container.x,
-                                (newY * 10 * scale) + this.#map.container.y,
+                                (newX * 10 * TILE_SCALE) + this.#map.container.x,
+                                (newY * 10 * TILE_SCALE) + this.#map.container.y,
                                 0,
                                 () => {
                                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
@@ -142,26 +148,25 @@ export class DungeonScene extends Phaser.Scene {
             
                                     this.#map.fixDepth(this.#map.units[0], newX, newY);
                                     this.#map.units[0].move(newX, newY, () => {
-                                        this.#map.items.forEach((singleItem) => {
-                                            if (singleItem.x === this.#map.units[0].x && singleItem.y === this.#map.units[0].y) {
-                                                if (singleItem.type === ITEM_TYPE.EXIT) {
-                                                    this.cameras.main.fadeOut(500, 0, 0, 0, (camera, progress) => {
-                                                        if (progress === 1) {
-                                                            this.scene.restart();
-                                                        }
-                                                    });
-                                                    return;
-                                                }
-                                                
-                                                if (singleItem.type === ITEM_TYPE.COIN) {
-                                                    this.#map.useItemAt(singleItem.x, singleItem.y);
-                                                    this.#map.units[0].coins++;
-                                                    return;
-                                                }
-
-                                                // TODO: Potion
+                                        let item = this.#map.items.find(singleItem => singleItem.x === this.#map.units[0].x && singleItem.y === this.#map.units[0].y);
+                                        if (item) {
+                                            if (item.type === ITEM_TYPE.EXIT) {
+                                                this.cameras.main.fadeOut(500, 0, 0, 0, (camera, progress) => {
+                                                    if (progress === 1) {
+                                                        this.#floor++;
+                                                        this.#stateMachine.setState(MAIN_STATES.CREATE_LEVEL);
+                                                    }
+                                                });
+                                                return;
                                             }
-                                        });
+                                            
+                                            if (item.type === ITEM_TYPE.COIN) {
+                                                this.#map.useItemAt(item.x, item.y);
+                                                this.#map.units[0].coins++;
+                                            }
+
+                                            // TODO: Potion
+                                        }
                                         this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
                                     });
                                 }
@@ -171,8 +176,8 @@ export class DungeonScene extends Phaser.Scene {
                         } else if(this.#map.isAttackable(newX, newY)) {
                             const action = new Action(
                                 this,
-                                (newX * 10 * scale) + this.#map.container.x,
-                                (newY * 10 * scale) + this.#map.container.y,
+                                (newX * 10 * TILE_SCALE) + this.#map.container.x,
+                                (newY * 10 * TILE_SCALE) + this.#map.container.y,
                                 0,
                                 () => {
                                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN_WAIT);
@@ -181,6 +186,7 @@ export class DungeonScene extends Phaser.Scene {
                                         singleActionSprite.hide();
                                     });
             
+                                    console.log("PLAYER ATTACKING...");
                                     const defender = this.#map.units.find(singleUnit => singleUnit.isAlive && singleUnit.x === newX && singleUnit.y === newY);
                                     this.#map.units[0].attack(defender, () => {
                                         this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
@@ -212,6 +218,8 @@ export class DungeonScene extends Phaser.Scene {
                 }
 
                 let differentPaths = [];
+
+                console.log(this.#map.units);
                 // 
                 for (let i=1; i<this.#map.units.length; i++) {
                     if (!this.#map.units[i].isAlive) {
@@ -258,6 +266,8 @@ export class DungeonScene extends Phaser.Scene {
                     }
                 }
 
+                console.log(differentPaths);
+
                 let shortestPathIndex = differentPaths.length - 1;
                 for (let d=0; d<differentPaths.length - 1; d++) {
                     if (differentPaths[d]['total'] < differentPaths[shortestPathIndex]['total']) {
@@ -270,6 +280,7 @@ export class DungeonScene extends Phaser.Scene {
                         const path = differentPaths[shortestPathIndex]['paths'][index];
 
                         if (singleUnit.x === path.x && singleUnit.y === path.y) {
+                            console.log("UNIT ATTACKUING...;"); 
                             singleUnit.attack(this.#map.units[0], () => {
                                 if (index === differentPaths[shortestPathIndex]['units'].length - 1) {
                                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);

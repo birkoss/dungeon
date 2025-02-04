@@ -16,11 +16,7 @@ export class Map {
     /** @type {Item[]} */
     #items;
 
-    #floor;
-
     constructor(scene, width, height) {
-        this.#floor = 1;
-
         this.#units = [];
         this.#items = [];
 
@@ -31,6 +27,87 @@ export class Map {
         this.#container = this.#scene.add.container(0, 0);
 
         this.#tiles = [];
+    }
+
+    get container() { return this.#container; }
+    get items() { return this.#items; }
+    get units() { return this.#units; }
+    get width() { return this.#width; }
+
+    addUnit(unit) {
+        this.#container.add(unit.gameObject);
+        this.#units.push(unit);
+    }
+
+    addItem(item) {
+        this.#container.add(item.gameObject);
+        this.#items.push(item);
+    }
+
+    fill(floor, total) {
+        const tiles = [];
+
+        for (let i=0; i<floor/5; i++) {
+            tiles.push('coin');
+        }
+
+        for (let i=0; i<floor-1; i++) {
+            tiles.push('enemy');
+        }
+
+        Phaser.Utils.Array.Shuffle(tiles);
+
+        if (floor % 5 === 0) {
+            tiles.unshift('potion');
+        }
+
+        const amount = Math.min(floor < 4 ? floor : 3 + floor / 4, total / 4.5);
+        return tiles.slice(0, amount);
+    }
+
+    findPaths(start, end, tiles) {
+        let grid = this.#tiles.filter(singleTile => singleTile.type === TILE_TYPE.FLOOR).map(singleTile => 0);
+
+        this.items.forEach(item => {
+            grid[item.y * this.#width + item.x] = 1;
+        });
+
+        tiles.forEach(tile => { 
+            grid[tile.y * this.#width + tile.x] = 1;
+        });
+
+        let pathfinding = new Pathfinding(grid, this.#width, this.#height);
+        return pathfinding.find(start, end);
+    }
+
+    fixDepth(unit, x, y) {
+        this.#units.forEach(singleUnit => {
+            if (!singleUnit.isAlive && singleUnit.x === x && singleUnit.y === y) {
+                this.#container.moveAbove(unit.gameObject, singleUnit.gameObject);
+            }
+        });
+        this.#items.forEach(singleItem => {
+            if (singleItem.x === x && singleItem.y === y) {
+                this.#container.moveAbove(unit.gameObject, singleItem.gameObject);
+            }
+        });
+    }
+
+    generate() {
+        this.#tiles.forEach(singleTile => {
+            singleTile.container.destroy();
+        });
+        this.#tiles = [];
+
+        this.#items.forEach(singleItem => {
+            singleItem.gameObject.destroy();
+        });
+        this.#items = [];
+
+        this.#units.forEach(singleUnit => {
+            singleUnit.gameObject.destroy();
+        });
+        this.#units = [];
 
         let walls = [
             [3, 2],
@@ -80,77 +157,8 @@ export class Map {
         }
     }
 
-    get container() { return this.#container; }
-    get floor() { return this.#floor; }
-    get items() { return this.#items; }
-    get units() { return this.#units; }
-    get width() { return this.#width; }
-
-    addUnit(unit) {
-        this.#container.add(unit.gameObject);
-        this.#units.push(unit);
-    }
-
-    addItem(item) {
-        this.#container.add(item.gameObject);
-        this.#items.push(item);
-    }
-
-    fill(floor, total) {
-        const tiles = [];
-
-        for (let i=0; i<floor/5; i++) {
-            tiles.push('coin');
-        }
-
-        for (let i=0; i<floor-1; i++) {
-            tiles.push('enemy');
-        }
-
-        Phaser.Utils.Array.Shuffle(tiles);
-
-        if (floor % 5 === 0) {
-            tiles.unshift('potion');
-        }
-
-        const amount = Math.min(floor < 4 ? floor : 3 + floor / 4, total / 4.5);
-        return tiles.slice(0, amount);
-    }
-
-    findPaths(start, end, tiles) {
-        let grid = JSON.parse(JSON.stringify(this.#tiles));
-
-        this.items.forEach(item => {
-            grid[item.y * this.#width + item.x] = 1;
-        });
-
-        tiles.forEach(tile => { 
-            grid[tile.y * this.#width + tile.x] = 1;
-        });
-
-        let pathfinding = new Pathfinding(grid, this.#width, this.#height);
-        return pathfinding.find(start, end);
-    }
-
-    fixDepth(unit, x, y) {
-        this.#units.forEach(singleUnit => {
-            if (!singleUnit.isAlive && singleUnit.x === x && singleUnit.y === y) {
-                this.#container.moveAbove(unit.gameObject, singleUnit.gameObject);
-            }
-        });
-        this.#items.forEach(singleItem => {
-            if (singleItem.x === x && singleItem.y === y) {
-                this.#container.moveAbove(unit.gameObject, singleItem.gameObject);
-            }
-        });
-    }
-
     getEmptyTiles() {
-        let floor = this.#tiles.filter(singleTile => singleTile.type === TILE_TYPE.FLOOR);
-        
-
-
-        return floor;
+        return this.#tiles.filter(singleTile => singleTile.type === TILE_TYPE.FLOOR);
     }
 
     isInBound(x, y) {
@@ -184,6 +192,7 @@ export class Map {
                 isAttackable = true;
             }
         });
+      
         return isAttackable;
     }
 
