@@ -1,4 +1,5 @@
 import { DUNGEON_ASSET_KEYS } from "./keys/asset.js";
+import { TILE_SCALE } from "./tile.js";
 
 export class Unit {
     #x;
@@ -14,16 +15,14 @@ export class Unit {
     #gameObject;
 
     constructor(scene, x, y, frame) {
-        const scale = 4;
-
-        this.#hp = 10;
+        this.#hp = 1;
 
         this.#scene = scene;
         this.#x = x;
         this.#y = y;
         this.#mainFrame = frame;
 
-        this.#gameObject = scene.add.sprite(x * 10 * scale, y * 10 * scale, DUNGEON_ASSET_KEYS.UNIT, frame).setScale(scale);
+        this.#gameObject = scene.add.sprite(x * 10 * TILE_SCALE, y * 10 * TILE_SCALE, DUNGEON_ASSET_KEYS.UNIT, frame).setScale(TILE_SCALE);
 
         this.#createAnimation('idleRight', [frame, frame + 4]);
         this.#createAnimation('idleBottom', [frame + 1, frame + 5]);

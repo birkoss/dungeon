@@ -1,6 +1,7 @@
 import { Item } from "./item.js";
 import { Pathfinding } from "./pathfinding.js";
 import { Tile, TILE_TYPE } from "./tile.js";
+import { Unit } from "./unit.js";
 
 const MAP_CONTAINERS = {
     TILE: 0,
@@ -110,15 +111,16 @@ export class Map {
         return pathfinding.find(start, end);
     }
 
+    /**
+     * 
+     * @param {Unit} unit 
+     * @param {number} x 
+     * @param {number} y 
+     */
     fixDepth(unit, x, y) {
         this.#units.forEach(singleUnit => {
             if (!singleUnit.isAlive && singleUnit.x === x && singleUnit.y === y) {
-                this.#container.moveAbove(unit.gameObject, singleUnit.gameObject);
-            }
-        });
-        this.#items.forEach(singleItem => {
-            if (singleItem.x === x && singleItem.y === y) {
-                this.#container.moveAbove(unit.gameObject, singleItem.gameObject);
+                this.#containerUnits.moveAbove(unit.gameObject, singleUnit.gameObject);
             }
         });
     }

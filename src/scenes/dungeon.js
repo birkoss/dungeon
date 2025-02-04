@@ -7,6 +7,7 @@ import { Map } from "../map.js";
 import { Item, ITEM_TYPE } from "../item.js";
 import { Action } from "../action.js";
 import { TILE_SCALE } from "../tile.js";
+import { Panel } from "../ui/panel.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_LEVEL: 'CREATE_LEVEL',
@@ -18,6 +19,9 @@ const MAIN_STATES = Object.freeze({
 });
 
 export class DungeonScene extends Phaser.Scene {
+    /** @type {Panel} */
+    #panel;
+
     /** @type {Map} */
     #map;
 
@@ -34,11 +38,13 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     create() {
+        this.#panel = new Panel(this, 0, 0);
+
         this.#floor = 1;
 
         this.#map = new Map(this, 8, 10);
         this.#map.container.x = this.game.canvas.width / 2 - this.#map.width*10*TILE_SCALE / 2 + 20;
-        this.#map.container.y = 20;
+        this.#map.container.y = this.#panel.container.getBounds().height + this.#map.container.x;
 
         this.#createStateMachine();
         this.#stateMachine.setState(MAIN_STATES.CREATE_LEVEL);
@@ -59,6 +65,8 @@ export class DungeonScene extends Phaser.Scene {
 
         this.#map.generate();
 
+        this.#panel.updateFloorName(this.#floor);
+
         this.#stateMachine.setState(MAIN_STATES.PLACE_UNITS);
     }
     
@@ -71,42 +79,31 @@ export class DungeonScene extends Phaser.Scene {
 
         // Add stair
         let tile = emptyTiles.pop();
-        // let item = new Item(this, tile.x, tile.y, ITEM_TYPE.EXIT);
-        let item = new Item(this, 1, 1, ITEM_TYPE.EXIT);
+        let item = new Item(this, tile.x, tile.y, ITEM_TYPE.EXIT);
         this.#map.addItem(item);
 
         tile = emptyTiles.pop();
-        // let unit = new Unit(this, tile.x, tile.y, 0);
-        let unit = new Unit(this, 1, 7, 0);
+        let unit = new Unit(this, tile.x, tile.y, 0);
         unit.hp = 10;
         this.#map.addUnit(unit);
 
         let tiles = this.#map.fill(this.#floor, emptyTiles.length);
         console.log(tiles);
 
-        // tiles.forEach((singleTile) => {
-        //     tile = emptyTiles.pop();
+        tiles.forEach((singleTile) => {
+            tile = emptyTiles.pop();
 
-        //     if (singleTile === 'coin') {
-        //         let item = new Item(this, tile.x, tile.y, ITEM_TYPE.COIN);
-        //         this.#map.addItem(item);
-        //     } else if (singleTile === 'potion') {
-        //         let item = new Item(this, tile.x, tile.y, ITEM_TYPE.POTION);
-        //         this.#map.addItem(item);
-        //     } else {
-        //         unit = new Unit(this, tile.x, tile.y, 204);
-        //         this.#map.addUnit(unit);
-        //     }
-        // });
-
-        unit = new Unit(this, 2, 7, 204);
-        this.#map.addUnit(unit);
-
-        unit = new Unit(this, 1, 6, 204);
-        this.#map.addUnit(unit);
-
-        unit = new Unit(this, 2, 6, 204);
-        this.#map.addUnit(unit);
+            if (singleTile === 'coin') {
+                let item = new Item(this, tile.x, tile.y, ITEM_TYPE.COIN);
+                this.#map.addItem(item);
+            } else if (singleTile === 'potion') {
+                let item = new Item(this, tile.x, tile.y, ITEM_TYPE.POTION);
+                this.#map.addItem(item);
+            } else {
+                unit = new Unit(this, tile.x, tile.y, 204);
+                this.#map.addUnit(unit);
+            }
+        });
 
         this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
     }
@@ -186,7 +183,10 @@ export class DungeonScene extends Phaser.Scene {
                                                 this.#map.units[0].coins++;
                                             }
 
-                                            // TODO: Potion
+                                            if (item.type === ITEM_TYPE.POTION) {
+                                                this.#map.useItemAt(item.x, item.y);
+                                                this.#map.units[0].hp += 1;
+                                            }
                                         }
                                         this.#stateMachine.setState(MAIN_STATES.ENEMY_TURN);
                                     });
