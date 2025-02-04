@@ -34,7 +34,7 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     create() {
-        this.#floor = 10;
+        this.#floor = 1;
 
         this.#map = new Map(this, 8, 10);
         this.#map.container.x = this.game.canvas.width / 2 - this.#map.width*10*TILE_SCALE / 2 + 20;
@@ -60,40 +60,46 @@ export class DungeonScene extends Phaser.Scene {
 
     createUnits() {
         let emptyTiles = this.#map.getEmptyTiles();
-        
         Phaser.Utils.Array.Shuffle(emptyTiles);
-
-        for (let i=1; i<100; i++) {
-            // console.log(this.#map.fill(i, emptyTiles.length));
-        }
 
         // Add stair
         let tile = emptyTiles.pop();
-        let item = new Item(this, tile.x, tile.y, ITEM_TYPE.EXIT);
+        // let item = new Item(this, tile.x, tile.y, ITEM_TYPE.EXIT);
+        let item = new Item(this, 1, 1, ITEM_TYPE.EXIT);
         this.#map.addItem(item);
 
         tile = emptyTiles.pop();
-        let unit = new Unit(this, tile.x, tile.y, 0);
+        // let unit = new Unit(this, tile.x, tile.y, 0);
+        let unit = new Unit(this, 1, 8, 0);
         unit.hp = 10;
         this.#map.addUnit(unit);
 
         let tiles = this.#map.fill(this.#floor, emptyTiles.length);
         console.log(tiles);
 
-        tiles.forEach((singleTile) => {
-            tile = emptyTiles.pop();
+        // tiles.forEach((singleTile) => {
+        //     tile = emptyTiles.pop();
 
-            if (singleTile === 'coin') {
-                let item = new Item(this, tile.x, tile.y, ITEM_TYPE.COIN);
-                this.#map.addItem(item);
-            } else if (singleTile === 'potion') {
-                let item = new Item(this, tile.x, tile.y, ITEM_TYPE.POTION);
-                this.#map.addItem(item);
-            } else {
-                unit = new Unit(this, tile.x, tile.y, 204);
-                this.#map.addUnit(unit);
-            }
-        });
+        //     if (singleTile === 'coin') {
+        //         let item = new Item(this, tile.x, tile.y, ITEM_TYPE.COIN);
+        //         this.#map.addItem(item);
+        //     } else if (singleTile === 'potion') {
+        //         let item = new Item(this, tile.x, tile.y, ITEM_TYPE.POTION);
+        //         this.#map.addItem(item);
+        //     } else {
+        //         unit = new Unit(this, tile.x, tile.y, 204);
+        //         this.#map.addUnit(unit);
+        //     }
+        // });
+
+        unit = new Unit(this, 2, 8, 204);
+        this.#map.addUnit(unit);
+
+        unit = new Unit(this, 1, 7, 204);
+        this.#map.addUnit(unit);
+
+        unit = new Unit(this, 2, 7, 204);
+        this.#map.addUnit(unit);
 
         this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
     }
@@ -259,7 +265,40 @@ export class DungeonScene extends Phaser.Scene {
 
                         console.log("PATHS", paths);    
     
-                        if (paths.length > 1) {
+                        if (paths.length === 0) {
+                            // If the paths is 0, then it's blocked by another enemy
+                            // - Lets get the unblocked paths from this unit to the player
+                            let unblockedPaths = this.#map.findPaths(
+                                { x: path['units'][i].x, y: path['units'][i].y },
+                                { x: this.#map.units[0].x, y: this.#map.units[0].y },
+                                []
+                            ).reverse();
+                
+                            // Remove the destination
+                            unblockedPaths.shift();
+                            // Remove the previous tile since we know it's blocked by another enemy
+                            unblockedPaths.shift();
+                
+                            console.log("UNBLOCKED PATHS", unblockedPaths);
+                
+                            let alternativePath = { x: path['units'][i].x, y: path['units'][i].y };
+
+                            for (let p=0; p<unblockedPaths.length; p++) {
+                                let newPaths = this.#map.findPaths(
+                                    { x: path['units'][i].x, y: path['units'][i].y },
+                                    { x: unblockedPaths[p].x, y: unblockedPaths[p].y },
+                                    enemyTilePosition
+                                );
+                
+                                if (newPaths.length > 0) {
+                                    alternativePath = newPaths[0];
+                                    break;
+                                }
+                            }
+
+                            differentPaths[d]['paths'].push(alternativePath);
+                            path['total'] += unblockedPaths.length + 1;
+                        } else if (paths.length > 1) {
                             differentPaths[d]['paths'].push(paths[0]);
                             path['total'] += paths.length - 1;
                         } else {
@@ -268,8 +307,6 @@ export class DungeonScene extends Phaser.Scene {
                     }
                 }
 
-                console.log(differentPaths);
-
                 let shortestPathIndex = differentPaths.length - 1;
                 for (let d=0; d<differentPaths.length - 1; d++) {
                     if (differentPaths[d]['total'] < differentPaths[shortestPathIndex]['total']) {
@@ -277,12 +314,20 @@ export class DungeonScene extends Phaser.Scene {
                     }
                 }
 
+                console.log(differentPaths.length, " different paths, shortest path index: ", shortestPathIndex);
+                console.log(differentPaths);
+                
+
                 if (shortestPathIndex !== -1) {
                     differentPaths[shortestPathIndex]['units'].forEach((singleUnit, index) => {
                         const path = differentPaths[shortestPathIndex]['paths'][index];
 
+                        // TODO: Create actions[] list for attacking and moving
                         if (singleUnit.x === path.x && singleUnit.y === path.y) {
-                            console.log("UNIT ATTACKUING...;"); 
+                            // Can't move, check if we can attack instead
+                            console.log("UNIT ATTACKUING...;");
+                            // TODO: Check if the unit is adjacent the player BEFORE attacking
+                            // ELSE: Do nothing
                             singleUnit.attack(this.#map.units[0], () => {
                                 if (index === differentPaths[shortestPathIndex]['units'].length - 1) {
                                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
@@ -303,6 +348,8 @@ export class DungeonScene extends Phaser.Scene {
                 if (differentPaths.length === 0) {
                     this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
                 }
+
+                // Execute actions and change state machine state when all are done!
             },
         });
 

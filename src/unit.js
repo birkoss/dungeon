@@ -16,7 +16,7 @@ export class Unit {
     constructor(scene, x, y, frame) {
         const scale = 4;
 
-        this.#hp = 1;
+        this.#hp = 10;
 
         this.#scene = scene;
         this.#x = x;

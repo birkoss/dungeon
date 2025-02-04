@@ -65,8 +65,9 @@ export class Map {
         return tiles.slice(0, amount);
     }
 
-    findPaths(start, end, tiles) {
+    findPaths(start, end, enemyTilePositions) {
         let grid = [];
+        
         this.#tiles.forEach(singleTile => {
             grid.push(singleTile.type === TILE_TYPE.FLOOR ? 0 : 1);
         });
@@ -75,8 +76,8 @@ export class Map {
             grid[item.y * this.#width + item.x] = 1;
         });
 
-        tiles.forEach(tile => { 
-            grid[tile.y * this.#width + tile.x] = 1;
+        enemyTilePositions.forEach(tile => { 
+            grid[tile.y * this.#width + tile.x] = 2;
         });
 
         let pathfinding = new Pathfinding(grid, this.#width, this.#height);
