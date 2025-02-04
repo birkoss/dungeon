@@ -34,7 +34,7 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     create() {
-        this.#floor = 1;
+        this.#floor = 10;
 
         this.#map = new Map(this, 8, 10);
         this.#map.container.x = this.game.canvas.width / 2 - this.#map.width*10*TILE_SCALE / 2 + 20;
@@ -256,6 +256,8 @@ export class DungeonScene extends Phaser.Scene {
                             { x: this.#map.units[0].x, y: this.#map.units[0].y },
                             enemyTilePosition
                         );
+
+                        console.log("PATHS", paths);    
     
                         if (paths.length > 1) {
                             differentPaths[d]['paths'].push(paths[0]);

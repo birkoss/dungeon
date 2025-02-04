@@ -66,7 +66,10 @@ export class Map {
     }
 
     findPaths(start, end, tiles) {
-        let grid = this.#tiles.filter(singleTile => singleTile.type === TILE_TYPE.FLOOR).map(singleTile => 0);
+        let grid = [];
+        this.#tiles.forEach(singleTile => {
+            grid.push(singleTile.type === TILE_TYPE.FLOOR ? 0 : 1);
+        });
 
         this.items.forEach(item => {
             grid[item.y * this.#width + item.x] = 1;
