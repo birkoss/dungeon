@@ -52,15 +52,6 @@ export class DungeonScene extends Phaser.Scene {
 
         this.#createStateMachine();
         this.#stateMachine.setState(MAIN_STATES.CREATE_LEVEL);
-
-        this.#fov = new Mrpas(
-            this.#map.width,
-            this.#map.height,
-            (x, y) => {
-			    const tile = this.#map.getTileAt(x, y);
-			    return tile && tile.type === TILE_TYPE.FLOOR;
-		    }
-        );
     }
 
     update() {
@@ -79,6 +70,15 @@ export class DungeonScene extends Phaser.Scene {
         this.cameras.main.fadeIn(500);
 
         this.#map.generate();
+
+        this.#fov = new Mrpas(
+            this.#map.width,
+            this.#map.height,
+            (x, y) => {
+			    const tile = this.#map.getTileAt(x, y);
+			    return tile && tile.type === TILE_TYPE.FLOOR;
+		    }
+        );
 
         this.#panel.updateFloorName(this.#floor);
 
@@ -120,9 +120,6 @@ export class DungeonScene extends Phaser.Scene {
                 this.#map.addUnit(unit);
             }
         });
-
-        unit = new Unit(this, 1, 4, 204);
-        this.#map.addUnit(unit);
 
         this.#stateMachine.setState(MAIN_STATES.PLAYER_TURN);
     }
@@ -181,6 +178,16 @@ export class DungeonScene extends Phaser.Scene {
                                     }
 
                                     this.#executeActions([action], () => {
+                                        this.#map.units.forEach((singleUnit, index) => {
+                                            if (index === 0) {
+                                                return;
+                                            }
+
+                                            if (!singleUnit.isActive && this.#map.isRevealedAt(singleUnit.x, singleUnit.y)) {
+                                                singleUnit.activate();
+                                            }
+                                        });
+                                        
                                         let item = this.#map.items.find(singleItem => singleItem.x === this.#map.units[0].x && singleItem.y === this.#map.units[0].y);
                                         if (item) {
                                             if (item.type === ITEM_TYPE.EXIT) {
@@ -288,7 +295,7 @@ export class DungeonScene extends Phaser.Scene {
 
         // Create each possible combinaisons where each enemy is the first to move
         for (let i=1; i<this.#map.units.length; i++) {
-            if (!this.#map.units[i].isAlive) {
+            if (!this.#map.units[i].isAlive || !this.#map.units[i].isActive) {
                 continue;
             }
             const combinaison = {

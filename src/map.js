@@ -36,11 +36,13 @@ export class Map {
     /** @type {Item[]} */
     #items;
 
+    #overlays;
     constructor(scene, width, height) {
         this.#units = [];
         this.#items = [];
         this.#actions = [];
         this.#tiles = [];
+        this.#overlays = [];
 
         this.#scene = scene;
         this.#width = width;
@@ -154,7 +156,11 @@ export class Map {
         });
         this.#units = [];
 
-        this.#containerOverlay.removeAll();
+        this.#overlays.forEach(singleOverlay => {
+            singleOverlay.destroy();
+        });
+        this.#containerOverlay.removeAll(true);
+        this.#overlays = [];
 
         let walls = [
             [3, 2],
@@ -167,12 +173,14 @@ export class Map {
             [4, 7],
         ];
 
+        console.log(this.#containerOverlay.list.length);
+
         let type;
         for (let y = 0; y < this.#height; y++) {
             for (let x = 0; x < this.#width; x++) {  
-                const img = this.#scene.add.image(x * 40, y * 40, UI_ASSET_KEYS.BLANK).setScale(TILE_SCALE).setTint(0x000000).setOrigin(0.5);
-                console.log(img.displayWidth);
+                const img = this.#scene.add.image(x * 40, y * 40, UI_ASSET_KEYS.BLANK).setScale(TILE_SCALE).setTint(0x000000).setAlpha(0.5).setOrigin(0.5);
                 this.#containerOverlay.add(img);
+                this.#overlays.push(img);
 
                 type = TILE_TYPE.WALL;
 
@@ -257,12 +265,13 @@ export class Map {
 
     isRevealedAt(x, y) {
         let index = (y * this.#width) + x;
-        return this.#containerOverlay.list[index].alpha === 0;
+        return this.#overlays[index].alpha === 0;
+        return false;
     }
 
     revealAt(x, y) {
         let index = (y * this.#width) + x;
-        this.#containerOverlay.list[index].setAlpha(0);    
+        this.#overlays[index].setAlpha(0);    
     }
 
     useItemAt(x, y) {

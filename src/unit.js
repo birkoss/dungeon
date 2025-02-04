@@ -9,6 +9,8 @@ export class Unit {
 
     #hp;
 
+    #isActive;
+
     /**
      * @type {Phaser.GameObjects.Sprite}
      */
@@ -16,6 +18,7 @@ export class Unit {
 
     constructor(scene, x, y, frame) {
         this.#hp = 1;
+        this.#isActive = false;
 
         this.#scene = scene;
         this.#x = x;
@@ -38,11 +41,16 @@ export class Unit {
     }
 
     get gameObject() { return this.#gameObject; }
+    get isActive() { return this.#isActive; }
     get isAlive() { return this.#hp > 0; }
     get x() { return this.#x; }
     get y() { return this.#y; }
 
     set hp(value) { this.#hp = value; }
+
+    activate() {
+        this.#isActive = true;
+    }
 
     attack(defender, callback) {
         let newAnimationKey = this.#gameObject.anims.currentAnim.key;
