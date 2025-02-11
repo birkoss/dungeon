@@ -1,0 +1,56 @@
+[
+    {
+        "id": "coin",
+        "name": "Coin",
+        "amount": 1,
+        "assetFrameIndex": 226
+    },
+    {
+        "id": "sword",
+        "name": "Sword",
+        "amount": 1,
+        "assetFrameIndex": 187
+    },
+    {
+        "id": "spike",
+        "name": "Spike",
+        "description": "When the spikes are out, they will hurt you for #AMOUNT# damage!",
+        "amount": 2,
+        "assetFrameIndex": 253
+    },
+    {
+        "id": "exit",
+        "name": "Stairs",
+        "description": "This is the exit! You should go up to the next floor when you are ready!",
+        "amount": 1,
+        "assetFrameIndex": 46
+    },
+    {
+        "id": "minor_potion",
+        "name": "Minor Potion",
+        "description": "Don't waste this! You should only drink it when you are hurt! It could heal you for #AMOUNT# HP!",
+        "amount": 1,
+        "assetFrameIndex": 197
+    },
+    {
+        "id": "minor_poison",
+        "name": "Minor Poison",
+        "description": "You should not drink this! It will hurt you every turn until you are at 1 HP!",
+        "amount": 1,
+        "assetFrameIndex": 199
+    },
+    {
+        "id": "chest",
+        "name": "Chest",
+        "description": "I wonder what's inside! It could be a trap or a treasure! You should open it to find out!",
+        "amount": 1,
+        "assetFrameIndex": 204
+    },
+    {
+        "id": "fireball_scroll",
+        "name": "Fireball Scroll",
+        "description": "This will burn all your enemies for #AMOUNT# damage!",
+        "amount": 1,
+        "assetFrameIndex": 214
+    }
+]

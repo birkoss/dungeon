@@ -1,0 +1,68 @@
+[
+    {
+        "id": "warrior",
+        "name": "Warrior",
+        "amount": 10,
+        "assetFrameIndex": 240
+    },
+    {
+        "id": "skeleton",
+        "name": "Skeleton",
+        "amount": 1,
+        "assetFrameIndex": 528
+    },
+    {
+        "id": "zombie",
+        "name": "Zombie",
+        "amount": 10,
+        "assetFrameIndex": 624
+    },
+    {
+        "id": "skeleton_warrior",
+        "name": "Skeleton Warrior",
+        "amount": 2,
+        "assetFrameIndex": 552
+    },
+    {
+        "id": "skeleton_battle",
+        "name": "Skeleton Battle",
+        "amount": 3,
+        "assetFrameIndex": 1056
+    },
+    {
+        "id": "flayer",
+        "name": "Flayer",
+        "amount": 51,
+        "assetFrameIndex": 696
+    },
+    {
+        "id": "skeleton_archer",
+        "name": "Skeleton Archer",
+        "amount": 3,
+        "assetFrameIndex": 576
+    },
+    {
+        "id": "orc",
+        "name": "Orc",
+        "amount": 21,
+        "assetFrameIndex": 648
+    },
+    {
+        "id": "skeleton_mage",
+        "name": "Skeleton Mage",
+        "amount": 4,
+        "assetFrameIndex": 600
+    },
+    {
+        "id": "skeleton_king",
+        "name": "Skeleton King",
+        "amount": 5,
+        "assetFrameIndex": 1080
+    },
+    {
+        "id": "cyclops",
+        "name": "Cyclops Mage",
+        "amount": 31,
+        "assetFrameIndex": 672
+    }
+]
