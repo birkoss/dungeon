@@ -37,13 +37,15 @@ export class Unit extends Entity{
         this.#createAnimation('attackUp', [this.#data.assetFrameIndex + 20, this.#data.assetFrameIndex + 21, this.#data.assetFrameIndex + 20], false);
         this.#createAnimation('attackLeft', [this.#data.assetFrameIndex + 22, this.#data.assetFrameIndex + 23, this.#data.assetFrameIndex + 22], false);
     
-        this.idle();
+        this.#unit.play('idleRight');
 
         return this.#unit;
     }
 
     attack() {
-        this.#unit.play('attackRight');
+        const direction = this.#unit.anims.currentAnim.key.replace("idle", "");
+
+        this.#unit.play('attack' + direction);
     }
 
     takeDamage(amount) {
@@ -62,7 +64,8 @@ export class Unit extends Entity{
     }
 
     idle() {
-        this.#unit.play('idleRight');
+        const direction = this.#unit.anims.currentAnim.key.replace("idle", "").replace("attack", "");
+        this.#unit.play('idle' + direction);
     }
 
 

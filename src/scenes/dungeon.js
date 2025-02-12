@@ -6,6 +6,7 @@ import { MAP_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
 import { Entity, ENTITY_TYPE } from "../entity/entity.js";
 import { Unit } from "../entity/unit.js";
 import { Data } from "../utils/data.js";
+import { Button } from "../ui/button.js";
 
 export class DungeonScene extends Phaser.Scene {
     /** @type {Map} */
@@ -37,17 +38,37 @@ export class DungeonScene extends Phaser.Scene {
         entity.create(MAP_ASSET_KEYS.WORLD, 178);
         this.#map.addEntity(entity);
 
-        let button = this.add.image(this.game.canvas.width/2, this.#map.container.y + this.#map.container.getBounds().height + 40, UI_ASSET_KEYS.BLANK, 0).setOrigin(0.5).setScale(4);
-        button.setInteractive();
-        button.on('pointerdown', () => {
+        let button = new Button(this, "Attack", () => {
+            this.add.tween({
+                targets: button.container,
+                y: this.scale.height + 60,
+                duration: 200,
+            });
             player.attack();
             this.time.delayedCall(400, () => {
                 enemy.takeDamage(10);
                 player.idle();
+
+                this.time.delayedCall(400, () => {
+                    enemy.attack();
+
+                    this.time.delayedCall(400, () => {
+                        player.takeDamage(10);
+                        enemy.idle();
+
+                        this.add.tween({
+                            targets: button.container,
+                            y: this.#map.container.y + this.#map.container.getBounds().height + 40,
+                            duration: 200,
+                        });
+                    });
+                });
             });
             
         });
 
+        button.container.x = this.game.canvas.width/2;
+        button.container.y = this.#map.container.y + this.#map.container.getBounds().height + 40;
     }
 
     update() {
