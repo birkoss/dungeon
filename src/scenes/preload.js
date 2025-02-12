@@ -17,6 +17,7 @@ export class PreloadScene extends Phaser.Scene {
 
         this.load.spritesheet(MAP_ASSET_KEYS.UNIT, 'assets/tilesets/unit.png', { frameWidth: 12, frameHeight: 12 });
         this.load.spritesheet(MAP_ASSET_KEYS.WORLD, 'assets/tilesets/world.png', { frameWidth: 12, frameHeight: 12 });
+        this.load.spritesheet(MAP_ASSET_KEYS.SELECTION, 'assets/tilesets/selection.png', { frameWidth: 12, frameHeight: 12 });
         this.load.spritesheet(DUNGEON_ASSET_KEYS.CARD, 'assets/tilesets/card.png', { frameWidth: 30, frameHeight: 40 });
         this.load.spritesheet(DUNGEON_ASSET_KEYS.EFFECT, 'assets/tilesets/effect.png', { frameWidth: 8, frameHeight: 8 });
 

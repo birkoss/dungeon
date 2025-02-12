@@ -11,7 +11,7 @@ export class Popup {
      * @param {number} color
      */
     constructor(scene, x, y, label, color) {
-        const text = scene.add.bitmapText(x, y, UI_ASSET_KEYS.FONT, label, 48).setTint(color).setOrigin(0.5);
+        const text = scene.add.bitmapText(x, y, UI_ASSET_KEYS.FONT, label, 24).setTint(color).setOrigin(0.5);
 
         scene.add.tween({
             targets: text,
@@ -19,7 +19,14 @@ export class Popup {
             duration: 1000,
             ease: Phaser.Math.Easing.Bounce.Out,
             onComplete: () => {
-                text.destroy();
+                scene.add.tween({
+                    targets: text,
+                    alpha: 0,
+                    duration: 300,
+                    onComplete: () => {
+                        text.destroy();
+                    }
+                });
             }
         });
     }
