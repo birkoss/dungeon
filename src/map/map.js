@@ -157,6 +157,10 @@ export class Map {
         this.#selections.push(selection);
     }
 
+    verifyQueue() {
+        this.#queue = this.#queue.filter((singleUnit) => singleUnit.isAlive);
+    }
+
     #placeEntity(entity) {
         this.#container.add(entity.container);
         entity.container.x = entity.x * entity.container.getBounds().width + entity.container.getBounds().width/2;

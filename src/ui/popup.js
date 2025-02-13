@@ -11,7 +11,7 @@ export class Popup {
      * @param {number} color
      */
     constructor(scene, x, y, label, color) {
-        const text = scene.add.bitmapText(x, y, UI_ASSET_KEYS.FONT, label, 24).setTint(color).setOrigin(0.5);
+        const text = scene.add.bitmapText(x, y, UI_ASSET_KEYS.FONT, label, 16).setTint(color).setOrigin(0.5);
 
         scene.add.tween({
             targets: text,

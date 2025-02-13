@@ -1,4 +1,4 @@
-import { MAP_ASSET_KEYS } from "../keys/asset.js";
+import { MAP_ASSET_KEYS, UI_ASSET_KEYS } from "../keys/asset.js";
 import { Entity, ENTITY_TYPE } from "./entity.js";
 
 export const UNIT_AI = Object.freeze({
@@ -16,6 +16,12 @@ export class Unit extends Entity{
     /** @type {keyof typeof UNIT_AI} */
     #ai;
 
+    #hp;
+    #maxHp;
+    #atk;
+
+    #healthBar;
+
     /**
      * @param {Phaser.Scene} scene 
      * @param {number} x
@@ -28,11 +34,16 @@ export class Unit extends Entity{
 
         this.#ai = ai;
         this.#data = data;
+        this.#hp = this.#maxHp = this.#data.stats.hp;
+        this.#atk = this.#data.stats.atk;
 
         this.create();
     }
 
     get ai() { return this.#ai; }
+    get atk() { return this.#atk; }
+    get unit() { return this.#unit; }
+    get isAlive() { return this.#hp > 0; }
 
     create() {
         this.#unitShadow = super.create(MAP_ASSET_KEYS.WORLD, 101);
@@ -68,15 +79,37 @@ export class Unit extends Entity{
         });
     }
 
+    showHealthBar() {
+        this.#healthBar = this._scene.add.image(this.#unit.x - (this.#unit.displayWidth / 2), this.#unit.y + (this.#unit.displayHeight / 2) + 6, UI_ASSET_KEYS.BLANK).setOrigin(0).setTint(0xdf2423);
+        this.#healthBar.displayWidth = this.#unit.displayWidth;
+        this.#healthBar.displayHeight = 4;
+        this.container.add(this.#healthBar);
+    }
+
     /**
      * @param {number} amount
      * @param {() => void} [callback]
      */
     takeDamage(amount, callback) {
+        this.#hp = Math.max(0, this.#hp - amount);
+
+        this._scene.tweens.add({
+            targets: this.#healthBar,
+            displayWidth: (this.#hp / this.#maxHp) * this.#unit.displayWidth,
+            duration: 200,
+        });
+
         this.#unit.setTint(0xff0000);
 
         this._scene.time.delayedCall(400, () => {
             this.#unit.setTint(0xffffff);
+
+            if (!this.isAlive) {
+                this.#unit.anims.stop();
+                this.#unit.setTexture(MAP_ASSET_KEYS.WORLD, 169);
+                this.#unitShadow.setAlpha(0);
+            }
+
             if (callback) {
                 callback();
             }
@@ -89,12 +122,6 @@ export class Unit extends Entity{
     face(direction) {
         this.#unit.play('idle' + direction);
     }
-
-    idle() {
-        const direction = this.#unit.anims.currentAnim.key.replace("idle", "").replace("attack", "");
-        this.#unit.play('idle' + direction);
-    }
-
 
     /**
      * @param {string} key 

@@ -2,13 +2,19 @@
     {
         "id": "warrior",
         "name": "Warrior",
-        "amount": 10,
+        "stats": {
+            "hp": 3,
+            "atk": 100
+        },
         "assetFrameIndex": 240
     },
     {
         "id": "skeleton",
         "name": "Skeleton",
-        "amount": 1,
+        "stats": {
+            "hp": 1,
+            "atk": 1
+        },
         "assetFrameIndex": 528
     },
     {
@@ -20,7 +26,10 @@
     {
         "id": "skeleton_warrior",
         "name": "Skeleton Warrior",
-        "amount": 2,
+        "stats": {
+            "hp": 2,
+            "atk": 1
+        },
         "assetFrameIndex": 552
     },
     {

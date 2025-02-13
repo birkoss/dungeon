@@ -12,10 +12,12 @@ const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
     CREATE_PARTY: 'CREATE_PARTY',
     CREATE_MAP: 'CREATE_MAP',
+    LOAD_FLOOR: 'LOAD_FLOOR',
     TURN_START: 'TURN_START',
     SELECT_UNIT: 'SELECT_UNIT',
     UNIT_DONE: 'UNIT_DONE',
     TURN_END: 'TURN_END',
+    PICK_FLOOR: 'PICK_FLOOR',
 });
 
 export class DungeonScene extends Phaser.Scene {
@@ -24,6 +26,7 @@ export class DungeonScene extends Phaser.Scene {
     /** @type {StateMachine} */
     #stateMachine;
 
+    /** @type {Array<keyof typeof MAP_FLOOR>} */
     #floors;
 
     #party;
@@ -91,16 +94,21 @@ export class DungeonScene extends Phaser.Scene {
             name: MAIN_STATES.CREATE_DUNGEON,
             onEnter: () => {
                 this.#floors = [
-                    'enemy',
-                    'enemy',
-                    'enemy',
-                    'enemy',
-                    'enemy',
-                    'boss',
-                    'empty',
-                    'tavern',
-                    'chest',
+                    MAP_FLOOR.ENEMY,
+                    MAP_FLOOR.ENEMY,
+                    MAP_FLOOR.ENEMY,
+                    MAP_FLOOR.ENEMY,
+                    MAP_FLOOR.ENEMY,
+                    MAP_FLOOR.BOSS,
+                    MAP_FLOOR.EMPTY,
+                    MAP_FLOOR.TAVERN,
+                    MAP_FLOOR.CHEST,
                 ];
+
+                Phaser.Utils.Array.Shuffle(this.#floors);
+                
+                // Always force an enemy to be the first floor
+                this.#floors.unshift(MAP_FLOOR.ENEMY);
 
                 this.#stateMachine.setState(MAIN_STATES.CREATE_PARTY);
             },
@@ -126,11 +134,27 @@ export class DungeonScene extends Phaser.Scene {
                 this.#map.container.x = (this.scale.width - this.#map.container.getBounds().width) / 2;
                 this.#map.container.y = this.#map.container.x;
 
-                this.#map.loadFloor(MAP_FLOOR.ENEMY, {
+                this.#stateMachine.setState(MAIN_STATES.LOAD_FLOOR);
+            },
+        });
+
+        // LOAD_FLOOR
+        this.#stateMachine.addState({
+            name: MAIN_STATES.LOAD_FLOOR,
+            onEnter: () => {
+                let floor = this.#floors.shift();
+
+                this.#map.loadFloor(floor, {
                     party: this.#party,
                 });
-
-                this.#stateMachine.setState(MAIN_STATES.TURN_START);
+        
+                if (this.#map.floor === MAP_FLOOR.ENEMY || this.#map.floor === MAP_FLOOR.BOSS) {
+                    this.#map.units.forEach((singleUnit) => {
+                        singleUnit.showHealthBar();
+                    });
+        
+                    this.#stateMachine.setState(MAIN_STATES.TURN_START);
+                }
             },
         });
 
@@ -155,8 +179,6 @@ export class DungeonScene extends Phaser.Scene {
                     this.#stateMachine.setState(MAIN_STATES.TURN_END);
                     return;
                 }
-
-                this.#map.selectUnit(unit);
 
                 if (unit.ai === UNIT_AI.AI) {
                     const players = this.#map.units.filter((singleUnit) => singleUnit.ai === UNIT_AI.PLAYER);
@@ -207,6 +229,38 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.UNIT_DONE,
             onEnter: () => {
+                this.#map.verifyQueue();
+
+                // No party left...
+                if (this.#map.units.filter((singleUnit) => singleUnit.ai === UNIT_AI.PLAYER && singleUnit.isAlive).length === 0) {
+                    console.error("GAME OVER!");
+                    return;
+                }
+
+                // No enemy left...
+                if (this.#map.units.filter((singleUnit) => singleUnit.ai === UNIT_AI.AI && singleUnit.isAlive).length === 0) {
+                    
+                    this.#map.units.forEach((singleUnit) => {
+                        if (!singleUnit.isAlive || singleUnit.ai === UNIT_AI.AI) {
+                            return;
+                        }
+
+                        let xp = 10;
+
+                        new Popup(
+                            this,
+                            this.#map.container.x + singleUnit.container.x,
+                            this.#map.container.y + singleUnit.container.y,
+                            "+" + xp.toString() + " xp",
+                            0x00ff00
+                        );
+
+                        this.#stateMachine.setState(MAIN_STATES.PICK_FLOOR);
+                    });
+                    return;
+                }
+                
+                // Next unit in the queue
                 this.#stateMachine.setState(MAIN_STATES.SELECT_UNIT);
             },
         });
@@ -220,6 +274,14 @@ export class DungeonScene extends Phaser.Scene {
                 this.#stateMachine.setState(MAIN_STATES.TURN_START);
             },
         });
+
+       // PICK_FLOOR
+       this.#stateMachine.addState({
+        name: MAIN_STATES.PICK_FLOOR,
+        onEnter: () => {
+
+        },
+    });
     }
 
     /**
@@ -229,7 +291,9 @@ export class DungeonScene extends Phaser.Scene {
      */
     #attack(attacker, defender, callback) {
         attacker.attack(() => {
-            let damage = 1;
+            let damage = attacker.atk;
+
+            console.log(damage);
 
             new Popup(
                 this,
