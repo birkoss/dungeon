@@ -8,12 +8,16 @@ export class Button {
     /** @type {Phaser.GameObjects.Container} */
     #container;
 
+    #callback;
+
     /**
      * @param {Phaser.Scene} scene 
      * @param {string} label
+     * @param {() => void} [onClickCallback]
      */
     constructor(scene, label, onClickCallback) {
         this.#scene = scene;
+        this.#callback = onClickCallback;
 
         this.#container = this.#scene.add.container(0, 0);
 
@@ -24,16 +28,23 @@ export class Button {
 
         background.setInteractive();
         background.on('pointerdown', () => {
-            if (onClickCallback) {
-                onClickCallback();
+            if (this.#callback) {
+                this.#callback();
             }
         });
 
         const text = this.#scene.add.bitmapText(0, 0, UI_ASSET_KEYS.FONT, label, 32).setTint(0xfff2e8).setOrigin(0.5);
         this.#container.add(text);
-
     }
 
     /** @type {Phaser.GameObjects.Container} */
     get container() { return this.#container; }
+    get callback() { return this.#callback; }
+
+    /**
+     * @param {() => void} callback
+     */
+    set callback(callback) {
+        this.#callback = callback;
+    }
 }

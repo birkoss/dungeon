@@ -7,6 +7,8 @@ import { StateMachine } from "../state-machine.js";
 import { Unit, UNIT_AI } from "../entity/unit.js";
 import { Button } from "../ui/button.js";
 import { Popup } from "../ui/popup.js";
+import { Box } from "../ui/box.js";
+import { AttackBox } from "../ui/box/attack.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -197,6 +199,7 @@ export class DungeonScene extends Phaser.Scene {
 
                 this.#map.selectUnit(enemy);
 
+                /*
                 let originalY = this.#map.container.y + this.#map.container.getBounds().height + 40;
                
                 let button = new Button(this, "Attack", () => {
@@ -221,6 +224,27 @@ export class DungeonScene extends Phaser.Scene {
                     targets: button.container,
                     y: originalY,
                     duration: 200,
+                });
+                */
+
+                this.time.delayedCall(400, () => {
+                    let box = new AttackBox(this);
+                    box.container.x = this.game.canvas.width/2;
+                    // box.container.y = this.#map.container.y + this.#map.container.getBounds().height + 100;
+                    box.container.y = this.#map.container.y * 2 + this.#map.container.getBounds().height + box.container.getBounds().height/2;
+
+                    let button = new Button(this, "Attack", () => {
+                        this.#map.clearSelections();
+    
+                        this.#attack(unit, enemy, () => {
+                            this.#stateMachine.setState(MAIN_STATES.UNIT_DONE);
+                        });
+                        
+                    });
+
+                    box.addButton(button);
+
+                    box.show();
                 });
             },
         });
@@ -269,8 +293,6 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.TURN_END,
             onEnter: () => {
-
-                
                 this.#stateMachine.setState(MAIN_STATES.TURN_START);
             },
         });
@@ -279,7 +301,91 @@ export class DungeonScene extends Phaser.Scene {
        this.#stateMachine.addState({
         name: MAIN_STATES.PICK_FLOOR,
         onEnter: () => {
+            Phaser.Utils.Array.Shuffle(this.#floors);
 
+            let box = new AttackBox(this);
+            box.container.x = this.game.canvas.width/2;
+            // box.container.y = this.#map.container.y + this.#map.container.getBounds().height + 100;
+            box.container.y = this.#map.container.y * 2 + this.#map.container.getBounds().height + box.container.getBounds().height/2;
+
+            let buttons = [];
+
+            for (let i=0; i<this.#floors.length; i++) {
+                buttons.push({
+                    label: this.#floors[i],
+                    callback: (button) => {
+                        console.log("SELECTING FLOOR: ", i);
+                        // Put floor at i first
+                        this.#floors.unshift(this.#floors.splice(i, 1)[0]);
+
+                        this.#stateMachine.setState(MAIN_STATES.LOAD_FLOOR);
+                    },
+                    autoHide: true,
+                });
+                
+                if (i >= 1) {
+                    break;
+                }
+            }
+
+            if (this.#floors.length > 2) {
+                buttons.push({
+                    label: "10$ - Pick another floor",
+                    callback: (button) => {
+                        console.log("Pick another floor: ");
+                        console.log(button);
+                        
+                        let originalX = button.container.x;
+                        let originalY = button.container.y;
+
+                        button.container.removeAll(true);
+                        button = new Button(this, "NEWFLOOR!!", () => {
+                            //singleButton.callback(button);
+                            console.log("PICK third floor!!");
+                        });
+                        box.addButton(button);
+                        button.container.x = originalX;
+                        button.container.y = originalY;
+
+                        new Popup(
+                            this,
+                            box.container.x + button.container.x,
+                            box.container.y + button.container.y,
+                            "- 10 $",
+                            0xeb8932
+                        );
+                    },
+                    autoHide: false,
+                });
+            }
+
+            buttons.push({
+                label: "25$ - Buy new floor",
+                callback: (button) => {
+                    console.log("Buy new floor: ");
+
+                    new Popup(
+                        this,
+                        box.container.x + button.container.x,
+                        box.container.y + button.container.y,
+                        "- 25 $",
+                        0xeb8932
+                    );
+                },
+                autoHide: false,
+            });
+
+
+
+            buttons.forEach((singleButton, index) => {
+                let button = new Button(this, singleButton.label, () => {
+                    singleButton.callback(button);
+                });
+
+                box.addButton(button, singleButton.autoHide);
+            });
+
+            box.show();
         },
     });
     }
@@ -292,8 +398,6 @@ export class DungeonScene extends Phaser.Scene {
     #attack(attacker, defender, callback) {
         attacker.attack(() => {
             let damage = attacker.atk;
-
-            console.log(damage);
 
             new Popup(
                 this,
