@@ -40,46 +40,8 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     create() {
-       
         this.#createStateMachine();
-
         this.#stateMachine.setState(MAIN_STATES.CREATE_DUNGEON);
-
-
-        /*
-
-        let button = new Button(this, "Attack", () => {
-            this.add.tween({
-                targets: button.container,
-                y: this.scale.height + 60,
-                duration: 200,
-            });
-            player.attack();
-            this.time.delayedCall(400, () => {
-                enemy.takeDamage(10);
-                player.idle();
-
-                this.time.delayedCall(400, () => {
-                    enemy.attack();
-
-                    this.time.delayedCall(400, () => {
-                        player.takeDamage(10);
-                        enemy.idle();
-
-                        this.add.tween({
-                            targets: button.container,
-                            y: this.#map.container.y + this.#map.container.getBounds().height + 40,
-                            duration: 200,
-                        });
-                    });
-                });
-            });
-            
-        });
-
-        button.container.x = this.game.canvas.width/2;
-        button.container.y = this.#map.container.y + this.#map.container.getBounds().height + 40;
-        */
     }
 
     update() {
@@ -144,19 +106,25 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.LOAD_FLOOR,
             onEnter: () => {
-                let floor = this.#floors.shift();
+                console.log("Hidding map...!");
+                this.#map.hide(() => {
+                    console.log("Map hidden!");
+                    let floor = this.#floors.shift();
 
-                this.#map.loadFloor(floor, {
-                    party: this.#party,
-                });
-        
-                if (this.#map.floor === MAP_FLOOR.ENEMY || this.#map.floor === MAP_FLOOR.BOSS) {
-                    this.#map.units.forEach((singleUnit) => {
-                        singleUnit.showHealthBar();
+                    this.#map.loadFloor(floor, {
+                        party: this.#party,
                     });
-        
-                    this.#stateMachine.setState(MAIN_STATES.TURN_START);
-                }
+            
+                    if (this.#map.floor === MAP_FLOOR.ENEMY || this.#map.floor === MAP_FLOOR.BOSS) {
+                        this.#map.units.forEach((singleUnit) => {
+                            singleUnit.showHealthBar();
+                        });
+            
+                        this.#map.show(() => {
+                            this.#stateMachine.setState(MAIN_STATES.TURN_START);
+                        });
+                    }
+                });
             },
         });
 
@@ -199,17 +167,14 @@ export class DungeonScene extends Phaser.Scene {
 
                 this.#map.selectUnit(enemy);
 
-                /*
-                let originalY = this.#map.container.y + this.#map.container.getBounds().height + 40;
-               
+                
+                let box = new AttackBox(this);
+                box.container.x = this.game.canvas.width/2;
+                // box.container.y = this.#map.container.y + this.#map.container.getBounds().height + 100;
+                box.container.y = this.#map.container.y * 2 + this.#map.container.getBounds().height + box.container.getBounds().height/2;
+
                 let button = new Button(this, "Attack", () => {
                     this.#map.clearSelections();
-
-                    this.add.tween({
-                        targets: button.container,
-                        y: this.scale.height + 60,
-                        duration: 200,
-                    });
 
                     this.#attack(unit, enemy, () => {
                         this.#stateMachine.setState(MAIN_STATES.UNIT_DONE);
@@ -217,35 +182,10 @@ export class DungeonScene extends Phaser.Scene {
                     
                 });
 
-                button.container.x = this.game.canvas.width/2;
-                button.container.y = this.game.canvas.height + 60;
+                box.addButton(button);
 
-                this.add.tween({
-                    targets: button.container,
-                    y: originalY,
-                    duration: 200,
-                });
-                */
-
-                this.time.delayedCall(400, () => {
-                    let box = new AttackBox(this);
-                    box.container.x = this.game.canvas.width/2;
-                    // box.container.y = this.#map.container.y + this.#map.container.getBounds().height + 100;
-                    box.container.y = this.#map.container.y * 2 + this.#map.container.getBounds().height + box.container.getBounds().height/2;
-
-                    let button = new Button(this, "Attack", () => {
-                        this.#map.clearSelections();
-    
-                        this.#attack(unit, enemy, () => {
-                            this.#stateMachine.setState(MAIN_STATES.UNIT_DONE);
-                        });
-                        
-                    });
-
-                    box.addButton(button);
-
-                    box.show();
-                });
+                box.show();
+                
             },
         });
 

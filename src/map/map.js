@@ -24,6 +24,8 @@ export class Map {
     /** @type {number} */
     #height;
 
+    #overlay;
+
     /** @type {Entity[]} */
     #entities;
     /** @type {Unit[]} */
@@ -78,6 +80,11 @@ export class Map {
                 this.#container.add(tile.container);
             }
         }
+
+        this.#overlay = this.#scene.add.image(this.#container.getBounds().width/2, this.#container.getBounds().height/2, UI_ASSET_KEYS.BLANK).setOrigin(0.5).setTint(0x000000).setAlpha(0);
+        this.#overlay.displayWidth = this.#container.getBounds().width - 96;
+        this.#overlay.displayHeight = this.#container.getBounds().height - 96;
+        this.#container.add(this.#overlay);
     }
 
     get container() { return this.#container; }
@@ -117,7 +124,15 @@ export class Map {
     loadFloor(type, floorData) {
         this.#floor = type;
 
-        // TODO: Empty the map first
+        // Empty the map
+        this.#units.forEach((singleUnit) => {
+            singleUnit.container.removeAll(true);
+        });
+        this.#units = [];
+        this.#entities.forEach((singleEntity) => {
+            singleEntity.container.removeAll(true);
+        });
+        this.#entities = [];
 
         switch (type) {
             case MAP_FLOOR.ENEMY:
@@ -161,8 +176,31 @@ export class Map {
         this.#queue = this.#queue.filter((singleUnit) => singleUnit.isAlive);
     }
 
+    show(callback) {
+        this.#scene.add.tween({
+            targets: this.#overlay,
+            alpha: 0,
+            duration: 600,
+            onComplete: callback,
+        });
+    }
+
+    hide(callback) {
+        this.#overlay.alpha = 0;
+        this.#container.bringToTop(this.#overlay);
+        console.log(this.#overlay.alpha);
+
+        this.#scene.add.tween({
+            targets: this.#overlay,
+            alpha: 1,
+            duration: 600,
+            onComplete: callback,
+        });
+    }
+
     #placeEntity(entity) {
         this.#container.add(entity.container);
+        this.#container.bringToTop(this.#overlay);
         entity.container.x = entity.x * entity.container.getBounds().width + entity.container.getBounds().width/2;
         entity.container.y = entity.y * entity.container.getBounds().height + entity.container.getBounds().height/2;
     }
