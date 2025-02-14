@@ -14,6 +14,7 @@ export class PreloadScene extends Phaser.Scene {
         this.load.image(UI_ASSET_KEYS.BLANK, 'assets/images/blank.png');
         this.load.spritesheet(UI_ASSET_KEYS.SKILL, 'assets/tilesets/skill.png', { frameWidth: 12, frameHeight: 12 });
         this.load.spritesheet(UI_ASSET_KEYS.BUBBLE, 'assets/tilesets/bubble.png', { frameWidth: 5, frameHeight: 5 });
+        this.load.spritesheet(UI_ASSET_KEYS.BUTTON_FLOOR, 'assets/tilesets/button/floor.png', { frameWidth: 25, frameHeight: 25 });
 
         this.load.spritesheet(MAP_ASSET_KEYS.UNIT, 'assets/tilesets/unit.png', { frameWidth: 12, frameHeight: 12 });
         this.load.spritesheet(MAP_ASSET_KEYS.WORLD, 'assets/tilesets/world.png', { frameWidth: 12, frameHeight: 12 });

@@ -9,6 +9,8 @@ import { Button } from "../ui/button.js";
 import { Popup } from "../ui/popup.js";
 import { Box } from "../ui/box.js";
 import { AttackBox } from "../ui/box/attack.js";
+import { FloorBox } from "../ui/box/floor.js";
+import { FloorButton } from "../ui/button/floor.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -72,7 +74,8 @@ export class DungeonScene extends Phaser.Scene {
                 Phaser.Utils.Array.Shuffle(this.#floors);
                 
                 // Always force an enemy to be the first floor
-                this.#floors.unshift(MAP_FLOOR.ENEMY);
+                // this.#floors.unshift(MAP_FLOOR.ENEMY);
+                this.#floors.unshift(MAP_FLOOR.EMPTY);
 
                 this.#stateMachine.setState(MAIN_STATES.CREATE_PARTY);
             },
@@ -106,15 +109,20 @@ export class DungeonScene extends Phaser.Scene {
         this.#stateMachine.addState({
             name: MAIN_STATES.LOAD_FLOOR,
             onEnter: () => {
-                console.log("Hidding map...!");
                 this.#map.hide(() => {
-                    console.log("Map hidden!");
                     let floor = this.#floors.shift();
 
                     this.#map.loadFloor(floor, {
                         party: this.#party,
                     });
             
+                    if (this.#map.floor === MAP_FLOOR.EMPTY) {
+                        this.#map.show(() => {
+                            this.#stateMachine.setState(MAIN_STATES.PICK_FLOOR);
+                        });
+                        return;
+                    }
+
                     if (this.#map.floor === MAP_FLOOR.ENEMY || this.#map.floor === MAP_FLOOR.BOSS) {
                         this.#map.units.forEach((singleUnit) => {
                             singleUnit.showHealthBar();
@@ -243,7 +251,18 @@ export class DungeonScene extends Phaser.Scene {
         onEnter: () => {
             Phaser.Utils.Array.Shuffle(this.#floors);
 
-            let box = new AttackBox(this);
+            let box = new FloorBox(this, (button) => {
+                new Popup(
+                    this,
+                    box.container.x + button.container.x,
+                    box.container.y + button.container.y,
+                    "- 25 $",
+                    0xeb8932
+                );
+
+                this.#floors.push(MAP_FLOOR.ENEMY);
+                box.setText(this.#floors.length);
+            });
             box.container.x = this.game.canvas.width/2;
             // box.container.y = this.#map.container.y + this.#map.container.getBounds().height + 100;
             box.container.y = this.#map.container.y * 2 + this.#map.container.getBounds().height + box.container.getBounds().height/2;
@@ -254,13 +273,12 @@ export class DungeonScene extends Phaser.Scene {
                 buttons.push({
                     label: this.#floors[i],
                     callback: (button) => {
-                        console.log("SELECTING FLOOR: ", i);
                         // Put floor at i first
                         this.#floors.unshift(this.#floors.splice(i, 1)[0]);
 
                         this.#stateMachine.setState(MAIN_STATES.LOAD_FLOOR);
                     },
-                    autoHide: true,
+                    locked: false,
                 });
                 
                 if (i >= 1) {
@@ -270,61 +288,46 @@ export class DungeonScene extends Phaser.Scene {
 
             if (this.#floors.length > 2) {
                 buttons.push({
-                    label: "10$ - Pick another floor",
+                    label: this.#floors[2],
+                    locked: true,
                     callback: (button) => {
-                        console.log("Pick another floor: ");
-                        console.log(button);
-                        
-                        let originalX = button.container.x;
-                        let originalY = button.container.y;
+                        // Put floor at i first
+                        this.#floors.unshift(this.#floors.splice(2, 1)[0]);
 
-                        button.container.removeAll(true);
-                        button = new Button(this, "NEWFLOOR!!", () => {
-                            //singleButton.callback(button);
-                            console.log("PICK third floor!!");
-                        });
-                        box.addButton(button);
-                        button.container.x = originalX;
-                        button.container.y = originalY;
-
-                        new Popup(
-                            this,
-                            box.container.x + button.container.x,
-                            box.container.y + button.container.y,
-                            "- 10 $",
-                            0xeb8932
-                        );
+                        this.#stateMachine.setState(MAIN_STATES.LOAD_FLOOR);
                     },
-                    autoHide: false,
                 });
             }
 
-            buttons.push({
-                label: "25$ - Buy new floor",
-                callback: (button) => {
-                    console.log("Buy new floor: ");
+            // buttons.push({
+            //     label: "25$ - Buy new floor",
+            //     callback: (button) => {
+            //         console.log("Buy new floor: ");
 
-                    new Popup(
-                        this,
-                        box.container.x + button.container.x,
-                        box.container.y + button.container.y,
-                        "- 25 $",
-                        0xeb8932
-                    );
-                },
-                autoHide: false,
-            });
+            //         new Popup(
+            //             this,
+            //             box.container.x + button.container.x,
+            //             box.container.y + button.container.y,
+            //             "- 25 $",
+            //             0xeb8932
+            //         );
+            //     },
+            //     autoHide: false,
+            // });
+
+            box.addButtons(buttons);
 
 
+            // buttons.forEach((singleButton, index) => {
+            //     console.log(index);
+            //     let button = new FloorButton(this, singleButton.label, () => {
+            //         singleButton.callback(button);
+            //     });
 
-            buttons.forEach((singleButton, index) => {
-                let button = new Button(this, singleButton.label, () => {
-                    singleButton.callback(button);
-                });
+            //     box.addButton(button, singleButton.autoHide);
+            // });
 
-                box.addButton(button, singleButton.autoHide);
-            });
-
+            box.setText(this.#floors.length);
             box.show();
         },
     });

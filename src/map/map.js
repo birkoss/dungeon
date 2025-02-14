@@ -134,13 +134,13 @@ export class Map {
         });
         this.#entities = [];
 
+        floorData['party'].forEach((unitData) => {
+            let player = new Unit(this.#scene, 2, 3, UNIT_AI.PLAYER, unitData);
+            this.addUnit(player);
+        });
+
         switch (type) {
-            case MAP_FLOOR.ENEMY:
-                floorData['party'].forEach((unitData) => {
-                    let player = new Unit(this.#scene, 2, 3, UNIT_AI.PLAYER, unitData);
-                    this.addUnit(player);
-                });
-        
+            case MAP_FLOOR.ENEMY:        
                 let unitData = Data.getUnit(this.#scene, 'skeleton_warrior');
                 let enemy = new Unit(this.#scene, 4, 3, UNIT_AI.AI, unitData);
                 enemy.face('Left');
@@ -176,6 +176,9 @@ export class Map {
         this.#queue = this.#queue.filter((singleUnit) => singleUnit.isAlive);
     }
 
+    /**
+     * @param {() => void} [callback] 
+     */
     show(callback) {
         this.#scene.add.tween({
             targets: this.#overlay,
@@ -185,6 +188,9 @@ export class Map {
         });
     }
 
+    /**
+     * @param {() => void} [callback] 
+     */
     hide(callback) {
         this.#overlay.alpha = 0;
         this.#container.bringToTop(this.#overlay);
@@ -198,9 +204,13 @@ export class Map {
         });
     }
 
+    /**
+     * @param {Entity} entity 
+     */
     #placeEntity(entity) {
         this.#container.add(entity.container);
         this.#container.bringToTop(this.#overlay);
+
         entity.container.x = entity.x * entity.container.getBounds().width + entity.container.getBounds().width/2;
         entity.container.y = entity.y * entity.container.getBounds().height + entity.container.getBounds().height/2;
     }

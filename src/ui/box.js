@@ -16,9 +16,9 @@ export class Box {
 
         this._container = this._scene.add.container(0, 0);
 
-        let background = this._scene.add.image(0, 0, UI_ASSET_KEYS.BLANK).setOrigin(0.5).setTint(0x000000);
+        let background = this._scene.add.image(0, 0, UI_ASSET_KEYS.BLANK).setOrigin(0.5).setTint(0x854302);
         background.displayWidth = this._scene.game.canvas.width - 60;
-        background.displayHeight = 300;
+        background.displayHeight = 250;
         this._container.add(background);
     }
 

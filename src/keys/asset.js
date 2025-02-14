@@ -3,6 +3,7 @@ export const UI_ASSET_KEYS = Object.freeze({
     FONT: 'DUNGEON_ASSET_KEYS.FONT',
     SKILL: 'UI_ASSET_KEYS.SKILL',
     BUBBLE: 'UI_ASSET_KEYS.BUBBLE',
+    BUTTON_FLOOR: 'UI_ASSET_KEYS.BUTTON_FLOOR',
 });
 
 export const DUNGEON_ASSET_KEYS = Object.freeze({

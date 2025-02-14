@@ -21,19 +21,27 @@ export class Button {
 
         this.#container = this.#scene.add.container(0, 0);
 
-        const background = this.#scene.add.image(0, 0, UI_ASSET_KEYS.BLANK).setOrigin(0.5).setTint(0xff00ff);
-        background.displayWidth = this.#scene.game.canvas.width - 60 ;
+        const background = this.#scene.add.image(0, 0, UI_ASSET_KEYS.BLANK).setOrigin(0.5).setTint(0xbb7f20);
+        background.displayWidth = this.#scene.game.canvas.width - 76;
         background.displayHeight = 60;
         this.#container.add(background);
 
         background.setInteractive();
         background.on('pointerdown', () => {
+            background.setTint(0xe09624);
+        });
+
+        background.on('pointerup', () => {
             if (this.#callback) {
                 this.#callback();
             }
         });
 
-        const text = this.#scene.add.bitmapText(0, 0, UI_ASSET_KEYS.FONT, label, 32).setTint(0xfff2e8).setOrigin(0.5);
+        this.#scene.input.on('pointerup', (target) => {
+            background.setTint(0xbb7f20);
+        });
+
+        const text = this.#scene.add.bitmapText(0, -4, UI_ASSET_KEYS.FONT, label, 32).setTint(0x6a3404).setOrigin(0.5);
         this.#container.add(text);
     }
 
