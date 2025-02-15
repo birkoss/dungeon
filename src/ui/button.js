@@ -4,69 +4,89 @@ import { UI_ASSET_KEYS } from "../keys/asset.js";
 
 export class Button {
     /** @type {Phaser.Scene} */
-    #scene;
+    _scene;
+
     /** @type {Phaser.GameObjects.Container} */
-    #container;
-
-    #callback;
-
+    _container;
     /** @type {Boolean} */
     #selected;
 
     /**
      * @param {Phaser.Scene} scene 
-     * @param {string} label
-     * @param {() => void} [onClickCallback]
      */
-    constructor(scene, label, onClickCallback) {
-        this.#scene = scene;
-        this.#callback = onClickCallback;
+    constructor(scene) {
+        this._scene = scene;
 
-        this.#container = this.#scene.add.container(0, 0);
+        this._container = this._scene.add.container(0, 0);
 
         this.#selected = false;
-
-        const background = this.#scene.add.image(0, 0, UI_ASSET_KEYS.BLANK).setOrigin(0.5).setTint(0xbb7f20);
-        background.displayWidth = this.#scene.game.canvas.width - 76;
-        background.displayHeight = 60;
-        this.#container.add(background);
-
-        background.setInteractive();
-        background.on('pointerdown', () => {
-            background.setTint(0xe09624);
-            this.#selected = true;
-        });
-
-        background.on('pointerup', () => {
-            console.log("BACKGROUND...");
-            if (!this.#selected) {
-                return;
-            }
-
-            this.#selected = false;
-            if (this.#callback) {
-                this.#callback();
-            }
-        });
-
-        this.#scene.input.on('pointerup', (target) => {
-            console.log("SCENE...");
-            background.setTint(0xbb7f20);
-            this.#selected = false;
-        });
-
-        const text = this.#scene.add.bitmapText(0, -4, UI_ASSET_KEYS.FONT, label, 32).setTint(0x6a3404).setOrigin(0.5);
-        this.#container.add(text);
     }
 
     /** @type {Phaser.GameObjects.Container} */
-    get container() { return this.#container; }
-    get callback() { return this.#callback; }
+    get container() { return this._container; }
 
     /**
-     * @param {() => void} callback
+     * @param {() => void} [onPressCallback]
+     * @param {() => void} [onReleaseCallback]
+     * @param {() => void} [onClickedCallback]
      */
-    set callback(callback) {
-        this.#callback = callback;
+    enableInteraction(onPressCallback, onReleaseCallback, onClickedCallback) {
+        this._container.setInteractive(
+            new Phaser.Geom.Rectangle(
+                -this._container.getBounds().width/2, -this._container.getBounds().height/2, this._container.getBounds().width, this._container.getBounds().height
+            ),
+            Phaser.Geom.Rectangle.Contains
+        );
+
+        this._container.on('pointerdown', () => {
+            this.#selected = true;
+            if (onPressCallback) {
+                onPressCallback();
+            }
+        });
+
+        this._container.on('pointerup', () => {
+            if (!this.#selected) {
+                return;
+            }
+            this.#selected = false;
+            if (onReleaseCallback) {
+                onReleaseCallback();
+            }
+            if (onClickedCallback) {
+                onClickedCallback();
+            }
+        });
+
+        this._scene.input.on('pointerup', (target) => {
+            this.#selected = false;
+            if (onReleaseCallback) {
+                onReleaseCallback();
+            }
+        });
+    }
+
+    /**
+     * @param {() => void} [callback] 
+     */
+    hide(callback) {
+        this._scene.add.tween({
+            targets: this._container,
+            alpha: 0,
+            duration: 200,
+            onComplete: callback,
+        });
+    }
+
+    /**
+     * @param {() => void} [callback] 
+     */
+    show(callback) {
+        this._scene.add.tween({
+            targets: this._container,
+            alpha: 1,
+            duration: 200,
+            onComplete: callback,
+        });
     }
 }

@@ -1,7 +1,7 @@
 import Phaser from "../../lib/phaser.js";
 
 import { Box } from "../box.js";
-import { Button } from "../button.js";
+import { AttackButton } from "../button/attack.js";
 
 export class AttackBox extends Box {
     #buttons;
@@ -16,11 +16,10 @@ export class AttackBox extends Box {
     }
 
     /**
-     * @param {Button} button 
+     * @param {AttackButton} button 
      * @param {boolean} [lastAction=true] 
      */
     addButton(button, lastAction = true) {
-
         if (lastAction) {
             let existingCallback = button.callback;
             button.callback = () => {

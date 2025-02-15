@@ -5,12 +5,10 @@ import { Map, MAP_FLOOR } from "../map/map.js";
 import { Data } from "../utils/data.js";
 import { StateMachine } from "../state-machine.js";
 import { Unit, UNIT_AI } from "../entity/unit.js";
-import { Button } from "../ui/button.js";
 import { Popup } from "../ui/popup.js";
-import { Box } from "../ui/box.js";
 import { AttackBox } from "../ui/box/attack.js";
 import { FloorBox } from "../ui/box/floor.js";
-import { FloorButton } from "../ui/button/floor.js";
+import { AttackButton } from "../ui/button/attack.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -181,7 +179,7 @@ export class DungeonScene extends Phaser.Scene {
                 // box.container.y = this.#map.container.y + this.#map.container.getBounds().height + 100;
                 box.container.y = this.#map.container.y * 2 + this.#map.container.getBounds().height + box.container.getBounds().height/2;
 
-                let button = new Button(this, "Attack", () => {
+                let button = new AttackButton(this, "Attack", () => {
                     this.#map.clearSelections();
 
                     this.#attack(unit, enemy, () => {
