@@ -1,7 +1,7 @@
 import Phaser from "../../lib/phaser.js";
 
 import { Box } from "../box.js";
-import { AttackButton } from "../button/attack.js";
+import { ActionButton } from "../button/action.js";
 
 export class AttackBox extends Box {
     #buttons;
@@ -16,7 +16,7 @@ export class AttackBox extends Box {
     }
 
     /**
-     * @param {AttackButton} button 
+     * @param {ActionButton} button 
      * @param {boolean} [lastAction=true] 
      */
     addButton(button, lastAction = true) {
@@ -29,7 +29,7 @@ export class AttackBox extends Box {
 
         button.container.y = -this.container.getBounds().height / 2 + button.container.getBounds().height/2; 
 
-        button.container.y += this.#buttons.length * (button.container.getBounds().height + 20);
+        button.container.y += this.#buttons.length * (button.container.getBounds().height + 8) + 8;
 
         this.#buttons.push(button);
         this.container.add(button.container);

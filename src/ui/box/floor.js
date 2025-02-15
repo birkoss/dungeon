@@ -3,6 +3,7 @@ import Phaser from "../../lib/phaser.js";
 
 import { Box } from "../box.js";
 import { Button } from "../button.js";
+import { ActionButton } from "../button/action.js";
 import { AttackButton } from "../button/attack.js";
 import { FloorButton } from "../button/floor.js";
 import { Popup } from "../popup.js";
@@ -25,7 +26,7 @@ export class FloorBox extends Box {
         this.#text.y = this.container.getBounds().height / 2 - 76;
         this.container.add(this.#text);
 
-        let button = new AttackButton(this._scene, "Buy a new floor", () => {
+        let button = new ActionButton(this._scene, 228, "Buy a new floor", "A new floor will be added to your list to be picked in future turn.", () => {
             buyCardCallback(button);
         });
         button.container.y = this.container.getBounds().height/2 - button.container.getBounds().height/2 - 8 ;

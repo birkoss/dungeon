@@ -9,6 +9,7 @@ import { Popup } from "../ui/popup.js";
 import { AttackBox } from "../ui/box/attack.js";
 import { FloorBox } from "../ui/box/floor.js";
 import { AttackButton } from "../ui/button/attack.js";
+import { ActionButton } from "../ui/button/action.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -72,8 +73,8 @@ export class DungeonScene extends Phaser.Scene {
                 Phaser.Utils.Array.Shuffle(this.#floors);
                 
                 // Always force an enemy to be the first floor
-                // this.#floors.unshift(MAP_FLOOR.ENEMY);
-                this.#floors.unshift(MAP_FLOOR.EMPTY);
+                // TODO: test another floor this.#floors.unshift(MAP_FLOOR.EMPTY);
+                this.#floors.unshift(MAP_FLOOR.ENEMY);
 
                 this.#stateMachine.setState(MAIN_STATES.CREATE_PARTY);
             },
@@ -179,16 +180,22 @@ export class DungeonScene extends Phaser.Scene {
                 // box.container.y = this.#map.container.y + this.#map.container.getBounds().height + 100;
                 box.container.y = this.#map.container.y * 2 + this.#map.container.getBounds().height + box.container.getBounds().height/2;
 
-                let button = new AttackButton(this, "Attack", () => {
+                box.addButton(new ActionButton(this, 187, "Basic Attack", "Basic attack will deals 2 damage to selected unit", () => {
                     this.#map.clearSelections();
 
                     this.#attack(unit, enemy, () => {
                         this.#stateMachine.setState(MAIN_STATES.UNIT_DONE);
                     });
                     
-                });
+                }));
 
-                box.addButton(button);
+                box.addButton(new ActionButton(this, 197, "Use a Potion", "Potion will heal the current unit for 2 HP", () => {
+                    // ...
+                }));
+
+                box.addButton(new ActionButton(this, 214, "Slash", "Slash will deals 1 damage to all enemies", () => {
+                    // ...
+                }));
 
                 box.show();
                 
