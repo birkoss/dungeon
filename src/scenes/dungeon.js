@@ -250,13 +250,14 @@ export class DungeonScene extends Phaser.Scene {
             Phaser.Utils.Array.Shuffle(this.#floors);
 
             let box = new FloorBox(this, (button) => {
-                new Popup(
+                const popup = new Popup(
                     this,
                     box.container.x + button.container.x,
                     box.container.y + button.container.y,
                     "- 25 $",
                     0xeb8932
                 );
+                popup.text.setScale(2);
 
                 this.#floors.push(MAP_FLOOR.ENEMY);
                 box.setText(this.#floors.length);
