@@ -38,6 +38,7 @@ export class Button {
         });
 
         background.on('pointerup', () => {
+            console.log("BACKGROUND...");
             if (!this.#selected) {
                 return;
             }
@@ -49,6 +50,7 @@ export class Button {
         });
 
         this.#scene.input.on('pointerup', (target) => {
+            console.log("SCENE...");
             background.setTint(0xbb7f20);
             this.#selected = false;
         });

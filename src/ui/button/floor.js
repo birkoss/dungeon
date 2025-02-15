@@ -88,15 +88,10 @@ export class FloorButton {
 
     /** @type {Phaser.GameObjects.Container} */
     get container() { return this.#container; }
-    get callback() { return this.#callback; }
 
     /**
-     * @param {() => void} callback
+     * @param {() => void} [callback] 
      */
-    set callback(callback) {
-        this.#callback = callback;
-    }
-
     hide(callback) {
         this.#scene.add.tween({
             targets: this.#container,
@@ -106,6 +101,9 @@ export class FloorButton {
         });
     }
 
+    /**
+     * @param {() => void} [callback] 
+     */
     show(callback) {
         this.#scene.add.tween({
             targets: this.#container,
