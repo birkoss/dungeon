@@ -17,6 +17,8 @@ export class FloorButton {
     #container;
     /** @type {Phaser.GameObjects.BitmapText} */
     #text;
+    /** @type {boolean} */
+    #selected;
     
     /**
      * @param {Phaser.Scene} scene 
@@ -29,6 +31,8 @@ export class FloorButton {
         this.#isLocked = isLocked;
         this.#callback = onClickCallback;
 
+        this.#selected = false;
+
         this.#container = this.#scene.add.container(0, 0);
 
         const filling = this.#scene.add.image(0, 0, UI_ASSET_KEYS.BLANK).setOrigin(0.5).setTint(0x4e1906);
@@ -40,13 +44,21 @@ export class FloorButton {
 
         this.#scene.input.on('pointerup', (target) => {
             background.setTint(0xe09624);
+            this.#selected = false;
         });
 
         background.setInteractive();
         background.on('pointerdown', () => {
             background.setTint(0xe2a94d);
+            this.#selected = true;
         });
         background.on('pointerup', () => {
+            if (!this.#selected) {
+                return;
+            }
+
+            this.#selected = false;
+
             if (this.#isLocked) {
                 this.hide(() => {
                     console.log(this.container.x, this.container.y);
