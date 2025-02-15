@@ -58,8 +58,6 @@ export class FloorBox extends Box {
         button.container.x = -this.container.getBounds().width / 2 + button.container.getBounds().width/2 + padding*2; 
         button.container.x += this.#buttons.length * (button.container.getBounds().width + spacing - padding);
 
-        console.log(button.container.x, button.container.y, button.container.getBounds().width, button.container.getBounds().height);
-
         this.#buttons.push(button);
         this.container.add(button.container);
     }

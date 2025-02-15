@@ -194,7 +194,6 @@ export class Map {
     hide(callback) {
         this.#overlay.alpha = 0;
         this.#container.bringToTop(this.#overlay);
-        console.log(this.#overlay.alpha);
 
         this.#scene.add.tween({
             targets: this.#overlay,
