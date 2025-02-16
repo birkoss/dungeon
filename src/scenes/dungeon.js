@@ -10,6 +10,7 @@ import { AttackBox } from "../ui/box/attack.js";
 import { FloorBox } from "../ui/box/floor.js";
 import { ActionButton } from "../ui/button/action.js";
 import { Banner } from "../ui/banner.js";
+import { MessageBox } from "../ui/box/message.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -21,6 +22,7 @@ const MAIN_STATES = Object.freeze({
     UNIT_DONE: 'UNIT_DONE',
     TURN_END: 'TURN_END',
     PICK_FLOOR: 'PICK_FLOOR',
+    PICK_NEW_UNIT: 'PICK_NEW_UNIT',
 });
 
 export class DungeonScene extends Phaser.Scene {
@@ -74,8 +76,9 @@ export class DungeonScene extends Phaser.Scene {
                 
                 // Always force an enemy to be the first floor
                 // TODO: test another floor
-                this.#floors.unshift(MAP_FLOOR.EMPTY);
-                // this.#floors.unshift(MAP_FLOOR.ENEMY);
+                // this.#floors.unshift(MAP_FLOOR.EMPTY);
+                // this.#floors.unshift(MAP_FLOOR.TAVERN);
+                this.#floors.unshift(MAP_FLOOR.ENEMY);
 
                 this.#stateMachine.setState(MAIN_STATES.CREATE_PARTY);
             },
@@ -87,6 +90,7 @@ export class DungeonScene extends Phaser.Scene {
             onEnter: () => {
                 this.#party = [
                     Data.getUnit(this, 'warrior'),
+                    Data.getUnit(this, 'archer'),
                 ];
 
                 this.#stateMachine.setState(MAIN_STATES.CREATE_MAP);
@@ -119,6 +123,13 @@ export class DungeonScene extends Phaser.Scene {
                     if (this.#map.floor === MAP_FLOOR.EMPTY) {
                         this.#map.show(() => {
                             this.#stateMachine.setState(MAIN_STATES.PICK_FLOOR);
+                        });
+                        return;
+                    }
+
+                    if (this.#map.floor === MAP_FLOOR.TAVERN) {
+                        this.#map.show(() => {
+                            this.#stateMachine.setState(MAIN_STATES.PICK_NEW_UNIT);
                         });
                         return;
                     }
@@ -181,14 +192,25 @@ export class DungeonScene extends Phaser.Scene {
                 // box.container.y = this.#map.container.y + this.#map.container.getBounds().height + 100;
                 box.container.y = this.#map.container.y * 2 + this.#map.container.getBounds().height + box.container.getBounds().height/2;
 
-                box.addButton(new ActionButton(this, 187, "Basic Attack", "Basic attack will deals 2 damage to selected unit", () => {
-                    this.#map.clearSelections();
-
-                    this.#attack(unit, enemy, () => {
-                        this.#stateMachine.setState(MAIN_STATES.UNIT_DONE);
-                    });
-                    
-                }));
+                if (unit.data.id === "archer") {
+                    box.addButton(new ActionButton(this, 193, "Shoot an arrow", "An arrow will deals 2 damage to selected unit", () => {
+                        this.#map.clearSelections();
+    
+                        this.#attack(unit, enemy, () => {
+                            this.#stateMachine.setState(MAIN_STATES.UNIT_DONE);
+                        });
+                        
+                    }));
+                } else {
+                    box.addButton(new ActionButton(this, 187, "Basic Attack", "Basic attack will deals 2 damage to selected unit", () => {
+                        this.#map.clearSelections();
+    
+                        this.#attack(unit, enemy, () => {
+                            this.#stateMachine.setState(MAIN_STATES.UNIT_DONE);
+                        });
+                        
+                    }));
+                }
 
                 box.addButton(new ActionButton(this, 197, "Use a Potion", "Potion will heal the current unit for 2 HP", () => {
                     // ...
@@ -341,7 +363,27 @@ export class DungeonScene extends Phaser.Scene {
             box.setText(this.#floors.length);
             box.show();
         },
-    });
+        });
+
+       // PICK_NEW_UNIT
+       this.#stateMachine.addState({
+        name: MAIN_STATES.PICK_NEW_UNIT,
+        onEnter: () => {
+            Phaser.Utils.Array.Shuffle(this.#floors);
+
+            this.#party.push(Data.getUnit(this, 'archer'));
+
+            let box = new MessageBox(this, "A new friend!", "An archer has accepted to help you in your quest!", (button) => {
+                box.hide(() => {
+                    this.#stateMachine.setState(MAIN_STATES.PICK_FLOOR);
+                });
+            });
+            box.container.x = this.game.canvas.width/2;
+            box.container.y = this.#map.container.y * 2 + this.#map.container.getBounds().height + box.container.getBounds().height/2;
+
+            box.show();
+        },
+        });
     }
 
     /**

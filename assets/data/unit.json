@@ -4,9 +4,18 @@
         "name": "Warrior",
         "stats": {
             "hp": 3,
-            "atk": 100
+            "atk": 1
         },
         "assetFrameIndex": 240
+    },
+    {
+        "id": "archer",
+        "name": "Archer",
+        "stats": {
+            "hp": 2,
+            "atk": 1
+        },
+        "assetFrameIndex": 192
     },
     {
         "id": "skeleton",

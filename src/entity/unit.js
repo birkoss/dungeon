@@ -6,7 +6,7 @@ export const UNIT_AI = Object.freeze({
     AI: 'AI',
 });
 
-export class Unit extends Entity{
+export class Unit extends Entity {
     /** @type {Phaser.GameObjects.Sprite} */
     #unit;
     /** @type {Phaser.GameObjects.Sprite} */
@@ -42,6 +42,7 @@ export class Unit extends Entity{
 
     get ai() { return this.#ai; }
     get atk() { return this.#atk; }
+    get data() { return this.#data; }
     get unit() { return this.#unit; }
     get isAlive() { return this.#hp > 0; }
 

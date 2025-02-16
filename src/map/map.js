@@ -134,19 +134,55 @@ export class Map {
         });
         this.#entities = [];
 
-        floorData['party'].forEach((unitData) => {
-            let player = new Unit(this.#scene, 2, 3, UNIT_AI.PLAYER, unitData);
+        let partyPositions = [
+            [2, 3],
+            [2, 4],
+            [2, 2],
+        ]
+
+        floorData['party'].forEach((unitData, index) => {
+            let player = new Unit(this.#scene, partyPositions[index][0], partyPositions[index][1], UNIT_AI.PLAYER, unitData);
             this.addUnit(player);
         });
 
+        let entity;
+        let unitData;
+        let unit;
+
         switch (type) {
+            case MAP_FLOOR.TAVERN:
+                entity = new Entity(this.#scene, 4, 3, ENTITY_TYPE.SMALL_DECORATION);
+                entity.create(MAP_ASSET_KEYS.WORLD, 163);
+                this.addEntity(entity);
+
+                entity = new Entity(this.#scene, 5, 3, ENTITY_TYPE.SMALL_DECORATION);
+                entity.create(MAP_ASSET_KEYS.WORLD, 161);
+                this.addEntity(entity);
+
+                entity = new Entity(this.#scene, 4, 2, ENTITY_TYPE.SMALL_DECORATION);
+                entity.create(MAP_ASSET_KEYS.WORLD, 162);
+                this.addEntity(entity);
+
+                entity = new Entity(this.#scene, 1, 1, ENTITY_TYPE.SMALL_DECORATION);
+                entity.create(MAP_ASSET_KEYS.WORLD, 164);
+                this.addEntity(entity);
+
+                entity = new Entity(this.#scene, 5, 1, ENTITY_TYPE.SMALL_DECORATION);
+                entity.create(MAP_ASSET_KEYS.WORLD, 164);
+                this.addEntity(entity);
+
+                unitData = Data.getUnit(this.#scene, 'archer');
+                unit = new Unit(this.#scene, 4, 4, UNIT_AI.PLAYER, unitData);
+                unit.face('Left');
+                this.addUnit(unit);
+                break;
             case MAP_FLOOR.ENEMY:        
-                let unitData = Data.getUnit(this.#scene, 'skeleton_warrior');
-                let enemy = new Unit(this.#scene, 4, 3, UNIT_AI.AI, unitData);
-                enemy.face('Left');
-                this.addUnit(enemy);
+                unitData = Data.getUnit(this.#scene, 'skeleton_warrior');
+                unit = new Unit(this.#scene, 4, 3, UNIT_AI.AI, unitData);
+                unit.face('Left');
+                this.addUnit(unit);
         
-                let entity = new Entity(this.#scene, 3, 2, ENTITY_TYPE.DECORATION);
+                entity = new Entity(this.#scene, 3, 2, ENTITY_TYPE.DECORATION);
                 entity.create(MAP_ASSET_KEYS.WORLD, 178);
                 this.addEntity(entity);
                 
