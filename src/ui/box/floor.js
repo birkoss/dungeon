@@ -22,8 +22,8 @@ export class FloorBox extends Box {
 
         this.#buttons = [];
 
-        this.#text = scene.add.bitmapText(0, 0, UI_ASSET_KEYS.FONT, "10 floors remaining", 32).setTint(0xfff2e8).setOrigin(0.5, 1);
-        this.#text.y = this.container.getBounds().height / 2 - 76;
+        this.#text = scene.add.bitmapText(0, 0, UI_ASSET_KEYS.FONT6, "10 floors remaining", 12).setTint(0xfff2e8).setOrigin(0.5, 1);
+        this.#text.y = this.container.getBounds().height / 2 - 86;
         this.container.add(this.#text);
 
         let button = new ActionButton(this._scene, 228, "Buy a new floor", "A new floor will be added to your list to be picked in future turn.", () => {

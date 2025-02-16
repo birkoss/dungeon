@@ -35,7 +35,7 @@ export class FloorButton extends Button {
         filling.displayHeight = background.displayHeight;
         this._container.add(background);
 
-        this.#text = this._scene.add.bitmapText(0, background.displayHeight/2 - 1, UI_ASSET_KEYS.FONT, (this.#isLocked ? "LOCKED" : label), 32).setTint(0xfff2e8).setOrigin(0.5, 1);
+        this.#text = this._scene.add.bitmapText(0, background.displayHeight/2 - 15, UI_ASSET_KEYS.FONT6, (this.#isLocked ? "LOCKED" : label), 12).setTint(0xfff2e8).setOrigin(0.5, 1);
         this._container.add(this.#text);
 
         this.enableInteraction(() => {

@@ -28,7 +28,7 @@ export class ActionButton extends Button {
         let text = this._scene.add.bitmapText(-97, -28, UI_ASSET_KEYS.FONT6, label, 12).setTint(0x6a3404).setOrigin(0);
         this._container.add(text);
 
-        text = this._scene.add.bitmapText(-97, 0, UI_ASSET_KEYS.FONT6, description, 6).setTint(0x6a3404).setOrigin(0).setAlpha(0.5);
+        text = this._scene.add.bitmapText(-97, 0, UI_ASSET_KEYS.FONT6, description, 6).setTint(0x6a3404).setOrigin(0).setAlpha(1);
         text.setMaxWidth(250);
         text.setLineSpacing(5);
         this._container.add(text);

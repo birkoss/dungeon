@@ -73,8 +73,9 @@ export class DungeonScene extends Phaser.Scene {
                 Phaser.Utils.Array.Shuffle(this.#floors);
                 
                 // Always force an enemy to be the first floor
-                // TODO: test another floor this.#floors.unshift(MAP_FLOOR.EMPTY);
-                this.#floors.unshift(MAP_FLOOR.ENEMY);
+                // TODO: test another floor
+                this.#floors.unshift(MAP_FLOOR.EMPTY);
+                // this.#floors.unshift(MAP_FLOOR.ENEMY);
 
                 this.#stateMachine.setState(MAIN_STATES.CREATE_PARTY);
             },
