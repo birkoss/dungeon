@@ -8,8 +8,8 @@ import { Unit, UNIT_AI } from "../entity/unit.js";
 import { Popup } from "../ui/popup.js";
 import { AttackBox } from "../ui/box/attack.js";
 import { FloorBox } from "../ui/box/floor.js";
-import { AttackButton } from "../ui/button/attack.js";
 import { ActionButton } from "../ui/button/action.js";
+import { Banner } from "../ui/banner.js";
 
 const MAIN_STATES = Object.freeze({
     CREATE_DUNGEON: 'CREATE_DUNGEON',
@@ -233,7 +233,11 @@ export class DungeonScene extends Phaser.Scene {
                             0x00ff00
                         );
 
-                        this.#stateMachine.setState(MAIN_STATES.PICK_FLOOR);
+                        let banner = new Banner(this, "Victory!");
+                        banner.container.y = this.#map.container.y + this.#map.container.getBounds().height/2;  
+                        banner.show(() => {
+                            this.#stateMachine.setState(MAIN_STATES.PICK_FLOOR);
+                        });
                     });
                     return;
                 }
