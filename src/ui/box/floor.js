@@ -18,13 +18,17 @@ export class FloorBox extends Box {
      * @param {(button) => void} [buyCardCallback]
      */
     constructor(scene, buyCardCallback) {
-        super(scene);
+        super(scene, 300, "Where to go next?");
 
         this.#buttons = [];
 
         this.#text = scene.add.bitmapText(0, 0, UI_ASSET_KEYS.FONT6, "10 floors remaining", 12).setTint(0xfff2e8).setOrigin(0.5, 1);
-        this.#text.y = this.container.getBounds().height / 2 - 86;
+        this.#text.y = this.container.getBounds().height / 2 - 136;
         this.container.add(this.#text);
+
+        let text = scene.add.bitmapText(0, 0, UI_ASSET_KEYS.FONT6, " - OR -", 12).setTint(0x4e1906).setOrigin(0.5, 1);
+        text.y = this.container.getBounds().height / 2 - 98;
+        this.container.add(text);
 
         let button = new ActionButton(this._scene, 228, "Buy a new floor", "A new floor will be added to your list to be picked in future turn.", () => {
             buyCardCallback(button);
@@ -55,7 +59,7 @@ export class FloorBox extends Box {
         let padding = 4;
 
         let spacing = (this.container.getBounds().width - padding*2 - 3 * button.container.getBounds().width) / 2;
-        button.container.y = -this.container.getBounds().height / 2 + button.container.getBounds().height/2 + padding*2; 
+        button.container.y = -this.container.getBounds().height / 2 + button.container.getBounds().height/2 + padding*2 + this._titleContainer.getBounds().height; 
         button.container.x = -this.container.getBounds().width / 2 + button.container.getBounds().width/2 + padding*2; 
         button.container.x += this.#buttons.length * (button.container.getBounds().width + spacing - padding);
 
